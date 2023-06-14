@@ -16,6 +16,7 @@
     "jsx": "preserve",
     "incremental": true,
     "noUncheckedIndexedAccess": true,
+    "experimentalDecorators": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
