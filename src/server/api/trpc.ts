@@ -13,36 +13,10 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 import { connectDB } from "@/server/lib/mongoose";
 import { User } from "@/server/models/user.model";
-import UserModel from "@/server/models/user.model";
+import { UserModel } from "@/server/models/user.model";
 import { Cookie } from "next-cookie";
 import * as jwt from "@/server/lib/jwt";
 import { Role } from "@/utils/types/user";
-
-/**
- * 1. CONTEXT
- *
- * This section defines the "contexts" that are available in the backend API.
- *
- * These allow you to access things when processing a request, like the database, the session, etc.
- */
-
-type CreateContextOptions = {
-  session: Session | null;
-};
-
-/**
- * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
- * it from here.
- *
- * Examples of things you may need it for:
- * - testing, so we don't have to mock Next.js' req/res
- * - tRPC's `createSSGHelpers`, where we don't have req/res
- *
- * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
- */
-const createInnerTRPCContext = () => {
-  return {};
-};
 
 /**
  * This is the actual context you will use in your router. It will be used to process every request
@@ -119,8 +93,7 @@ export const parseCookie = t.middleware(async ({ ctx, next }) => {
 
   if (!user) return next();
 
-  // ctx.user = user;
-  console.log("parsed cookie");
+  ctx.user = user;
 
   return next({ ctx });
 });
@@ -152,8 +125,7 @@ const protectRoute = t.middleware(async ({ ctx, next }) => {
 //   });
 // });
 
-export const publicProcedure = t.procedure;
-// .use(parseCookie);
+export const publicProcedure = t.procedure.use(parseCookie);
 /**
  * Protected (authenticated) procedure
  *
