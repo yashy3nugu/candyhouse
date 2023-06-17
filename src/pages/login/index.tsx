@@ -16,7 +16,19 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-const Home: NextPage = () => {
+import { api } from "@/utils/api";
+
+
+const Login: NextPage = () => {
+
+  const { mutate, isLoading } = api.auth.login.useMutation({
+    onSuccess() {
+      alert("logged in");
+    },
+    onError() {
+      alert("not logged in");
+    },
+  });
   return (
     <>
       <Head>
@@ -56,14 +68,26 @@ const Home: NextPage = () => {
                   email: "",
                   password: "",
                 }}
-                onSubmit={() => {
-                  console.log();
+                onSubmit={(values) => {
+                  mutate({
+                    ...values
+                  })
                 }}
               >
                 {({ isSubmitting, isValid, dirty }) => (
                   <Form>
-                    <Field as={Input} name="email" type="email" />
-                    <Field as={Input} name="password" type="password" />
+                    <Field
+                      as={Input}
+                      name="email"
+                      type="email"
+                      placeholder="Email"
+                    />
+                    <Field
+                      as={Input}
+                      name="password"
+                      type="password"
+                      placeholder="Password"
+                    />
                     <Button type="submit">Login</Button>
                   </Form>
                 )}
@@ -76,4 +100,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Login;

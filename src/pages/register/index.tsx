@@ -18,7 +18,7 @@ import {
 
 import { api } from "@/utils/api";
 
-const Home: NextPage = () => {
+const Register: NextPage = () => {
   const { mutate, isLoading } = api.auth.register.useMutation({
     onSuccess() {
       alert("created");
@@ -98,4 +98,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Register;
