@@ -8,6 +8,7 @@ import {
 } from "@typegoose/typegoose";
 import { Role } from "@/utils/types/user";
 import bcrypt from "bcryptjs";
+import { Photo } from "./photo.model";
 
 @modelOptions({
   schemaOptions: {
@@ -63,6 +64,11 @@ export class User {
     type: String,
   })
   role!: string;
+
+  @prop({
+    type: Photo,
+  })
+  photo?: Photo;
 
   readonly createdAt?: Date;
 
