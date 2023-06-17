@@ -18,6 +18,7 @@ export class OrderItem {
   @Property({
     trim: true,
     required: [true, "order item must have a valid name"],
+    type: String
   })
   name!: string;
 
@@ -30,6 +31,7 @@ export class OrderItem {
 
   @Property({
     required: [true, "order item must have a valid price"],
+    type: Number
   })
   price!: number;
 
@@ -56,6 +58,7 @@ export class Order {
   @Property({
     enum: Status,
     default: Status.Pending,
+    type: String
   })
   status!: string;
 
@@ -64,7 +67,9 @@ export class Order {
   })
   items!: OrderItem[];
 
-  @Property()
+  @Property({
+    type: Number
+  })
   price!: number;
 
   readonly createdAt!: Date;

@@ -126,7 +126,7 @@ const vendorRoute = t.middleware(async ({ ctx, next }) => {
 });
 
 export const publicProcedure = t.procedure.use(parseCookie);
-export const vendorProcedure = t.procedure.use(vendorRoute);
+export const vendorProcedure = t.procedure.use(parseCookie).use(vendorRoute);
 /**
  * Protected (authenticated) procedure
  *
