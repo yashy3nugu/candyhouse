@@ -110,22 +110,23 @@ const protectRoute = t.middleware(async ({ ctx, next }) => {
   });
 });
 
-// const adminRoute = t.middleware(async ({ ctx, next }) => {
-//   if (ctx.user?.role !== Role.Admin) {
-//     throw new TRPCError({
-//       code: "FORBIDDEN",
-//       message: "You are not authorized to perform this action",
-//     });
-//   }
+const vendorRoute = t.middleware(async ({ ctx, next }) => {
+  if (ctx.user?.role !== Role.Vendor) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You are not authorized to perform this action",
+    });
+  }
 
-//   return next({
-//     ctx: {
-//       user: ctx.user,
-//     },
-//   });
-// });
+  return next({
+    ctx: {
+      user: ctx.user,
+    },
+  });
+});
 
 export const publicProcedure = t.procedure.use(parseCookie);
+export const vendorProcedure = t.procedure.use(vendorRoute);
 /**
  * Protected (authenticated) procedure
  *
