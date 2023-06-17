@@ -9,6 +9,27 @@ import {
 import { Role } from "@/utils/types/user";
 import bcrypt from "bcryptjs";
 
+@modelOptions({
+  schemaOptions: {
+    timestamps: true,
+    toJSON: {
+      transform(_, ret) {
+        delete ret.password;
+
+        return ret;
+      },
+      versionKey: false,
+    },
+  },
+})
+@pre<User>("save", function (next) {
+  if (!this.isNew && !this.isModified("password")) {
+    return next();
+  }
+
+  this.password = this.hashPassword(this.password);
+  next();
+})
 export class User {
   readonly _id!: string;
 
@@ -39,6 +60,7 @@ export class User {
   @prop({
     enum: Role,
     default: Role.User,
+    type: String,
   })
   role!: string;
 
@@ -46,18 +68,15 @@ export class User {
 
   readonly updatedAt?: Date;
 
-  public async checkPassword(plain: string, hash: string): Promise<boolean> {
-    return bcrypt.compare(plain, hash);
+  public checkPassword(plain: string, hash: string): boolean {
+    return bcrypt.compareSync(plain, hash);
   }
 
-  public async hashPassword(plain: string): Promise<string> {
-    return await bcrypt.hash(plain, 12);
+  public hashPassword(plain: string): string {
+    return bcrypt.hashSync(plain, 12);
   }
 }
 
 export const UserModel = getModelForClass(User);
 
-
 // const UserModel = getModelForClass(User);
-
-

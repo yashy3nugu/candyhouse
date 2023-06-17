@@ -1,5 +1,5 @@
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import {UserModel} from "@/server/models/user.model";
+import { UserModel } from "@/server/models/user.model";
 
 import { TRPCError } from "@trpc/server";
 import * as jwt from "@/server/lib/jwt";
@@ -17,7 +17,7 @@ export const authRouter = createTRPCRouter({
         email,
       }).select("+password");
 
-      if (!user || !(await user.checkPassword(password, user.password))) {
+      if (!user || !user.checkPassword(password, user.password)) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Invalid Credentials",
@@ -32,7 +32,7 @@ export const authRouter = createTRPCRouter({
     .input(registerInputSchema)
     .mutation(async ({ input, ctx }) => {
       const { name, email, password, role } = input;
-      
+
       // console.log(input);
       const user = await UserModel.create({
         name,
@@ -40,8 +40,6 @@ export const authRouter = createTRPCRouter({
         password,
         role,
       });
-
-
 
       jwt.signToken({ user }, ctx.req, ctx.res);
 
