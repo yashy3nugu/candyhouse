@@ -2,11 +2,12 @@ import { z } from "zod";
 import {
   createTRPCRouter,
   publicProcedure,
-  protectedProcedure,
+  vendorProcedure,
 } from "@/server/api/trpc";
 
 
 import CandyModel from "@/server/models/candy.model";
+import candySchema from "@/utils/schemas/candy";
 
 export const candyRouter = createTRPCRouter({
   all: publicProcedure
@@ -17,21 +18,38 @@ export const candyRouter = createTRPCRouter({
         
       })
     )
-    .query(({ input }) => {
-    //   let { page, limit } = input;
+    .query(async ({ input }) => {
+      let { page, limit } = input;
       
-    //   if (!page) page = 1;
-    //   if (!limit) limit = 6;
+      if (!page) page = 1;
+      if (!limit) limit = 6;
 
-    //   const candies = await CandyModel.find()
-    //     .skip((page - 1) * limit)
-    //     .limit(limit + 1);
+      const candies = await CandyModel.find()
+        .skip((page - 1) * limit)
+        .limit(limit + 1);
 
-    //   return {
-    //     hasMore: candies.length === limit + 1,
-    //     candies: candies.slice(0, limit),
-    //   };
-        return input;
+      return {
+        hasMore: candies.length === limit + 1,
+        candies: candies.slice(0, limit),
+      };
+      
     }),
+  
+  create: vendorProcedure.input(candySchema).mutation(async ({input, ctx}) => {
+    const { name, description, price, quantity } = input;
+
+    console.log(input)
+
+    const candy = await CandyModel.create({
+      name,
+      price,
+      quantity,
+      description,
+      vendor: ctx.user._id
+    })
+   
+    return candy;
+
+  })
 
 });

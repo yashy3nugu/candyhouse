@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import type { ReturnModelType } from "@typegoose/typegoose";
 import {
-  prop as Property,
+  prop,
   modelOptions,
   getModelForClass,
   pre,
@@ -11,40 +11,43 @@ import { User } from "./user.model";
 export class Candy {
   readonly _id!: string;
 
-  @Property({
-    required: [true, "Candy must have a name"],
+  @prop({
+
+    required: true,
     trim: true,
     lowercase: true,
     type: String,
   })
   name!: string;
 
-  @Property({
-    required: [true, "Candy must have a description"],
+  @prop({
+    required: true,
+
     trim: true,
     type: String,
   })
   description!: string;
 
-  @Property({
-    required: [true, "Candy must have a price"],
+  @prop({
+    required: true,
     min: [0, "Price must be at least 0"],
     trim: true,
     type: Number,
   })
   price!: number;
 
-  @Property({
-    required: [true, "Candy must have a quantity"],
+  @prop({
+    required: true,
     min: [0, "Quantity must be at least 0"],
     trim: true,
     type: Number,
   })
   quantity!: number;
 
-  @Property({
+  @prop({
     type: mongoose.SchemaTypes.ObjectId,
     //required: [true, "Candy must have a vendor ID"],
+    required: true,
     ref: () => User,
   })
   vendor!: mongoose.Types.ObjectId;
@@ -55,7 +58,8 @@ export class Candy {
 }
 
 const CandyModel = (mongoose.models.Candy ||
-  getModelForClass(Candy)) as ReturnModelType<typeof Candy, object>;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  getModelForClass(Candy)) as ReturnModelType<typeof Candy, {}>;
 
 // const CandyModel = getModelForClass(Candy);
 

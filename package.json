@@ -33,7 +33,8 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "superjson": "1.12.2",
-    "zod": "^3.21.4"
+    "zod": "^3.21.4",
+    "zod-formik-adapter": "^1.2.0"
   },
   "devDependencies": {
     "@types/eslint": "^8.37.0",
