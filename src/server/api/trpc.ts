@@ -11,8 +11,12 @@ import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { type Session } from "next-auth";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import { getServerAuthSession } from "@/server/auth";
-import { connectDB } from "../lib/mongoose";
+import { connectDB } from "@/server/lib/mongoose";
+import { User } from "@/server/models/user.model";
+import UserModel from "@/server/models/user.model";
+import { Cookie } from "next-cookie";
+import * as jwt from "@/server/lib/jwt";
+import { Role } from "@/utils/types/user";
 
 /**
  * 1. CONTEXT
@@ -36,10 +40,8 @@ type CreateContextOptions = {
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = ({ session }: CreateContextOptions) => {
-  return {
-    session,
-  };
+const createInnerTRPCContext = () => {
+  return {};
 };
 
 /**
@@ -52,13 +54,14 @@ export const createTRPCContext = async ({
   req,
   res,
 }: CreateNextContextOptions) => {
-  // Get the session from the server using the getServerSession wrapper function
   await connectDB();
-  const session = await getServerAuthSession({ req, res });
 
-  return createInnerTRPCContext({
-    session,
-  });
+  return {
+    req,
+    res,
+    user: null as User | null,
+    // user: null
+  };
 };
 
 /**
@@ -97,28 +100,60 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
  */
 export const createTRPCRouter = t.router;
 
-/**
- * Public (unauthenticated) procedure
- *
- * This is the base piece you use to build new queries and mutations on your tRPC API. It does not
- * guarantee that a user querying is authorized, but you can still access user session data if they
- * are logged in.
- */
-export const publicProcedure = t.procedure;
+export const parseCookie = t.middleware(async ({ ctx, next }) => {
+  console.log("parsing cookie");
+  const cookie = Cookie.fromApiRoute(ctx.req, ctx.res);
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const token = cookie.get("candyHouse") as string;
 
-/** Reusable middleware that enforces users are logged in before running the procedure. */
-const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
+  if (!token) return next();
+
+  const payload = jwt.decodeToken(token) as { _id: string };
+
+  if (!payload) {
+    cookie.remove("burgerHouse");
+    return next();
+  }
+
+  const user = await UserModel.findById(payload._id).select("+password");
+
+  if (!user) return next();
+
+  // ctx.user = user;
+  console.log("parsed cookie");
+
+  return next({ ctx });
+});
+
+const protectRoute = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
+
   return next({
     ctx: {
-      // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      user: ctx.user,
     },
   });
 });
 
+// const adminRoute = t.middleware(async ({ ctx, next }) => {
+//   if (ctx.user?.role !== Role.Admin) {
+//     throw new TRPCError({
+//       code: "FORBIDDEN",
+//       message: "You are not authorized to perform this action",
+//     });
+//   }
+
+//   return next({
+//     ctx: {
+//       user: ctx.user,
+//     },
+//   });
+// });
+
+export const publicProcedure = t.procedure;
+// .use(parseCookie);
 /**
  * Protected (authenticated) procedure
  *
@@ -127,4 +162,4 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  *
  * @see https://trpc.io/docs/procedures
  */
-export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+// export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);

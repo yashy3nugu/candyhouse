@@ -9,18 +9,20 @@ import {
 import { User } from "./user.model";
 
 export class Candy {
-  readonly _id!: mongoose.Types.ObjectId;
+  readonly _id!: string;
 
   @Property({
     required: [true, "Candy must have a name"],
     trim: true,
     lowercase: true,
+    type: String,
   })
   name!: string;
 
   @Property({
     required: [true, "Candy must have a description"],
     trim: true,
+    type: String,
   })
   description!: string;
 
@@ -28,6 +30,7 @@ export class Candy {
     required: [true, "Candy must have a price"],
     min: [0, "Price must be at least 0"],
     trim: true,
+    type: Number,
   })
   price!: number;
 
@@ -35,6 +38,7 @@ export class Candy {
     required: [true, "Candy must have a quantity"],
     min: [0, "Quantity must be at least 0"],
     trim: true,
+    type: Number,
   })
   quantity!: number;
 

@@ -1,6 +1,5 @@
 import { createTRPCRouter } from "@/server/api/trpc";
 import { authRouter } from "./routers/auth";
-import { exampleRouter } from "./routers/example";
 import { candyRouter } from "./routers/candy";
 
 /**
@@ -10,7 +9,6 @@ import { candyRouter } from "./routers/candy";
  */
 export const appRouter = createTRPCRouter({
   auth: authRouter,
-  example: exampleRouter,
   candy: candyRouter
 })
 
