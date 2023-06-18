@@ -125,8 +125,25 @@ const vendorRoute = t.middleware(async ({ ctx, next }) => {
   });
 });
 
+const consumerRoute = t.middleware(async ({ ctx, next }) => {
+  if (ctx.user?.role !== Role.User) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You are not authorized to perform this action",
+    });
+  }
+
+  return next({
+    ctx: {
+      user: ctx.user,
+    },
+  });
+});
+
 export const publicProcedure = t.procedure.use(parseCookie);
 export const vendorProcedure = t.procedure.use(parseCookie).use(vendorRoute);
+export const consumerProcedure = t.procedure.use(parseCookie).use(consumerRoute);
+
 /**
  * Protected (authenticated) procedure
  *

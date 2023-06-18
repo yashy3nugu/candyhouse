@@ -1,10 +1,50 @@
-import { createTRPCRouter, vendorProcedure } from "@/server/api/trpc";
+import {
+  consumerProcedure,
+  createTRPCRouter,
+  publicProcedure,
+  vendorProcedure,
+} from "@/server/api/trpc";
+import CandyModel from "@/server/models/candy.model";
 import OrderModel from "@/server/models/order.model";
-import { updateOrderStatusSchema } from "@/utils/schemas/order";
+import {
+  orderInputSchema,
+  updateOrderStatusSchema,
+} from "@/utils/schemas/order";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 export const orderRouter = createTRPCRouter({
+  create: consumerProcedure
+    .input(orderInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { items } = input;
+
+      const candyIds = items.map((item) => item.candy)
+
+      const candyDocuments = await CandyModel.find({
+        _id: {
+          $in: candyIds
+        }
+      })
+
+      // calculate total server side
+      let total = 0;
+      for (const candyDocument of candyDocuments) {
+        total +=
+          candyDocument.price *
+          items.find((item) => item.candy === candyDocument._id)!.itemsInCart;
+      }
+
+      const order = await OrderModel.create({
+        user: ctx.user,
+        items,
+        price: total,
+        
+      });
+
+      return order;
+    }),
+
   all: vendorProcedure
     .input(
       z.object({

@@ -11,17 +11,25 @@ import {
   Text,
   Button,
 } from "@chakra-ui/react";
-import { useAppDispatch } from "@/store/hooks";
-import { addCandyToCart, removeCandyFromCart } from "@/store/modules/cart";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { addCandyToCart, clearCart, removeCandyFromCart } from "@/store/modules/cart";
 
 const Cart: NextPage = () => {
-  const { data, isLoading } = api.candy.all.useQuery({});
+  
 
   const dispatch = useAppDispatch();
+  const cartItems = useAppSelector((state) => state.cart.items);
+  const cartValue = useAppSelector((state) => state.cart.value);
+  const cartPrice = useAppSelector((state) => state.cart.price);
 
-  if (isLoading) {
-    return <Spinner />;
-  }
+  const { mutate: createOrder, isLoading } = api.order.create.useMutation({
+    onSuccess() {
+      dispatch(clearCart());
+      // router.replace("/store");
+    },
+  });
+
+
   return (
     <>
       <Head>
@@ -30,7 +38,7 @@ const Cart: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        
+
       </main>
     </>
   );

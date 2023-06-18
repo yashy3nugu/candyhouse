@@ -1,7 +1,7 @@
 import { User } from "./user.model";
 import {
   getModelForClass,
-  prop as Property,
+  prop,
   modelOptions,
   pre,
   ReturnModelType,
@@ -11,30 +11,19 @@ import mongoose from "mongoose";
 import { Status } from "../../utils/types/orders";
 import { Candy } from "./candy.model";
 
-
 export class OrderItem {
   readonly _id!: string;
 
-  @Property({
-    trim: true,
-    required: [true, "order item must have a valid name"],
-    type: String
-  })
-  name!: string;
-
-  @Property({
+  @prop({
     type: mongoose.SchemaTypes.ObjectId,
     required: [true, "Order item must have a candy ID"],
     ref: () => Candy,
   })
   candy!: mongoose.Types.ObjectId;
 
-  @Property({
-    required: [true, "order item must have a valid price"],
-    type: Number
-  })
-  price!: number;
 
+  @prop()
+  itemsInCart!: number;
 }
 
 @modelOptions({
@@ -49,26 +38,26 @@ export class OrderItem {
 export class Order {
   readonly _id!: string;
 
-  @Property({
+  @prop({
     type: mongoose.SchemaTypes.ObjectId,
     ref: () => User,
   })
   user!: Ref<User>;
 
-  @Property({
+  @prop({
     enum: Status,
     default: Status.Pending,
-    type: String
+    type: String,
   })
   status!: string;
 
-  @Property({
+  @prop({
     type: [OrderItem],
   })
   items!: OrderItem[];
 
-  @Property({
-    type: Number
+  @prop({
+    type: Number,
   })
   price!: number;
 
