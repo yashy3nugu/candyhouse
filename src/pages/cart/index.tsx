@@ -2,21 +2,15 @@ import { type NextPage } from "next";
 import Head from "next/head";
 
 import { api } from "@/utils/api";
-import {
-  Spinner,
-  Card,
-  CardHeader,
-  CardBody,
-  Heading,
-  Text,
-  Button,
-} from "@chakra-ui/react";
+import { List, Heading, ListItem, Text } from "@chakra-ui/react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { addCandyToCart, clearCart, removeCandyFromCart } from "@/store/modules/cart";
+import {
+  addCandyToCart,
+  clearCart,
+  removeCandyFromCart,
+} from "@/store/modules/cart";
 
 const Cart: NextPage = () => {
-  
-
   const dispatch = useAppDispatch();
   const cartItems = useAppSelector((state) => state.cart.items);
   const cartValue = useAppSelector((state) => state.cart.value);
@@ -29,7 +23,6 @@ const Cart: NextPage = () => {
     },
   });
 
-
   return (
     <>
       <Head>
@@ -38,7 +31,24 @@ const Cart: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-
+        {cartValue > 0 ? (
+          <>
+            <Heading>Your cart ({cartValue})</Heading>
+            <List spacing={2}>
+              {cartItems.map((candy) => (
+                <ListItem key={candy._id}>
+                  <Text>Name: {candy.name}</Text>
+                  <Text>Description: {candy.description}</Text>
+                  <Text>Number of items: {candy.itemsInCart}</Text>
+                  <Text>Price: {candy.price}</Text>
+                </ListItem>
+              ))}
+            </List>
+            <Text>Total: { cartPrice}</Text>
+          </>
+        ) : (
+          <Heading>Your cart is empty</Heading>
+        )}
       </main>
     </>
   );

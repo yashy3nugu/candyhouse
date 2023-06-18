@@ -32,7 +32,12 @@ export const appSlice = createSlice({
         });
       }
 
-      const cartPrice = state.price + (action.payload.candy.price as number);
+      //   const cartPrice = state.price + (action.payload.candy.price as number);
+      let cartPrice = 0;
+
+      for (const item of cartArr) {
+        cartPrice += item.price * item.itemsInCart;
+      }
 
       localStorage.setItem(
         "cart",
