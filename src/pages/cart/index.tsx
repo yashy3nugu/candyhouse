@@ -2,13 +2,14 @@ import { type NextPage } from "next";
 import Head from "next/head";
 
 import { api } from "@/utils/api";
-import { List, Heading, ListItem, Text } from "@chakra-ui/react";
+import { List, Heading, ListItem, Text, Button } from "@chakra-ui/react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   addCandyToCart,
   clearCart,
   removeCandyFromCart,
 } from "@/store/modules/cart";
+import { Role } from "@/utils/types/user";
 
 const Cart: NextPage = () => {
   const dispatch = useAppDispatch();
@@ -18,10 +19,13 @@ const Cart: NextPage = () => {
 
   const { mutate: createOrder, isLoading } = api.order.create.useMutation({
     onSuccess() {
-      dispatch(clearCart());
+      // dispatch(clearCart());
+      alert("placed order")
       // router.replace("/store");
     },
   });
+
+  const { isLoading: isUserLoading, data: user } = api.auth.user.useQuery();
 
   return (
     <>
@@ -44,7 +48,34 @@ const Cart: NextPage = () => {
                 </ListItem>
               ))}
             </List>
-            <Text>Total: { cartPrice}</Text>
+            <Text>Total: {cartPrice}</Text>
+
+            {!isUserLoading &&
+              (user!.role === Role.User ? (
+                <Button
+                  onClick={() => {
+                    const items = [] as {
+                      candy: string;
+                      itemsInCart: number;
+                    }[];
+
+                    cartItems.forEach(({ _id, itemsInCart }) => {
+                      items.push({
+                        candy: _id,
+                        itemsInCart,
+                      });
+                    });
+
+                    createOrder({
+                      items,
+                    });
+                  }}
+                >
+                  Place order
+                </Button>
+              ) : (
+                <>Login as user</>
+              ))}
           </>
         ) : (
           <Heading>Your cart is empty</Heading>

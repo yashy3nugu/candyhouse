@@ -19,27 +19,27 @@ export const orderRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { items } = input;
 
-      const candyIds = items.map((item) => item.candy)
+      const candyIds = items.map((item) => item.candy);
 
       const candyDocuments = await CandyModel.find({
         _id: {
-          $in: candyIds
-        }
-      })
+          $in: candyIds,
+        },
+      });
 
       // calculate total server side
       let total = 0;
+
       for (const candyDocument of candyDocuments) {
         total +=
           candyDocument.price *
-          items.find((item) => item.candy === candyDocument._id)!.itemsInCart;
+          items.find((item) => item.candy == candyDocument._id)!.itemsInCart;
       }
 
       const order = await OrderModel.create({
         user: ctx.user,
         items,
         price: total,
-        
       });
 
       return order;

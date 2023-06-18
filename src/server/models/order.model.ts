@@ -12,7 +12,6 @@ import { Status } from "../../utils/types/orders";
 import { Candy } from "./candy.model";
 
 export class OrderItem {
-  readonly _id!: string;
 
   @prop({
     type: mongoose.SchemaTypes.ObjectId,
@@ -21,8 +20,9 @@ export class OrderItem {
   })
   candy!: mongoose.Types.ObjectId;
 
-
-  @prop()
+  @prop({
+    type: Number,
+  })
   itemsInCart!: number;
 }
 
