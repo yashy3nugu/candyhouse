@@ -70,7 +70,11 @@ export const appSlice = createSlice({
         }
       }
 
-      const cartPrice = state.price - action.payload.candy.price;
+      let cartPrice = 0;
+
+      for (const item of cartArr) {
+        cartPrice += item.price * item.itemsInCart;
+      }
 
       localStorage.setItem(
         "cart",
@@ -96,9 +100,11 @@ export const appSlice = createSlice({
         cartArr.splice(candyIndex, 1);
       }
 
-      const cartPrice =
-        state.price -
-        action.payload.candy.price * action.payload.candy.itemsInCart;
+      let cartPrice = 0;
+
+      for (const item of cartArr) {
+        cartPrice += item.price * item.itemsInCart;
+      }
 
       const cartValue = state.value - action.payload.candy.itemsInCart;
 
