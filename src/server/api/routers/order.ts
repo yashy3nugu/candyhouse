@@ -5,6 +5,7 @@ import {
   vendorProcedure,
 } from "@/server/api/trpc";
 import CandyModel from "@/server/models/candy.model";
+import CouponModel from "@/server/models/coupon.model";
 import OrderModel from "@/server/models/order.model";
 import {
   orderInputSchema,
@@ -17,7 +18,7 @@ export const orderRouter = createTRPCRouter({
   create: consumerProcedure
     .input(orderInputSchema)
     .mutation(async ({ input, ctx }) => {
-      const { items } = input;
+      const { items, code } = input;
 
       const candyIds = items.map((item) => item.candy);
 
@@ -36,6 +37,13 @@ export const orderRouter = createTRPCRouter({
           items.find((item) => item.candy == candyDocument._id)!.itemsInCart;
       }
 
+      if (code) {
+        const coupon = await CouponModel.findOne({ code });
+        // apply discount
+        if (coupon) {
+          total -= Math.round((coupon.discount / 100) * total);
+        }
+      }
       const order = await OrderModel.create({
         user: ctx.user,
         items,

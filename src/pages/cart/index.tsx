@@ -111,6 +111,7 @@ const Cart: NextPage = () => {
 
                     createOrder({
                       items,
+                      code: appliedCoupon?.code,
                     });
                   }}
                 >

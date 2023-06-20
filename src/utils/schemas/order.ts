@@ -15,5 +15,5 @@ const itemSchema = z.object({
 
 export const orderInputSchema = z.object({
   items: z.array(itemSchema),
-  // price: z.number().min(1),
+  code: z.string().max(6).min(6).optional()
 });
