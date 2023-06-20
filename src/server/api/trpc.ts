@@ -75,7 +75,6 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 export const createTRPCRouter = t.router;
 
 export const parseCookie = t.middleware(async ({ ctx, next }) => {
-  console.log("parsing cookie");
   const cookie = Cookie.fromApiRoute(ctx.req, ctx.res);
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   const token = cookie.get("candyHouse") as string;
@@ -142,7 +141,9 @@ const consumerRoute = t.middleware(async ({ ctx, next }) => {
 
 export const publicProcedure = t.procedure.use(parseCookie);
 export const vendorProcedure = t.procedure.use(parseCookie).use(vendorRoute);
-export const consumerProcedure = t.procedure.use(parseCookie).use(consumerRoute);
+export const consumerProcedure = t.procedure
+  .use(parseCookie)
+  .use(consumerRoute);
 
 /**
  * Protected (authenticated) procedure

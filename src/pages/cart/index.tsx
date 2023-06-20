@@ -2,7 +2,15 @@ import { type NextPage } from "next";
 import Head from "next/head";
 
 import { api } from "@/utils/api";
-import { List, Heading, ListItem, Text, Button } from "@chakra-ui/react";
+import {
+  List,
+  Heading,
+  ListItem,
+  Text,
+  Button,
+  useDisclosure,
+  Input,
+} from "@chakra-ui/react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   addCandyToCart,
@@ -10,6 +18,11 @@ import {
   removeCandyFromCart,
 } from "@/store/modules/cart";
 import { Role } from "@/utils/types/user";
+import { Field, Form, Formik } from "formik";
+import SelectControl from "@/components/ui/select-control";
+import { useState } from "react";
+import { Coupon } from "@/server/models/coupon.model";
+// import PaymentModal from "@/components/payment-modal";
 
 const Cart: NextPage = () => {
   const dispatch = useAppDispatch();
@@ -20,13 +33,28 @@ const Cart: NextPage = () => {
   const { mutate: createOrder, isLoading } = api.order.create.useMutation({
     onSuccess() {
       // dispatch(clearCart());
-      alert("placed order")
+      alert("placed order");
       // router.replace("/store");
     },
   });
 
+  const { mutate: createCoupon } = api.coupon.create.useMutation({
+    onSuccess() {
+      // dispatch(clearCart());
+      alert("created coupon");
+      // router.replace("/store");
+    },
+  });
+
+  const { data, isLoading: isBanksLoading } = api.bank.getAll.useQuery({});
+
   const { isLoading: isUserLoading, data: user } = api.auth.user.useQuery();
 
+  const { mutateAsync: validateCoupon, isLoading: isCouponValidationLoading } =
+    api.coupon.validate.useMutation({});
+
+  // const { isOpen, onOpen, onClose } = useDisclosure();
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   return (
     <>
       <Head>
@@ -49,6 +77,21 @@ const Cart: NextPage = () => {
               ))}
             </List>
             <Text>Total: {cartPrice}</Text>
+
+            {appliedCoupon && (
+              <>
+                <Text>
+                  Discount value:{" "}
+                  {Math.round(cartPrice * (appliedCoupon.discount / 100))}
+                </Text>
+                <Text>
+                  Total after discount:{" "}
+                  {Math.round(cartPrice * (1 - appliedCoupon.discount / 100))}
+                </Text>
+              </>
+            )}
+
+            <Button onClick={() => createCoupon({})}>Create coupon</Button>
 
             {!isUserLoading &&
               (user!.role === Role.User ? (
@@ -76,6 +119,45 @@ const Cart: NextPage = () => {
               ) : (
                 <>Login as user</>
               ))}
+
+            {!isBanksLoading && (
+              <Formik
+                initialValues={{
+                  code: "",
+                  bank: "",
+                }}
+                onSubmit={async (values) => {
+                  try {
+                    const { coupon } = await validateCoupon(values);
+                    setAppliedCoupon(coupon);
+                    alert(`coupon ${coupon.name} applied`);
+                  } catch (err) {
+                    const error = err as any;
+                    alert(JSON.stringify(error.shape.message));
+                  }
+                }}
+              >
+                {({ values }) => (
+                  <Form>
+                    {JSON.stringify(values, null, 4)}
+                    <SelectControl
+                      label="Select Bank"
+                      name="bank"
+                      selectProps={{ placeholder: "Select Bank" }}
+                    >
+                      {data?.banks.map((bank) => (
+                        <option key={bank._id} value={bank._id}>
+                          {bank.name}
+                        </option>
+                      ))}
+                    </SelectControl>
+                    <Field as={Input} name="code" placeholder="Coupon" />
+
+                    <Button type="submit">Use this payment method</Button>
+                  </Form>
+                )}
+              </Formik>
+            )}
           </>
         ) : (
           <Heading>Your cart is empty</Heading>
