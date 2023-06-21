@@ -36,7 +36,9 @@ export const candyRouter = createTRPCRouter({
     }),
   
   create: vendorProcedure.input(candySchema).mutation(async ({input, ctx}) => {
-    const { name, description, price, quantity } = input;
+    const { name, description, price, quantity, photo } = input;
+
+    
 
     console.log(input)
 
@@ -45,7 +47,8 @@ export const candyRouter = createTRPCRouter({
       price,
       quantity,
       description,
-      vendor: ctx.user._id
+      vendor: ctx.user._id,
+      photo
     })
    
     return candy;

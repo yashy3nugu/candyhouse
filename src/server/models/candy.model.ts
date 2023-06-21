@@ -7,12 +7,12 @@ import {
   pre,
 } from "@typegoose/typegoose";
 import { User } from "./user.model";
+import { Photo } from "./photo.model";
 
 export class Candy {
   readonly _id!: string;
 
   @prop({
-
     required: true,
     trim: true,
     lowercase: true,
@@ -51,6 +51,12 @@ export class Candy {
     ref: () => User,
   })
   vendor!: mongoose.Types.ObjectId;
+
+  @prop({
+    type: Photo,
+    required: true,
+  })
+  photo!: Photo;
 
   readonly createdAt?: Date;
 

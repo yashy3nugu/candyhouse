@@ -23,6 +23,8 @@ import { NextPageWithLayout } from "@/pages/_app";
 import VendorProvider from "@/components/provider/VendorProvider";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import candySchema from "@/utils/schemas/candy";
+import React from "react";
+import useImageUpload from "@/hooks/use-image-upload";
 
 const CreateCandy: NextPageWithLayout = () => {
   const { mutate, isLoading } = api.candy.create.useMutation({
@@ -33,6 +35,14 @@ const CreateCandy: NextPageWithLayout = () => {
       alert("not created");
     },
   });
+
+  const imageRef = React.useRef<any>();
+  const { imageDataURI, imageUrl, uploadFile } = useImageUpload();
+
+  const { refetch } = api.image.signedURL.useQuery(undefined, {
+    enabled: false,
+  });
+
   return (
     <>
       <Head>
@@ -75,17 +85,53 @@ const CreateCandy: NextPageWithLayout = () => {
                   price: 20,
                   quantity: 100,
                 }}
-                validationSchema={toFormikValidationSchema(candySchema)}
-                onSubmit={(values) => {
-                  mutate({
-                    ...values,
-                  });
+                //validationSchema={toFormikValidationSchema(candySchema)}
+                onSubmit={async (values) => {
+                  if (imageDataURI) {
+                    const formData = new FormData();
+
+                    const { data: rData } = await refetch();
+
+                    if (!rData) {
+                      return;
+                    }
+
+                    formData.append("file", imageDataURI);
+                    formData.append("signature", rData.signature);
+                    formData.append("api_key", rData.api_key);
+                    formData.append("timestamp", `${rData.timestamp}`);
+                    formData.append("folder", `candies`);
+                    console.log("appended fd");
+
+                    const imgRes = await fetch(`${rData.url}`, {
+                      method: "POST",
+                      body: formData,
+                    });
+
+                    console.log("got imgres");
+
+                    await imgRes.json().then((d) => {
+                      const photo = {
+                        publicId: d.public_id,
+                        url: d.secure_url,
+                      };
+                      console.log("mutating with d as ", d);
+                      mutate({
+                        ...values,
+                        photo,
+                      });
+                    });
+                  }
                 }}
               >
                 {({ isSubmitting, isValid, dirty, values, errors }) => (
                   <Form>
                     {JSON.stringify(values)}
+
                     {JSON.stringify(errors)}
+                    {/* {JSON.stringify(imageDataURI)}
+                    
+                    {JSON.stringify(imageUrl)} */}
 
                     {/* <Field as={Input} name="name" placeholder="Name" />
                     <Field as={Input} name="description" placeholder="Name" /> */}
@@ -98,6 +144,7 @@ const CreateCandy: NextPageWithLayout = () => {
 
                     <NumberInputControl name="price" label="Price" />
                     <NumberInputControl name="quantity" label="Quantity" />
+                    <Input type="file" ref={imageRef} onChange={uploadFile} />
 
                     <Button type="submit">Create</Button>
                   </Form>
