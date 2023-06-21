@@ -13,8 +13,10 @@ import {
 } from "@chakra-ui/react";
 import { useAppDispatch } from "@/store/hooks";
 import { addCandyToCart, removeCandyFromCart } from "@/store/modules/cart";
+import { NextPageWithLayout } from "../_app";
+import BaseLayout from "@/layouts/base-layout";
 
-const Store: NextPage = () => {
+const Store: NextPageWithLayout = () => {
   const { data, isLoading } = api.candy.all.useQuery({});
 
   const dispatch = useAppDispatch();
@@ -42,15 +44,15 @@ const Store: NextPage = () => {
               <Text>{candy.price}</Text>
               <Button
                 onClick={() => {
-                  dispatch(addCandyToCart({candy}));
+                  dispatch(addCandyToCart({ candy }));
                 }}
               >
                 Add to cart
               </Button>
               <Button
                 onClick={() => {
-                  dispatch(removeCandyFromCart({candy}))
-              }}
+                  dispatch(removeCandyFromCart({ candy }));
+                }}
               >
                 Remove from cart
               </Button>
@@ -60,6 +62,10 @@ const Store: NextPage = () => {
       </main>
     </>
   );
+};
+
+Store.getLayout = (page) => {
+  return <BaseLayout>{page}</BaseLayout>;
 };
 
 export default Store;
