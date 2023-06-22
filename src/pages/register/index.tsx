@@ -14,17 +14,30 @@ import {
   Input,
   Stack,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 
 import { api } from "@/utils/api";
+import InputControl from "@/components/ui/input-control";
+import Link from "next/link";
+import { NextPageWithLayout } from "../_app";
+import BaseLayout from "@/layouts/base-layout";
 
-const Register: NextPage = () => {
+const Register: NextPageWithLayout = () => {
+  const toast = useToast();
   const { mutate, isLoading } = api.auth.register.useMutation({
     onSuccess() {
-      alert("created");
+      //
     },
     onError() {
-      alert("not created");
+      toast({
+        title: "Unable to register",
+        description: "User with same email exists",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+        position: "top",
+      });
     },
   });
 
@@ -44,9 +57,17 @@ const Register: NextPage = () => {
           <Stack spacing="8">
             <Stack spacing="6">
               <Stack spacing={{ base: "2", md: "3" }} textAlign="center">
-                <Heading size={{ base: "xs", md: "sm" }}>
+                <Heading size={{ base: "xs", md: "sm", lg: "xl" }}>
                   Sign up for an account
                 </Heading>
+                <HStack justify="center">
+                  <Text color="fg.muted">Sign up as Vendor?</Text>
+                  <Link href="/login">
+                    <Button variant="text" size="sm">
+                      Click Here
+                    </Button>
+                  </Link>
+                </HStack>
               </Stack>
             </Stack>
             <Box
@@ -62,29 +83,35 @@ const Register: NextPage = () => {
                   email: "",
                   password: "",
                 }}
-                onSubmit={(values) => {
+                onSubmit={(values, actions) => {
                   mutate({
                     ...values,
                   });
-                  console.log(values);
+                  actions.resetForm();
                 }}
               >
-                {({ isValid, dirty }) => (
+                {({ isValid, dirty, isSubmitting }) => (
                   <Form>
-                    <Field as={Input} name="name" placeholder="Your name" />
-                    <Field
-                      as={Input}
+                    <InputControl name="name" label="Name" placeholder="Name" />
+                    <InputControl
                       name="email"
-                      placeholder="Your email"
                       type="email"
+                      label="Email"
+                      placeholder="Password"
                     />
-                    <Field
-                      as={Input}
+                    <InputControl
                       name="password"
-                      placeholder="Your password"
                       type="password"
+                      label="Password"
+                      placeholder="Password"
                     />
-                    <Button disabled={isLoading} type="submit">
+                    <Button
+                      isDisabled={isSubmitting || !isValid || !dirty}
+                      isLoading={isSubmitting}
+                      type="submit"
+                      w="full"
+                      mt={4}
+                    >
                       Sign up
                     </Button>
                   </Form>
@@ -97,5 +124,7 @@ const Register: NextPage = () => {
     </>
   );
 };
+
+Register.getLayout = (page) => <BaseLayout>{page}</BaseLayout>;
 
 export default Register;

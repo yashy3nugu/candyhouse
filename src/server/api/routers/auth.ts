@@ -6,6 +6,7 @@ import * as jwt from "@/server/lib/jwt";
 import { Cookie } from "next-cookie";
 import { loginInputSchema, registerInputSchema } from "@/utils/schemas/auth";
 import CandyModel from "@/server/models/candy.model";
+import { Role } from "@/utils/types/user";
 
 export const authRouter = createTRPCRouter({
   login: publicProcedure
@@ -32,6 +33,19 @@ export const authRouter = createTRPCRouter({
     .input(registerInputSchema)
     .mutation(async ({ input, ctx }) => {
       const { name, email, password, role } = input;
+
+      if (role === Role.Vendor) {
+        const existingUser = await UserModel.find({
+          name
+        })
+
+        if (existingUser) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Vendor with name already exists",
+          });
+        }
+      }
 
       // console.log(input);
       const user = await UserModel.create({
