@@ -13,6 +13,7 @@ import {
   Box,
   SimpleGrid,
   GridItem,
+  Skeleton,
 } from "@chakra-ui/react";
 import Image from "@/components/shared/image";
 import { useAppDispatch } from "@/store/hooks";
@@ -20,17 +21,13 @@ import { addCandyToCart, removeCandyFromCart } from "@/store/modules/cart";
 import { NextPageWithLayout } from "../_app";
 import BaseLayout from "@/layouts/base-layout";
 import CandyCard from "@/components/candy-card";
+import { fakeCandy } from "./fake";
 
 const Store: NextPageWithLayout = () => {
   const { data, isLoading } = api.candy.all.useQuery({});
 
   const dispatch = useAppDispatch();
 
-  
-
-  if (isLoading) {
-    return <Spinner />;
-  }
   return (
     <>
       <Head>
@@ -40,13 +37,24 @@ const Store: NextPageWithLayout = () => {
       </Head>
       <Box as="main">
         <Box maxWidth="3xl" margin="0 auto" px={5}>
-          <SimpleGrid columns={{sm:2, md:3}} spacing={{base: 3,md: 4,lg:4}}>
-            {data?.candies.map((candy) => (
-              <GridItem key={candy._id}>
-                
-                <CandyCard candy={candy} />
-              </GridItem>
-            ))}
+          <SimpleGrid
+            columns={{ sm: 2, md: 3 }}
+            spacing={{ base: 3, md: 4, lg: 4 }}
+          >
+            {isLoading &&
+              Array(6)
+                .fill(0)
+                .map((_, i) => (
+                  <Skeleton key={i}>
+                    <CandyCard candy={fakeCandy} />
+                  </Skeleton>
+                ))}
+            {!isLoading &&
+              data?.candies.map((candy) => (
+                <GridItem key={candy._id}>
+                  <CandyCard candy={candy} />
+                </GridItem>
+              ))}
           </SimpleGrid>
         </Box>
       </Box>
