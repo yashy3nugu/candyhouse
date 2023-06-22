@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import type { ReturnModelType } from "@typegoose/typegoose";
+import type { Ref, ReturnModelType } from "@typegoose/typegoose";
 import {
   prop,
   modelOptions,
@@ -50,7 +50,7 @@ export class Candy {
     required: true,
     ref: () => User,
   })
-  vendor!: mongoose.Types.ObjectId;
+  vendor!: Ref<User>;
 
   @prop({
     type: Photo,

@@ -26,7 +26,8 @@ export const candyRouter = createTRPCRouter({
 
       const candies = await CandyModel.find()
         .skip((page - 1) * limit)
-        .limit(limit + 1);
+        .limit(limit + 1)
+        .populate("vendor");
 
       return {
         hasMore: candies.length === limit + 1,
