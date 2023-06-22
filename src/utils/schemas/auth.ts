@@ -9,7 +9,6 @@ export const loginInputSchema = z.object({
   }),
 });
 
-
 export const registerInputSchema = z.object({
   email: z
     .string({ required_error: "user must provide their email" })
@@ -17,14 +16,18 @@ export const registerInputSchema = z.object({
   password: z
     .string({ required_error: "user must provide a password" })
     .min(6, "password must contain atleast 6 characters"),
+  confirmPassword: z
+    .string({ required_error: "user must confirm their password" })
+    .min(6),
+
   name: z.string({ required_error: "user must provide their name" }),
-  role: z.string().optional()
+  role: z.string().optional(),
 });
 
-// export const registerFormSchema = registerInputSchema.refine(
-//   (data) => data.password === data.passwordConfirm,
-//   {
-//     message: "Passwords do not match",
-//     path: ["passwordConfirm"],
-//   }
-// );
+export const registerFormSchema = registerInputSchema.refine(
+  (data) => data.password === data.confirmPassword,
+  {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  }
+);

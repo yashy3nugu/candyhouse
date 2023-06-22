@@ -20,8 +20,10 @@ import {
 import { api } from "@/utils/api";
 import InputControl from "@/components/ui/input-control";
 import Link from "next/link";
-import { NextPageWithLayout } from "../_app";
+import { NextPageWithLayout } from "@/pages/_app";
 import BaseLayout from "@/layouts/base-layout";
+import { toFormikValidationSchema } from "zod-formik-adapter";
+import { registerFormSchema } from "@/utils/schemas/auth";
 
 const Register: NextPageWithLayout = () => {
   const toast = useToast();
@@ -62,7 +64,7 @@ const Register: NextPageWithLayout = () => {
                 </Heading>
                 <HStack justify="center">
                   <Text color="fg.muted">Sign up as Vendor?</Text>
-                  <Link href="/login">
+                  <Link href="/vendor/register">
                     <Button variant="text" size="sm">
                       Click Here
                     </Button>
@@ -82,7 +84,9 @@ const Register: NextPageWithLayout = () => {
                   name: "",
                   email: "",
                   password: "",
+                  confirmPassword: "",
                 }}
+                validationSchema={toFormikValidationSchema(registerFormSchema)}
                 onSubmit={(values, actions) => {
                   mutate({
                     ...values,
@@ -103,6 +107,12 @@ const Register: NextPageWithLayout = () => {
                       name="password"
                       type="password"
                       label="Password"
+                      placeholder="Password"
+                    />
+                    <InputControl
+                      name="confirmPassword"
+                      type="password"
+                      label="Confirm Password"
                       placeholder="Password"
                     />
                     <Button
