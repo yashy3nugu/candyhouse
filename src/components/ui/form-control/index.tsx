@@ -13,6 +13,7 @@ import React, { FC } from "react";
 
 export interface BaseProps extends Omit<FormControlProps, "label"> {
   name: string;
+  type?: string;
   label?: React.ReactNode;
   labelProps?: FormLabelProps;
   helperText?: React.ReactNode;

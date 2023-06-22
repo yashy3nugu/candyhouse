@@ -7,7 +7,7 @@ export type InputControlProps = BaseProps & { inputProps?: InputProps };
 
 export const InputControl: FC<InputControlProps> = React.forwardRef(
   (props: InputControlProps, ref: ForwardedRef<HTMLInputElement>) => {
-    const { name, label, inputProps, ...rest } = props;
+    const { name, label, inputProps, type, ...rest } = props;
     const [field] = useField(name);
     const { isSubmitting } = useFormikContext();
     return (
@@ -15,6 +15,7 @@ export const InputControl: FC<InputControlProps> = React.forwardRef(
         <Input
           {...field}
           id={name}
+          type={type}
           isDisabled={isSubmitting}
           {...inputProps}
           ref={ref}

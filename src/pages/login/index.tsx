@@ -1,4 +1,3 @@
-import { type NextPage } from "next";
 import Head from "next/head";
 import { Formik, Form, Field } from "formik";
 import {
@@ -14,20 +13,52 @@ import {
   Input,
   Stack,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 
 import { api } from "@/utils/api";
+import { toFormikValidationSchema } from "zod-formik-adapter";
+import { loginInputSchema } from "@/utils/schemas/auth";
+import InputControl from "@/components/ui/input-control";
+import { NextPageWithLayout } from "../_app";
+import BaseLayout from "@/layouts/base-layout";
+import Logo from "@/components/shared/logo";
+import Link from "next/link";
+import { Role } from "@/utils/types/user";
+import { useRouter } from "next/router";
 
-
-const Login: NextPage = () => {
-
+const Login: NextPageWithLayout = () => {
+  const toast = useToast();
+  const router = useRouter();
   const { mutate, isLoading } = api.auth.login.useMutation({
     onSuccess() {
-      alert("logged in");
+      // alert("logged in");
+      
     },
     onError() {
-      alert("not logged in");
+      toast({
+        title: "Unable to log you in",
+        description: "Please check your credentials",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+        position: "top"
+      });
     },
+    onSettled(data) {
+      if (data) {
+        let redirect;
+
+        if (data.role === Role.User) {
+          redirect = "/store";
+        }
+        else {
+          redirect = "/vendor/dashboard"
+        }
+
+        router.replace(redirect);
+      }
+    }
   });
   return (
     <>
@@ -45,14 +76,16 @@ const Login: NextPage = () => {
           <Stack spacing="8">
             <Stack spacing="6">
               <Stack spacing={{ base: "2", md: "3" }} textAlign="center">
-                <Heading size={{ base: "xs", md: "sm" }}>
+                <Heading size={{ base: "xs", md: "sm", lg: "xl" }}>
                   Log in to your account
                 </Heading>
-                <HStack spacing="1" justify="center">
+                <HStack justify="center">
                   <Text color="fg.muted">Do not have an account?</Text>
-                  <Button variant="text" size="lg">
-                    Sign up
-                  </Button>
+                  <Link href="/signup">
+                    <Button variant="text" size="sm">
+                      Sign up
+                    </Button>
+                  </Link>
                 </HStack>
               </Stack>
             </Stack>
@@ -68,27 +101,41 @@ const Login: NextPage = () => {
                   email: "",
                   password: "",
                 }}
-                onSubmit={(values) => {
+                validationSchema={toFormikValidationSchema(loginInputSchema)}
+                onSubmit={(values, actions) => {
                   mutate({
-                    ...values
-                  })
+                    ...values,
+                  });
+
+                  actions.resetForm();
                 }}
               >
                 {({ isSubmitting, isValid, dirty }) => (
                   <Form>
-                    <Field
-                      as={Input}
+                    <InputControl
                       name="email"
                       type="email"
-                      placeholder="Email"
-                    />
-                    <Field
-                      as={Input}
-                      name="password"
-                      type="password"
+                      label="Email"
                       placeholder="Password"
                     />
-                    <Button type="submit">Login</Button>
+
+                    <InputControl
+                      name="password"
+                      type="password"
+                      label="Password"
+                      placeholder="Password"
+                    />
+
+                    <Button
+                      isDisabled={isSubmitting || !isValid || !dirty}
+                      isLoading={isSubmitting}
+                      w="full"
+                      mt={4}
+                      
+                      type="submit"
+                    >
+                      Login
+                    </Button>
                   </Form>
                 )}
               </Formik>
@@ -99,5 +146,7 @@ const Login: NextPage = () => {
     </>
   );
 };
+
+Login.getLayout = (page) => <BaseLayout>{page}</BaseLayout>;
 
 export default Login;
