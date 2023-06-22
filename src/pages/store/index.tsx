@@ -39,8 +39,8 @@ const Store: NextPageWithLayout = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Box as="main">
-        <Box maxWidth="3xl" margin="0 auto">
-          <SimpleGrid columns={3} spacing={10}>
+        <Box maxWidth="3xl" margin="0 auto" px={5}>
+          <SimpleGrid columns={{sm:2, md:3}} spacing={{base: 3,md: 4,lg:4}}>
             {data?.candies.map((candy) => (
               <GridItem key={candy._id}>
                 

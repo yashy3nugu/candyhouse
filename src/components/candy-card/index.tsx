@@ -30,7 +30,7 @@ const CandyCard: React.FC<CandyCardProps> = ({ candy }) => {
 
   return (
     <Card height="full">
-      <Box position="relative" w="200px" h="200px" minH="200px" mx="auto">
+      <Box position="relative" w={{base: "150px",lg:"200px"}} h={{base: "150px",lg:"200px"}} minH={{base: "150px",lg:"200px"}} mx="auto">
         <Image src={candy.photo.url} alt={candy.name} fill />
       </Box>
 
