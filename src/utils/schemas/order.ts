@@ -15,5 +15,7 @@ const itemSchema = z.object({
 
 export const orderInputSchema = z.object({
   items: z.array(itemSchema),
-  code: z.string().max(6).min(6).optional()
+  code: z.string().max(6).min(6).optional(),
+  address: z.string({ required_error: "Address Required" }),
+  bank: z.string({required_error: "payment bank required"})
 });

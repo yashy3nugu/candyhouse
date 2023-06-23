@@ -18,7 +18,7 @@ export const orderRouter = createTRPCRouter({
   create: consumerProcedure
     .input(orderInputSchema)
     .mutation(async ({ input, ctx }) => {
-      const { items, code } = input;
+      const { items, code, address, bank } = input;
 
       const candyIds = items.map((item) => item.candy);
 
@@ -48,6 +48,8 @@ export const orderRouter = createTRPCRouter({
         user: ctx.user,
         items,
         price: total,
+        address,
+        bank
       });
 
       return order;

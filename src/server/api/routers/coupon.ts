@@ -29,7 +29,7 @@ export const couponRouter = createTRPCRouter({
     return coupon;
   }),
 
-  validate: consumerProcedure
+  validate: publicProcedure
     .input(
       z.object({
         code: z.string(),

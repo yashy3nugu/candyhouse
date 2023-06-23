@@ -10,15 +10,22 @@ import type { Ref } from "@typegoose/typegoose";
 import mongoose from "mongoose";
 import { Status } from "../../utils/types/orders";
 import { Candy } from "./candy.model";
+import { Bank } from "./bank.model";
 
 export class OrderItem {
-
   @prop({
     type: mongoose.SchemaTypes.ObjectId,
     required: [true, "Order item must have a candy ID"],
     ref: () => Candy,
   })
   candy!: mongoose.Types.ObjectId;
+
+  @prop({
+    type: String,
+    required: [true, "Order item must have a address"],
+    trim: true
+  })
+  address!: mongoose.Types.ObjectId;
 
   @prop({
     type: Number,
@@ -60,6 +67,12 @@ export class Order {
     type: Number,
   })
   price!: number;
+
+  @prop({
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: () => Bank
+  })
+  bank!: Ref<Bank>;
 
   readonly createdAt!: Date;
 
