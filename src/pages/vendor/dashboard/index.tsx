@@ -1,5 +1,6 @@
 import VendorProvider from "@/components/provider/VendorProvider";
 import usePagination from "@/hooks/use-pagination/usePagination";
+import VendorLayout from "@/layouts/vendor-layout";
 import { NextPageWithLayout } from "@/pages/_app";
 import { api } from "@/utils/api";
 import {
@@ -33,7 +34,7 @@ const VendorDashboard: NextPageWithLayout = () => {
         <Thead>
           <Tr>
             <Th>Order ID</Th>
-            <Th>Order Date</Th>
+            {/* <Th>Order Date</Th> */}
             <Th isNumeric>Order Total (Rs)</Th>
             <Th isNumeric>Order Status</Th>
           </Tr>
@@ -42,7 +43,7 @@ const VendorDashboard: NextPageWithLayout = () => {
           {data?.orders?.map((order) => (
             <Tr key={order._id}>
               <Td>{order._id}</Td>
-              <Td>{order.createdAt.toDateString()}</Td>
+              {/* <Td>{order.createdAt.toDateString()}</Td> */}
               <Td>{order.price}</Td>
               <Td>{order.status}</Td>
             </Tr>
@@ -54,7 +55,7 @@ const VendorDashboard: NextPageWithLayout = () => {
 };
 
 VendorDashboard.getLayout = (page) => {
-  return <VendorProvider>{page}</VendorProvider>;
+  return <VendorLayout>{page}</VendorLayout>;
 };
 
 export default VendorDashboard;
