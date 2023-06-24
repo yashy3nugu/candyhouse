@@ -21,34 +21,43 @@ export const reviewRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { candy, description, rating } = input;
 
+      const existingReview = await ReviewModel.find({
+        candy,
+        reviewer: ctx.user._id,
+      });
+
+      if (existingReview) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User has already provided a review for this candy",
+        });
+      }
+
       const review = await ReviewModel.create({
         candy,
         description,
         rating,
         reviewer: ctx.user._id,
       });
+
+      return review;
     }),
 
-  all: vendorProcedure
-    .input(
-      z.object({
-        page: z.number().nullish(),
-        limit: z.number().nullish(),
-      })
-    )
-    .query(async ({ input }) => {
-      let { page, limit } = input;
-      if (!page) page = 1;
-      if (!limit) limit = 6;
+  allByCandyId: publicProcedure.input(z.object({id: z.string()})).query(async ({ input }) => {
+    const reviews = await ReviewModel.find({
+      candy: input.id
+    }).populate(
+      "reviewer",
+      "name"
+    );
 
-      const orders = await OrderModel.find()
-        .skip((page - 1) * limit)
-        .limit(limit + 1)
-        .populate("user.name user.email");
+    if (reviews.length === 0) {
+      return { reviews, averageRating: 0 };
+    }
+    const averageRating =
+      reviews.reduce((accumulator, review) => accumulator + review.rating, 0) /
+      reviews.length;
 
-      return {
-        hasMore: orders.length === limit + 1,
-        orders: orders.slice(0, limit),
-      };
-    }),
+    return { reviews, averageRating };
+  }),
 });

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import type { ReturnModelType } from "@typegoose/typegoose";
+import type { Ref, ReturnModelType } from "@typegoose/typegoose";
 import { prop, getModelForClass, pre } from "@typegoose/typegoose";
 import { User } from "./user.model";
 import { Candy } from "./candy.model";
@@ -24,6 +24,14 @@ export class Review {
 
   @prop({
     required: true,
+
+    trim: true,
+    type: String,
+  })
+  title!: string;
+
+  @prop({
+    required: true,
     min: [1, "Rating must be at least 1"],
     max: [5, "Rating must less than or equal to 5"],
     type: Number,
@@ -36,7 +44,7 @@ export class Review {
     required: true,
     ref: () => User,
   })
-  reviewer!: mongoose.Types.ObjectId;
+  reviewer!: Ref<User>;
 
   readonly createdAt?: Date;
 
