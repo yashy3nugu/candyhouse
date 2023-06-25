@@ -7,6 +7,7 @@ import {
   Checkbox,
   Container,
   Divider,
+  Flex,
   FormControl,
   FormLabel,
   Heading,
@@ -15,6 +16,8 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
+
+import Image from "next/image";
 
 import { api } from "@/utils/api";
 import NumberInputControl from "@/components/ui/number-input-control";
@@ -25,6 +28,8 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import candySchema from "@/utils/schemas/candy";
 import React from "react";
 import useImageUpload from "@/hooks/use-image-upload";
+import TextareaControl from "@/components/ui/textarea-control";
+import VendorLayout from "@/layouts/vendor-layout";
 
 const CreateCandy: NextPageWithLayout = () => {
   const { mutate, isLoading } = api.candy.create.useMutation({
@@ -59,15 +64,9 @@ const CreateCandy: NextPageWithLayout = () => {
           <Stack spacing="8">
             <Stack spacing="6">
               <Stack spacing={{ base: "2", md: "3" }} textAlign="center">
-                <Heading size={{ base: "xs", md: "sm" }}>
-                  Log in to your vendor account
+                <Heading size={{ base: "xs", md: "sm", lg: "xl" }}>
+                  Create a candy
                 </Heading>
-                <HStack spacing="1" justify="center">
-                  <Text color="fg.muted">Do not have an account?</Text>
-                  <Button variant="text" size="lg">
-                    Sign up
-                  </Button>
-                </HStack>
               </Stack>
             </Stack>
             <Box
@@ -79,11 +78,11 @@ const CreateCandy: NextPageWithLayout = () => {
             >
               <Formik
                 initialValues={{
-                  name: "Snickers",
+                  name: "",
                   description:
-                    "A delicious candy bar with peanuts, caramel, and nougat.",
-                  price: 20,
-                  quantity: 100,
+                    "",
+                  price: 0,
+                  quantity: 0,
                 }}
                 //validationSchema={toFormikValidationSchema(candySchema)}
                 onSubmit={async (values) => {
@@ -126,17 +125,8 @@ const CreateCandy: NextPageWithLayout = () => {
               >
                 {({ isSubmitting, isValid, dirty, values, errors }) => (
                   <Form>
-                    {JSON.stringify(values)}
-
-                    {JSON.stringify(errors)}
-                    {/* {JSON.stringify(imageDataURI)}
-                    
-                    {JSON.stringify(imageUrl)} */}
-
-                    {/* <Field as={Input} name="name" placeholder="Name" />
-                    <Field as={Input} name="description" placeholder="Name" /> */}
                     <InputControl name="name" label="Name" placeholder="Name" />
-                    <InputControl
+                    <TextareaControl
                       name="description"
                       label="Description"
                       placeholder="Name"
@@ -144,9 +134,48 @@ const CreateCandy: NextPageWithLayout = () => {
 
                     <NumberInputControl name="price" label="Price" />
                     <NumberInputControl name="quantity" label="Quantity" />
-                    <Input type="file" ref={imageRef} onChange={uploadFile} />
+                    <Input
+                      display="none"
+                      type="file"
+                      ref={imageRef}
+                      onChange={uploadFile}
+                    />
+                    <Flex
+                      my={4}
+                      w="full"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <Box position="relative" h={20} w={20}>
+                        {imageUrl && (
+                          <Image
+                            src={imageUrl || ""}
+                            alt="Candy Picture"
+                            fill
+                          />
+                        )}
+                      </Box>
+                      <Button
+                        onClick={() => {
+                          imageRef.current.click();
+                        }}
+                        type="button"
+                      >
+                        Upload Image
+                      </Button>
+                    </Flex>
 
-                    <Button type="submit">Create</Button>
+                    <Button
+                      isLoading={isSubmitting}
+                      isDisabled={
+                        isSubmitting || !isValid || !dirty || !imageUrl
+                      }
+                      colorScheme="pink"
+                      type="submit"
+                      w="full"
+                    >
+                      Create
+                    </Button>
                   </Form>
                 )}
               </Formik>
@@ -158,6 +187,6 @@ const CreateCandy: NextPageWithLayout = () => {
   );
 };
 
-CreateCandy.getLayout = (page) => <VendorProvider>{page}</VendorProvider>;
+CreateCandy.getLayout = (page) => <VendorLayout>{page}</VendorLayout>;
 
 export default CreateCandy;
