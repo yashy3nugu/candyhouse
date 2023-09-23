@@ -52,6 +52,9 @@ const Login: NextPageWithLayout = () => {
         if (data.role === Role.User) {
           redirect = "/store";
         }
+        else if (data.role === Role.Admin) {
+          redirect = "/admin/dashboard";
+        }
         else {
           redirect = "/vendor/dashboard"
         }
