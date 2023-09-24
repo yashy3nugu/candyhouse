@@ -6,7 +6,7 @@ import {
 } from "@/server/api/trpc";
 
 import CandyModel from "@/server/models/candy.model";
-import candySchema from "@/utils/schemas/candy";
+import candySchema, { candyUpdateSchema } from "@/utils/schemas/candy";
 import { TRPCError } from "@trpc/server";
 
 export const candyRouter = createTRPCRouter({
@@ -68,6 +68,22 @@ export const candyRouter = createTRPCRouter({
           message: "This candy does not exist",
         });
       }
+      return candy;
+    }),
+  update: vendorProcedure
+    .input(candyUpdateSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { name, description, price, quantity, photo, _id } = input;
+      
+      const candy = await CandyModel.findByIdAndUpdate(_id, {
+        name,
+        price,
+        quantity,
+        description,
+        vendor: ctx.user._id,
+        photo,
+      });
+
       return candy;
     }),
 });

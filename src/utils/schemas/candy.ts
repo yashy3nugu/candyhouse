@@ -11,4 +11,19 @@ export const candySchema = z.object({
   }),
 });
 
+export const candyUpdateSchema = z.object({
+  _id: z.string().optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  price: z.number().optional(),
+  quantity: z.number().optional(),
+  photo: z
+    .object({
+      url: z.string().optional(),
+      publicId: z.string().optional(),
+    })
+    .optional(),
+});
+
+
 export default candySchema;
