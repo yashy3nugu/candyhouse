@@ -12,6 +12,7 @@ import {
   orderInputSchema,
   updateOrderStatusSchema,
 } from "@/utils/schemas/order";
+import { Status } from "@/utils/types/orders";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -33,10 +34,10 @@ export const orderRouter = createTRPCRouter({
       let total = 0;
 
       for (const candyDocument of candyDocuments) {
-        const numItems = items.find((item) => item.candy == candyDocument._id)!.itemsInCart;
-        total +=
-          candyDocument.price *
-          numItems
+        const numItems = items.find(
+          (item) => item.candy == candyDocument._id
+        )!.itemsInCart;
+        total += candyDocument.price * numItems;
 
         if (candyDocument.quantity - numItems < 0) {
           throw new TRPCError({
@@ -44,10 +45,9 @@ export const orderRouter = createTRPCRouter({
             message: "Insufficient stock for candy " + candyDocument._id,
           });
         }
-          const updated = await CandyModel.findByIdAndUpdate(candyDocument._id, {
-            quantity: candyDocument.quantity - numItems,
-          });
-        
+        const updated = await CandyModel.findByIdAndUpdate(candyDocument._id, {
+          quantity: candyDocument.quantity - numItems,
+        });
       }
 
       if (code) {
@@ -62,8 +62,48 @@ export const orderRouter = createTRPCRouter({
         items,
         price: total,
         address,
-        bank
+        bank,
       });
+
+      return order;
+    }),
+
+  cancel: adminProcedure
+    .input(updateOrderStatusSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { _id } = input;
+
+      const order = await OrderModel.findById(_id);
+      
+
+      if (!order) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "This order does not exist",
+        });
+      }
+
+      if (order.status === Status.Cancelled) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This order is already cancelled",
+        });
+      }
+
+      const updated = await OrderModel.findByIdAndUpdate(_id, { status: Status.Cancelled });
+      console.log("updated", updated);
+      const candyQuantityUpdates = order.items.map((orderItem) => ({
+        updateOne: {
+          filter: { _id: orderItem.candy.toString() },
+          update: {
+            $inc: { quantity: orderItem.itemsInCart }, 
+          },
+        },
+      }));
+
+      console.log("updates", candyQuantityUpdates)
+
+      await CandyModel.bulkWrite(candyQuantityUpdates);
 
       return order;
     }),
@@ -91,7 +131,7 @@ export const orderRouter = createTRPCRouter({
       };
     }),
 
-  oneById: vendorProcedure
+  oneById: adminProcedure
     .input(z.object({ _id: z.string() }))
     .query(async ({ input }) => {
       const order = await OrderModel.findById(input._id).populate(
@@ -108,18 +148,37 @@ export const orderRouter = createTRPCRouter({
 
       return order;
     }),
-  updateOrderStatus: vendorProcedure
+  // updateOrderStatus: vendorProcedure
+  //   .input(updateOrderStatusSchema)
+  //   .mutation(async ({ input }) => {
+  //     const { _id, status } = input;
+
+  //     const order = await OrderModel.findByIdAndUpdate(
+  //       _id,
+  //       {
+  //         $set: { status },
+  //       },
+  //       { new: true }
+  //     ).populate("user", "name email");
+
+  //     if (!order) {
+  //       throw new TRPCError({
+  //         code: "NOT_FOUND",
+  //         message: "This order does not exist",
+  //       });
+  //     }
+
+  //     return order;
+  //   }),
+
+  markDelivered: adminProcedure
     .input(updateOrderStatusSchema)
     .mutation(async ({ input }) => {
-      const { _id, status } = input;
+      const { _id } = input;
 
-      const order = await OrderModel.findByIdAndUpdate(
-        _id,
-        {
-          $set: { status },
-        },
-        { new: true }
-      ).populate("user", "name email");
+      const order = await OrderModel.findByIdAndUpdate(_id, {
+        status: Status.Delivered,
+      }).populate("user", "name email");
 
       if (!order) {
         throw new TRPCError({
