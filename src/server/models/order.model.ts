@@ -20,12 +20,6 @@ export class OrderItem {
   })
   candy!: mongoose.Types.ObjectId;
 
-  @prop({
-    type: String,
-    required: [true, "Order item must have a address"],
-    trim: true
-  })
-  address!: mongoose.Types.ObjectId;
 
   @prop({
     type: Number,
@@ -64,13 +58,20 @@ export class Order {
   items!: OrderItem[];
 
   @prop({
+    type: String,
+    required: [true, "Order item must have a address"],
+    trim: true,
+  })
+  address!: mongoose.Types.ObjectId;
+
+  @prop({
     type: Number,
   })
   price!: number;
 
   @prop({
     type: mongoose.SchemaTypes.ObjectId,
-    ref: () => Bank
+    ref: () => Bank,
   })
   bank!: Ref<Bank>;
 

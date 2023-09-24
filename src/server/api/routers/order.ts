@@ -1,4 +1,5 @@
 import {
+  adminProcedure,
   consumerProcedure,
   createTRPCRouter,
   publicProcedure,
@@ -20,7 +21,7 @@ export const orderRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { items, code, address, bank } = input;
 
-      const candyIds = items.map((item) => item.candy);
+      const candyIds = [...new Set(items.map((item) => item.candy))];
 
       const candyDocuments = await CandyModel.find({
         _id: {
@@ -32,9 +33,21 @@ export const orderRouter = createTRPCRouter({
       let total = 0;
 
       for (const candyDocument of candyDocuments) {
+        const numItems = items.find((item) => item.candy == candyDocument._id)!.itemsInCart;
         total +=
           candyDocument.price *
-          items.find((item) => item.candy == candyDocument._id)!.itemsInCart;
+          numItems
+
+        if (candyDocument.quantity - numItems < 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Insufficient stock for candy " + candyDocument._id,
+          });
+        }
+          const updated = await CandyModel.findByIdAndUpdate(candyDocument._id, {
+            quantity: candyDocument.quantity - numItems,
+          });
+        
       }
 
       if (code) {
@@ -55,7 +68,7 @@ export const orderRouter = createTRPCRouter({
       return order;
     }),
 
-  all: vendorProcedure
+  all: adminProcedure
     .input(
       z.object({
         page: z.number().nullish(),
