@@ -123,7 +123,7 @@ export const orderRouter = createTRPCRouter({
       return order;
     }),
 
-  cancel: adminProcedure
+  cancel: consumerProcedure
     .input(updateOrderStatusSchema)
     .mutation(async ({ input, ctx }) => {
       const { _id } = input;
@@ -146,7 +146,6 @@ export const orderRouter = createTRPCRouter({
       }
 
       const updated = await OrderModel.findByIdAndUpdate(_id, { status: Status.Cancelled });
-      console.log("updated", updated);
       const candyQuantityUpdates = order.items.map((orderItem) => ({
         updateOne: {
           filter: { _id: orderItem.candy.toString() },
@@ -158,6 +157,13 @@ export const orderRouter = createTRPCRouter({
 
 
       await CandyModel.bulkWrite(candyQuantityUpdates);
+
+      // revert redeemed coins
+      await UserModel.findByIdAndUpdate(ctx.user._id, {
+        $inc: {
+          balance: order.coinsRedeemed,
+          totalRedeemedCoins: -order.coinsRedeemed
+      }})
 
       return order;
     }),
