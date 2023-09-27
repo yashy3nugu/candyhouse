@@ -8,6 +8,7 @@ import {
 import CandyModel from "@/server/models/candy.model";
 import CouponModel from "@/server/models/coupon.model";
 import OrderModel from "@/server/models/order.model";
+import { UserModel } from "@/server/models/user.model";
 import {
   orderInputSchema,
   updateOrderStatusSchema,
@@ -20,7 +21,7 @@ export const orderRouter = createTRPCRouter({
   create: consumerProcedure
     .input(orderInputSchema)
     .mutation(async ({ input, ctx }) => {
-      const { items, code, address, bank } = input;
+      const { items, code, address, bank, coinsToRedeem } = input;
 
       const candyIds = [...new Set(items.map((item) => item.candy))];
 
@@ -57,12 +58,54 @@ export const orderRouter = createTRPCRouter({
           total -= Math.round((coupon.discount / 100) * total);
         }
       }
+
+      let coinDiscount = 0;
+      if (coinsToRedeem) {
+
+        if (coinsToRedeem <= ctx.user.balance) {
+          const coinsDiscountAmount = Math.floor(coinsToRedeem / 10) * 10; // 1 coin for every 10 rupees
+          coinDiscount = coinsDiscountAmount / 10; // 10 rupees for every 100 coins
+
+          await UserModel.findByIdAndUpdate(ctx.user._id, {
+            $inc: {
+              balance: -coinsToRedeem,
+              totalRedeemedCoins: coinsToRedeem,
+            },
+          });
+        }
+        else {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Insufficient coin balance",
+          });
+        }
+        
+      }
+
+      if (total - coinDiscount < 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Redeemed coins are more than order total",
+        });
+      }
+      // Apply the coin discount to the total
+      total -= coinDiscount;
+
       const order = await OrderModel.create({
         user: ctx.user,
         items,
         price: total,
         address,
         bank,
+      });
+
+      const coinsEarned = Math.floor(total / 10);
+
+      const user = await UserModel.findByIdAndUpdate(ctx.user._id, {
+        $inc: {
+          balance: coinsEarned,
+          totalEarnedCoins: coinsEarned,
+        },
       });
 
       return order;

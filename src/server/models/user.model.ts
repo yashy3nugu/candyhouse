@@ -70,6 +70,24 @@ export class User {
   })
   photo?: Photo;
 
+  @prop({
+    default: 0,
+    type: Number,
+  })
+  balance!: number;
+
+  @prop({
+    default: 0,
+    type: Number,
+  })
+  totalRedeemedCoins!: number;
+
+  @prop({
+    default: 0,
+    type: Number,
+  })
+  totalEarnedCoins!: number;
+
   readonly createdAt?: Date;
 
   readonly updatedAt?: Date;
