@@ -70,6 +70,11 @@ export class Order {
   price!: number;
 
   @prop({
+    type: Number,
+  })
+  coinsRedeemed!: number;
+
+  @prop({
     type: mongoose.SchemaTypes.ObjectId,
     ref: () => Bank,
   })

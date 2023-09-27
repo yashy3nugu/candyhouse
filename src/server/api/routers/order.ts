@@ -108,6 +108,7 @@ export const orderRouter = createTRPCRouter({
         price: total,
         address,
         bank,
+        coinsRedeemed: coinsToRedeem ? coinsToRedeem : 0
       });
 
       const coinsEarned = Math.floor(total / 10);
