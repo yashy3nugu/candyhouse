@@ -33,7 +33,6 @@ export const orderRouter = createTRPCRouter({
 
       // calculate total server side
       let total = 0;
-
       for (const candyDocument of candyDocuments) {
         const numItems = items.find(
           (item) => item.candy == candyDocument._id
@@ -46,10 +45,22 @@ export const orderRouter = createTRPCRouter({
             message: "Insufficient stock for candy " + candyDocument._id,
           });
         }
-        const updated = await CandyModel.findByIdAndUpdate(candyDocument._id, {
-          quantity: candyDocument.quantity - numItems,
-        });
+        // const updated = await CandyModel.findByIdAndUpdate(candyDocument._id, {
+        //   quantity: candyDocument.quantity - numItems,
+        // });
       }
+
+      // bulk write (the case where insuficcient stock is present is taken care during total calculation)
+      const candyQuantityUpdates = items.map((orderItem) => ({
+        updateOne: {
+          filter: { _id: orderItem.candy.toString() },
+          update: {
+            $inc: { quantity: -orderItem.itemsInCart },
+          },
+        },
+      }));
+
+      await CandyModel.bulkWrite(candyQuantityUpdates);
 
       if (code) {
         const coupon = await CouponModel.findOne({ code });
@@ -144,7 +155,6 @@ export const orderRouter = createTRPCRouter({
         },
       }));
 
-      console.log("updates", candyQuantityUpdates)
 
       await CandyModel.bulkWrite(candyQuantityUpdates);
 

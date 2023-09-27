@@ -47,3 +47,10 @@ Candy House (super admin handles orders)
 Vendors must raise a request to add products or change inventory
 Vendors get notified when a new order is placed
 Vendors have access to analytics
+Create a candysubmission request model which only has ref of candy, vendor and approval status (canduy also has approval status field)
+Store info like balance, totalCoinsEarned, totalCoinsredeemed for reward coins. 1 coin for every 10 rupees spent. 100 coins can be used to get 10 rupees discount.
+Create functionality to run discount coupons for banks by admins
+
+
+TODO:
+make mongodb operations as transactions
