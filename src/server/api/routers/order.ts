@@ -24,125 +24,137 @@ export const orderRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { items, code, address, bank, coinsToRedeem } = input;
 
-      const candyIds = [...new Set(items.map((item) => item.candy))];
+      const session = await mongoose.startSession();
 
-      const candyDocuments = await CandyModel.find({
-        _id: {
-          $in: candyIds,
-        },
-      });
+      try {
+        session.startTransaction();
+        const candyIds = [...new Set(items.map((item) => item.candy))];
 
-      // calculate total server side
-      let total = 0;
-      for (const candyDocument of candyDocuments) {
-        const numItems = items.find(
-          (item) => item.candy == candyDocument._id
-        )!.itemsInCart;
-        total += candyDocument.price * numItems;
-
-        if (candyDocument.quantity - numItems < 0) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Insufficient stock for candy " + candyDocument._id,
-          });
-        }
-        // const updated = await CandyModel.findByIdAndUpdate(candyDocument._id, {
-        //   quantity: candyDocument.quantity - numItems,
-        // });
-      }
-
-      // bulk write (the case where insuficcient stock is present is taken care during total calculation)
-      const candyQuantityUpdates = items.map((orderItem) => ({
-        updateOne: {
-          filter: { _id: orderItem.candy.toString() },
-          update: {
-            $inc: { quantity: -orderItem.itemsInCart },
+        const candyDocuments = await CandyModel.find({
+          _id: {
+            $in: candyIds,
           },
-        },
-      }));
+        });
 
-      await CandyModel.bulkWrite(candyQuantityUpdates);
+        // calculate total server side
+        let total = 0;
+        for (const candyDocument of candyDocuments) {
+          const numItems = items.find(
+            (item) => item.candy == candyDocument._id
+          )!.itemsInCart;
+          total += candyDocument.price * numItems;
 
-      if (code) {
-        const coupon = await CouponModel.findOne({ code });
-        // apply discount
-        if (coupon) {
+          if (candyDocument.quantity - numItems < 0) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Insufficient stock for candy " + candyDocument._id,
+            });
+          }
+          // const updated = await CandyModel.findByIdAndUpdate(candyDocument._id, {
+          //   quantity: candyDocument.quantity - numItems,
+          // });
+        }
 
-          if (coupon.redeemed.includes(new mongoose.Types.ObjectId(ctx.user._id))) {
+        // bulk write (the case where insuficcient stock is present is taken care during total calculation)
+        const candyQuantityUpdates = items.map((orderItem) => ({
+          updateOne: {
+            filter: { _id: orderItem.candy.toString() },
+            update: {
+              $inc: { quantity: -orderItem.itemsInCart },
+            },
+          },
+        }));
+
+        await CandyModel.bulkWrite(candyQuantityUpdates);
+
+        if (code) {
+          const coupon = await CouponModel.findOne({ code });
+          // apply discount
+          if (coupon) {
+            if (
+              coupon.redeemed.includes(
+                new mongoose.Types.ObjectId(ctx.user._id)
+              )
+            ) {
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "Invalid coupon code",
+              });
+            }
+
+            total -= Math.round((coupon.discount / 100) * total);
+          } else {
             throw new TRPCError({
               code: "BAD_REQUEST",
               message: "Invalid coupon code",
             });
           }
-          
 
-          total -= Math.round((coupon.discount / 100) * total);
-        }
-        else {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Invalid coupon code",
-          });
-        }
-
-        await CouponModel.findByIdAndUpdate(coupon._id, {
-          $addToSet: {
-            redeemed: ctx.user._id
-          }
-        })
-      }
-
-      let coinDiscount = 0;
-      if (coinsToRedeem) {
-
-        if (coinsToRedeem <= ctx.user.balance) {
-          const coinsDiscountAmount = Math.floor(coinsToRedeem / 10) * 10; // 1 coin for every 10 rupees
-          coinDiscount = coinsDiscountAmount / 10; // 10 rupees for every 100 coins
-
-          await UserModel.findByIdAndUpdate(ctx.user._id, {
-            $inc: {
-              balance: -coinsToRedeem,
-              totalRedeemedCoins: coinsToRedeem,
+          await CouponModel.findByIdAndUpdate(coupon._id, {
+            $addToSet: {
+              redeemed: ctx.user._id,
             },
           });
         }
-        else {
+
+        let coinDiscount = 0;
+        if (coinsToRedeem) {
+          if (coinsToRedeem <= ctx.user.balance) {
+            const coinsDiscountAmount = Math.floor(coinsToRedeem / 10) * 10; // 1 coin for every 10 rupees
+            coinDiscount = coinsDiscountAmount / 10; // 10 rupees for every 100 coins
+
+            await UserModel.findByIdAndUpdate(ctx.user._id, {
+              $inc: {
+                balance: -coinsToRedeem,
+                totalRedeemedCoins: coinsToRedeem,
+              },
+            });
+          } else {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Insufficient coin balance",
+            });
+          }
+        }
+
+        if (total - coinDiscount < 0) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "Insufficient coin balance",
+            message: "Redeemed coins are more than order total",
           });
         }
-        
-      }
+        // Apply the coin discount to the total
+        total -= coinDiscount;
 
-      if (total - coinDiscount < 0) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Redeemed coins are more than order total",
+        const order = await OrderModel.create({
+          user: ctx.user,
+          items,
+          price: total,
+          address,
+          bank,
+          coinsRedeemed: coinsToRedeem ? coinsToRedeem : 0,
         });
+
+        const coinsEarned = Math.floor(total / 10);
+
+        const user = await UserModel.findByIdAndUpdate(ctx.user._id, {
+          $inc: {
+            balance: coinsEarned,
+            totalEarnedCoins: coinsEarned,
+          },
+        });
+
+        await session.commitTransaction();
+        session.endSession();
+
+        return order;
+      } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+
+
+        throw error;
       }
-      // Apply the coin discount to the total
-      total -= coinDiscount;
-
-      const order = await OrderModel.create({
-        user: ctx.user,
-        items,
-        price: total,
-        address,
-        bank,
-        coinsRedeemed: coinsToRedeem ? coinsToRedeem : 0
-      });
-
-      const coinsEarned = Math.floor(total / 10);
-
-      const user = await UserModel.findByIdAndUpdate(ctx.user._id, {
-        $inc: {
-          balance: coinsEarned,
-          totalEarnedCoins: coinsEarned,
-        },
-      });
-
-      return order;
     }),
 
   cancel: consumerProcedure
@@ -151,7 +163,6 @@ export const orderRouter = createTRPCRouter({
       const { _id } = input;
 
       const order = await OrderModel.findById(_id);
-      
 
       if (!order) {
         throw new TRPCError({
@@ -167,16 +178,17 @@ export const orderRouter = createTRPCRouter({
         });
       }
 
-      const updated = await OrderModel.findByIdAndUpdate(_id, { status: Status.Cancelled });
+      const updated = await OrderModel.findByIdAndUpdate(_id, {
+        status: Status.Cancelled,
+      });
       const candyQuantityUpdates = order.items.map((orderItem) => ({
         updateOne: {
           filter: { _id: orderItem.candy.toString() },
           update: {
-            $inc: { quantity: orderItem.itemsInCart }, 
+            $inc: { quantity: orderItem.itemsInCart },
           },
         },
       }));
-
 
       await CandyModel.bulkWrite(candyQuantityUpdates);
 
@@ -184,8 +196,9 @@ export const orderRouter = createTRPCRouter({
       await UserModel.findByIdAndUpdate(ctx.user._id, {
         $inc: {
           balance: order.coinsRedeemed,
-          totalRedeemedCoins: -order.coinsRedeemed
-      }})
+          totalRedeemedCoins: -order.coinsRedeemed,
+        },
+      });
 
       return order;
     }),
