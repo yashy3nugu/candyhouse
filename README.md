@@ -51,6 +51,6 @@ Create a candysubmission request model which only has ref of candy, vendor and a
 Store info like balance, totalCoinsEarned, totalCoinsredeemed for reward coins. 1 coin for every 10 rupees spent. 100 coins can be used to get 10 rupees discount.
 Create functionality to run discount coupons for banks by admins
 
-
+ 
 TODO:
 make mongodb operations as transactions
