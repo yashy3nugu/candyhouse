@@ -162,45 +162,64 @@ export const orderRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { _id } = input;
 
-      const order = await OrderModel.findById(_id);
+      const session = await mongoose.startSession();
 
-      if (!order) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "This order does not exist",
+      try {
+        session.startTransaction();
+
+        const order = await OrderModel.findById(_id);
+
+        if (!order) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "This order does not exist",
+          });
+        }
+
+        if (order.status === Status.Cancelled) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "This order is already cancelled",
+          });
+        }
+
+        const updated = await OrderModel.findByIdAndUpdate(_id, {
+          status: Status.Cancelled,
         });
-      }
-
-      if (order.status === Status.Cancelled) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "This order is already cancelled",
-        });
-      }
-
-      const updated = await OrderModel.findByIdAndUpdate(_id, {
-        status: Status.Cancelled,
-      });
-      const candyQuantityUpdates = order.items.map((orderItem) => ({
-        updateOne: {
-          filter: { _id: orderItem.candy.toString() },
-          update: {
-            $inc: { quantity: orderItem.itemsInCart },
+        const candyQuantityUpdates = order.items.map((orderItem) => ({
+          updateOne: {
+            filter: { _id: orderItem.candy.toString() },
+            update: {
+              $inc: { quantity: orderItem.itemsInCart },
+            },
           },
-        },
-      }));
+        }));
 
-      await CandyModel.bulkWrite(candyQuantityUpdates);
+        await CandyModel.bulkWrite(candyQuantityUpdates);
 
-      // revert redeemed coins
-      await UserModel.findByIdAndUpdate(ctx.user._id, {
-        $inc: {
-          balance: order.coinsRedeemed,
-          totalRedeemedCoins: -order.coinsRedeemed,
-        },
-      });
+        // revert redeemed coins
+        await UserModel.findByIdAndUpdate(ctx.user._id, {
+          $inc: {
+            balance: order.coinsRedeemed,
+            totalRedeemedCoins: -order.coinsRedeemed,
+          },
+        });
 
-      return order;
+        await session.commitTransaction();
+        session.endSession();
+
+        return order;
+
+        
+      }
+      catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+
+        throw error;
+      }
+
+      
     }),
 
   all: adminProcedure
