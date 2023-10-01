@@ -67,8 +67,9 @@ export const orderRouter = createTRPCRouter({
 
         await CandyModel.bulkWrite(candyQuantityUpdates);
 
+        let coupon = null;
         if (code) {
-          const coupon = await CouponModel.findOne({ code });
+          coupon = await CouponModel.findOne({ code });
           // apply discount
           if (coupon) {
             if (
@@ -133,6 +134,7 @@ export const orderRouter = createTRPCRouter({
           address,
           bank,
           coinsRedeemed: coinsToRedeem ? coinsToRedeem : 0,
+          appliedCoupon: coupon ? coupon._id : undefined 
         });
 
         const coinsEarned = Math.floor(total / 10);
@@ -204,6 +206,10 @@ export const orderRouter = createTRPCRouter({
             totalRedeemedCoins: -order.coinsRedeemed,
           },
         });
+
+        await CouponModel.findByIdAndUpdate(order.appliedCoupon, {
+          $pull: {redeemed: ctx.user._id}
+        })
 
         await session.commitTransaction();
         session.endSession();

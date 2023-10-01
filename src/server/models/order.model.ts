@@ -11,6 +11,7 @@ import mongoose from "mongoose";
 import { Status } from "../../utils/types/orders";
 import { Candy } from "./candy.model";
 import { Bank } from "./bank.model";
+import { Coupon } from "./coupon.model";
 
 export class OrderItem {
   @prop({
@@ -79,6 +80,12 @@ export class Order {
     ref: () => Bank,
   })
   bank!: Ref<Bank>;
+
+  @prop({
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: () => Coupon,
+  })
+  appliedCoupon?: Ref<Bank>;
 
   readonly createdAt!: Date;
 
