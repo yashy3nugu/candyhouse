@@ -16,6 +16,7 @@ import {
 import { Status } from "@/utils/types/orders";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import mongoose from "mongoose";
 
 export const orderRouter = createTRPCRouter({
   create: consumerProcedure
@@ -66,8 +67,29 @@ export const orderRouter = createTRPCRouter({
         const coupon = await CouponModel.findOne({ code });
         // apply discount
         if (coupon) {
+
+          if (coupon.redeemed.includes(new mongoose.Types.ObjectId(ctx.user._id))) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Invalid coupon code",
+            });
+          }
+          
+
           total -= Math.round((coupon.discount / 100) * total);
         }
+        else {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid coupon code",
+          });
+        }
+
+        await CouponModel.findByIdAndUpdate(coupon._id, {
+          $addToSet: {
+            redeemed: ctx.user._id
+          }
+        })
       }
 
       let coinDiscount = 0;

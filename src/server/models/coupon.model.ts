@@ -7,6 +7,7 @@ import {
   pre,
 } from "@typegoose/typegoose";
 import { Bank } from "./bank.model";
+import { User } from "./user.model";
 
 export class Coupon {
   readonly _id!: string;
@@ -44,6 +45,13 @@ export class Coupon {
     ref: () => Bank,
   })
   bank!: mongoose.Types.ObjectId;
+
+  @prop({
+    type: [mongoose.SchemaTypes.ObjectId], // Array of User IDs who redeemed the coupon
+    ref: () => User, // Assuming you have a User model
+    default: [],
+  })
+  redeemed!: mongoose.Types.ObjectId[];
 
   readonly createdAt?: Date;
 
