@@ -85,6 +85,18 @@ const Cart: NextPageWithLayout = () => {
   // const { isOpen, onOpen, onClose } = useDisclosure();
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
 
+  const step = 100;
+  let options: number[] = []
+
+  if (!isUserLoading && user) {
+    options = Array.from(
+      { length: (Math.min(1000,user.balance) - 100) / step + 1 },
+      (_, index) => 100 + index * step
+    );
+  }
+
+  
+
   const toast = useToast();
   return (
     <>
@@ -103,175 +115,212 @@ const Cart: NextPageWithLayout = () => {
           <>
             <Card w="full" mb={5}>
               <CardBody>
-                <Formik
-                  validate={({ address, bank }) => {
-                    const errors: { address?: string; bank?: string } = {};
-                    if (bank === "") {
-                      errors.bank = "Payment Bank required";
-                    }
-                    if (address === "") {
-                      errors.address = "Address Required";
-                    }
-                    return errors;
-                  }}
-                  initialValues={{
-                    code: "",
-                    bank: "",
-                    address: "",
-                  }}
-                  onSubmit={({ address, bank }) => {
-                    const items = [] as {
-                      candy: string;
-                      itemsInCart: number;
-                    }[];
+                <Flex mt={4} w="full" justifyContent="space-between">
+                  <Text fontSize="md" fontWeight="base">
+                    Subtotal
+                  </Text>
+                  <Text fontSize="md" fontWeight="base">
+                    ₹{cartPrice}
+                  </Text>
+                </Flex>
 
-                    cartItems.forEach(({ _id, itemsInCart }) => {
-                      items.push({
-                        candy: _id,
-                        itemsInCart,
+                {appliedCoupon && (
+                  <Flex mt={4} w="full" justifyContent="space-between">
+                    <Text fontSize="md" fontWeight="base">
+                      Discount (
+                      {appliedCoupon ? `${appliedCoupon.discount}%` : "0%"})
+                    </Text>
+                    <Text color="pink.300" fontSize="md" fontWeight="base">
+                      -₹
+                      {appliedCoupon
+                        ? Math.round(cartPrice * (appliedCoupon.discount / 100))
+                        : 0}
+                    </Text>
+                  </Flex>
+                )}
+
+                <Divider />
+
+                <Flex mt={4} w="full" justifyContent="space-between">
+                  <Text fontSize="lg" fontWeight="semibold">
+                    Order Total
+                  </Text>
+                  <Text fontSize="lg" fontWeight="semibold">
+                    ₹
+                    {appliedCoupon
+                      ? Math.round(
+                          cartPrice * (1 - appliedCoupon.discount / 100)
+                        )
+                      : cartPrice}
+                  </Text>
+                </Flex>
+
+                {!isUserLoading && user && (
+                  <Formik
+                    
+                    validate={({ address, bank }) => {
+                      const errors: { address?: string; bank?: string } = {};
+                      if (bank === "") {
+                        errors.bank = "Payment Bank required";
+                      }
+                      if (address === "") {
+                        errors.address = "Address Required";
+                      }
+                      return errors;
+                    }}
+                    initialValues={{
+                      code: "",
+                      bank: "",
+                      address: "",
+                      coins: undefined,
+                    }}
+                    
+                    onSubmit={({ address, bank, coins }) => {
+                      const items = [] as {
+                        candy: string;
+                        itemsInCart: number;
+                      }[];
+
+                      cartItems.forEach(({ _id, itemsInCart }) => {
+                        items.push({
+                          candy: _id,
+                          itemsInCart,
+                        });
                       });
-                    });
 
-                    createOrder({
-                      items,
-                      address,
-                      bank,
-                      code: appliedCoupon?.code,
-                    });
-                  }}
-                >
-                  {({ values, isSubmitting, isValid, dirty }) => (
-                    <Form>
-                      <VStack alignItems="start">
+                      createOrder({
+                        items,
+                        address,
+                        bank,
+                        code: appliedCoupon?.code,
+                        coinsToRedeem: Number(coins),
+                      });
+                    }}
+                  >
+                    {({ values, isSubmitting, isValid, dirty }) => (
+                      <Form>
                         {/* {JSON.stringify(values, null, 4)} */}
-                        <SelectControl
-                          label="Select Bank"
-                          name="bank"
-                          selectProps={{ placeholder: "Select Bank" }}
-                        >
-                          {!isBanksLoading &&
-                            data?.banks.map((bank, i) => (
-                              <option key={i} value={bank._id}>
-                                {bank.name}
-                              </option>
-                            ))}
-                        </SelectControl>
-                        <InputControl name="address" label="Address" />
+                        <VStack alignItems="start" mt={4}>
+                          {user.balance >= 100 && (
+                            <SelectControl
+                              label="Select Bank"
+                              name="bank"
+                              selectProps={{ placeholder: "Select Bank" }}
+                            >
+                              {!isBanksLoading &&
+                                data?.banks.map((bank, i) => (
+                                  <option key={i} value={bank._id}>
+                                    {bank.name}
+                                  </option>
+                                ))}
+                            </SelectControl>
+                          )}
 
-                        <Flex
-                          mt={4}
-                          w="full"
-                          alignItems="center"
-                          justifyContent="center"
-                        >
-                          <Field
-                            mr={4}
-                            as={Input}
-                            name="code"
-                            placeholder="Coupon"
-                          />
-                          <Button
-                            isDisabled={isCouponValidationLoading}
-                            isLoading={isCouponValidationLoading}
-                            onClick={async () => {
-                              try {
-                                const { coupon } = await validateCoupon(values);
-                                setAppliedCoupon(coupon);
-                                toast({
-                                  title: "Applied Coupon",
+                          <InputControl name="address" label="Address" />
 
-                                  status: "success",
-                                  duration: 9000,
-                                  isClosable: true,
-                                });
-                              } catch (err) {
-                                const error = err as any;
-
-                                toast({
-                                  title: "Cannot Apply Coupon",
-                                  description: error.shape.message,
-                                  status: "error",
-                                  duration: 9000,
-                                  isClosable: true,
-                                });
-                              }
-                            }}
-                            type="button"
+                          <Flex
+                            mt={4}
+                            w="full"
+                            alignItems="center"
+                            justifyContent="center"
                           >
-                            Apply
-                          </Button>
-                        </Flex>
-                      </VStack>
-                      <Flex mt={4} w="full" justifyContent="space-between">
-                        <Text fontSize="md" fontWeight="base">
-                          Subtotal
-                        </Text>
-                        <Text fontSize="md" fontWeight="base">
-                          ₹{cartPrice}
-                        </Text>
-                      </Flex>
-                      <Flex mt={4} w="full" justifyContent="space-between">
-                        <Text fontSize="md" fontWeight="base">
-                          Discount (
-                          {appliedCoupon ? `${appliedCoupon.discount}%` : "0%"})
-                        </Text>
-                        <Text color="pink.300" fontSize="md" fontWeight="base">
-                          -₹
-                          {appliedCoupon
-                            ? Math.round(
-                                cartPrice * (appliedCoupon.discount / 100)
-                              )
-                            : 0}
-                        </Text>
-                      </Flex>
+                            <Field
+                              mr={4}
+                              as={Input}
+                              name="code"
+                              placeholder="Coupon"
+                            />
+                            <Button
+                              isDisabled={isCouponValidationLoading || appliedCoupon !== null}
+                              isLoading={isCouponValidationLoading}
+                              onClick={async () => {
+                                try {
+                                  const { coupon } = await validateCoupon(
+                                    values
+                                  );
+                                  setAppliedCoupon(coupon);
+                                  toast({
+                                    title: "Applied Coupon",
 
-                      <Divider />
+                                    status: "success",
+                                    duration: 9000,
+                                    isClosable: true,
+                                  });
+                                } catch (err) {
+                                  const error = err as any;
 
-                      <Flex mt={4} w="full" justifyContent="space-between">
-                        <Text fontSize="lg" fontWeight="semibold">
-                          Order Total
-                        </Text>
-                        <Text fontSize="lg" fontWeight="semibold">
-                          ₹
-                          {appliedCoupon
-                            ? Math.round(
-                                cartPrice * (1 - appliedCoupon.discount / 100)
-                              )
-                            : cartPrice}
-                        </Text>
-                      </Flex>
+                                  toast({
+                                    title: "Cannot Apply Coupon",
+                                    description: error.shape.message,
+                                    status: "error",
+                                    duration: 9000,
+                                    isClosable: true,
+                                  });
+                                }
+                              }}
+                              type="button"
+                            >
+                              Apply
+                            </Button>
+                          </Flex>
+                          <Flex mt={4} w="full" justifyContent="space-between">
+                            <Text>Available coins</Text>
+                            <Text>{user?.balance}🪙</Text>
+                          </Flex>
+                          {user.balance < 100 && (
+                            <Alert mt={2} status="info">
+                              <AlertIcon />
+                              Minimum 100 reward coins required to be claimed
+                            </Alert>
+                          )}
 
-                      {!isUserLoading && !user && (
-                        <Alert mt={4} status="info">
-                          <AlertIcon />
-                          Login to place an order.
-                        </Alert>
-                      )}
-                      {!isUserLoading &&
-                        user &&
-                        (user.role === Role.Vendor ||
-                          user.role === Role.Admin) && (
+                          {user.balance > 100 && (
+                            <SelectControl
+                              label="Redeem coins"
+                              name="coins"
+                              selectProps={{ placeholder: "Select Coins" }}
+                            >
+                              {options.map((value, i) => (
+                                <option key={i} value={value}>
+                                  {value}
+                                </option>
+                              ))}
+                            </SelectControl>
+                          )}
+                        </VStack>
+
+                        {!isUserLoading && !user && (
                           <Alert mt={4} status="info">
                             <AlertIcon />
-                            Login as a customer to place an order.
+                            Login to place an order.
                           </Alert>
                         )}
+                        {!isUserLoading &&
+                          user &&
+                          (user.role === Role.Vendor ||
+                            user.role === Role.Admin) && (
+                            <Alert mt={4} status="info">
+                              <AlertIcon />
+                              Login as a customer to place an order.
+                            </Alert>
+                          )}
 
-                      {!isUserLoading && user && (
-                        <Button
-                          isLoading={isSubmitting}
-                          isDisabled={isSubmitting || !isValid || !dirty}
-                          mt={4}
-                          type="submit"
-                          py={6}
-                          w="full"
-                        >
-                          Place Order
-                        </Button>
-                      )}
-                    </Form>
-                  )}
-                </Formik>
+                        {!isUserLoading && user && (
+                          <Button
+                            isLoading={isSubmitting}
+                            isDisabled={isSubmitting || !isValid || !dirty}
+                            mt={4}
+                            type="submit"
+                            py={6}
+                            w="full"
+                          >
+                            Place Order
+                          </Button>
+                        )}
+                      </Form>
+                    )}
+                  </Formik>
+                )}
               </CardBody>
             </Card>
 
