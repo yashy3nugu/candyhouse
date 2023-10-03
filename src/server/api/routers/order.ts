@@ -99,7 +99,7 @@ export const orderRouter = createTRPCRouter({
         }
 
         let coinDiscount = 0;
-        if (coinsToRedeem) {
+        if (coinsToRedeem > 0) {
           if (coinsToRedeem <= ctx.user.balance) {
             const coinsDiscountAmount = Math.floor(coinsToRedeem / 10) * 10; // 1 coin for every 10 rupees
             coinDiscount = coinsDiscountAmount / 10; // 10 rupees for every 100 coins
@@ -134,7 +134,7 @@ export const orderRouter = createTRPCRouter({
           address,
           bank,
           coinsRedeemed: coinsToRedeem ? coinsToRedeem : 0,
-          appliedCoupon: coupon ? coupon._id : undefined 
+          appliedCoupon: coupon ? coupon._id : undefined,
         });
 
         const coinsEarned = Math.floor(total / 10);
@@ -153,7 +153,6 @@ export const orderRouter = createTRPCRouter({
       } catch (error) {
         await session.abortTransaction();
         session.endSession();
-
 
         throw error;
       }
@@ -208,24 +207,19 @@ export const orderRouter = createTRPCRouter({
         });
 
         await CouponModel.findByIdAndUpdate(order.appliedCoupon, {
-          $pull: {redeemed: ctx.user._id}
-        })
+          $pull: { redeemed: ctx.user._id },
+        });
 
         await session.commitTransaction();
         session.endSession();
 
         return order;
-
-        
-      }
-      catch (error) {
+      } catch (error) {
         await session.abortTransaction();
         session.endSession();
 
         throw error;
       }
-
-      
     }),
 
   all: adminProcedure
@@ -241,6 +235,29 @@ export const orderRouter = createTRPCRouter({
       if (!limit) limit = 6;
 
       const orders = await OrderModel.find()
+        .skip((page - 1) * limit)
+        .limit(limit + 1)
+        .populate("user.name user.email");
+
+      return {
+        hasMore: orders.length === limit + 1,
+        orders: orders.slice(0, limit),
+      };
+    }),
+
+  user: consumerProcedure
+    .input(
+      z.object({
+        page: z.number().nullish(),
+        limit: z.number().nullish(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      let { page, limit } = input;
+      if (!page) page = 1;
+      if (!limit) limit = 6;
+
+      const orders = await OrderModel.find({user: ctx.user._id})
         .skip((page - 1) * limit)
         .limit(limit + 1)
         .populate("user.name user.email");

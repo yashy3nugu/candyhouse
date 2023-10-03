@@ -172,7 +172,7 @@ const Cart: NextPageWithLayout = () => {
                       code: "",
                       bank: "",
                       address: "",
-                      coins: undefined,
+                      coins: 0,
                     }}
                     
                     onSubmit={({ address, bank, coins }) => {
@@ -199,9 +199,9 @@ const Cart: NextPageWithLayout = () => {
                   >
                     {({ values, isSubmitting, isValid, dirty }) => (
                       <Form>
-                        {/* {JSON.stringify(values, null, 4)} */}
+                        {JSON.stringify(values, null, 4)}
                         <VStack alignItems="start" mt={4}>
-                          {user.balance >= 100 && (
+                          {true && (
                             <SelectControl
                               label="Select Bank"
                               name="bank"
