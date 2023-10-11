@@ -21,9 +21,7 @@ import {
 import usePagination from "@/hooks/use-pagination/usePagination";
 import OrderDataTable from "@/components/order-data-table";
 
-const Profile: NextPageWithLayout = () => {
-  const { isLoading: isUserLoading, data: user } = api.auth.user.useQuery();
-
+const Orders: NextPageWithLayout = () => {
   const { page, handleNextPage, handlePrevPage } = usePagination({
     initialPage: 1,
   });
@@ -33,33 +31,28 @@ const Profile: NextPageWithLayout = () => {
     page,
   });
 
-  
-
   return (
     <>
-      {user && (
-        <Container
-          maxW="3xl"
-          py={{ base: "12", md: "24" }}
-          px={{ base: "0", sm: "8" }}
-        >
-          <Heading as="h1">Orders placed</Heading>
-          {orders && (
-            <OrderDataTable
-              {...{ page }}
-              data={orders}
-              linkUrl="/user/profile/orders"
-              nextPage={handleNextPage}
-              previousPage={handlePrevPage}
-            />
-                  )}
-                  
-        </Container>
-      )}
+      <Container
+        maxW="3xl"
+        py={{ base: "12", md: "24" }}
+        px={{ base: "0", sm: "8" }}
+      >
+        <Heading as="h1">Orders placed</Heading>
+        {orders && (
+          <OrderDataTable
+            {...{ page }}
+            data={orders}
+            linkUrl="/user/profile/orders"
+            nextPage={handleNextPage}
+            previousPage={handlePrevPage}
+          />
+        )}
+      </Container>
     </>
   );
 };
 
-Profile.getLayout = (page) => <UserLayout>{page}</UserLayout>;
+Orders.getLayout = (page) => <UserLayout>{page}</UserLayout>;
 
-export default Profile;
+export default Orders;

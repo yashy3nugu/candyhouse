@@ -1,6 +1,7 @@
 import {
   adminProcedure,
   consumerProcedure,
+  createRoleProcedure,
   createTRPCRouter,
   publicProcedure,
   vendorProcedure,
@@ -17,6 +18,7 @@ import { Status } from "@/utils/types/orders";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import mongoose from "mongoose";
+import { Role } from "@/utils/types/user";
 
 export const orderRouter = createTRPCRouter({
   create: consumerProcedure
@@ -268,7 +270,7 @@ export const orderRouter = createTRPCRouter({
       };
     }),
 
-  oneById: adminProcedure
+  oneById: createRoleProcedure([Role.Admin, Role.User])
     .input(z.object({ _id: z.string() }))
     .query(async ({ input }) => {
       const order = await OrderModel.findById(input._id).populate(

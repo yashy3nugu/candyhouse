@@ -155,6 +155,28 @@ const consumerRoute = t.middleware(async ({ ctx, next }) => {
   });
 });
 
+const roleMiddleware = (allowedRoles: string[]) => {
+  return t.middleware(async ({ ctx, next }) => {
+    if (!ctx.user || !allowedRoles.includes(ctx.user?.role)) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "You are not authorized to perform this action",
+      });
+    }
+
+    return next({
+      ctx: {
+        user: ctx.user,
+      },
+    });
+  });
+};
+
+// Function to create a procedure with dynamic roles
+export const createRoleProcedure = (allowedRoles: Role[]) => {
+  return t.procedure.use(parseCookie).use(roleMiddleware(allowedRoles));
+};
+
 export const publicProcedure = t.procedure.use(parseCookie);
 export const vendorProcedure = t.procedure.use(parseCookie).use(vendorRoute);
 export const adminProcedure = t.procedure.use(parseCookie).use(adminRoute);
