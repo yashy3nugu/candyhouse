@@ -63,7 +63,7 @@ export class Order {
     required: [true, "Order item must have a address"],
     trim: true,
   })
-  address!: mongoose.Types.ObjectId;
+  address!: string;
 
   @prop({
     type: Number,

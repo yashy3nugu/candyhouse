@@ -262,7 +262,7 @@ export const orderRouter = createTRPCRouter({
       const orders = await OrderModel.find({user: ctx.user._id})
         .skip((page - 1) * limit)
         .limit(limit + 1)
-        .populate("user.name user.email");
+        .populate("user.name user.email items.candy");
 
       return {
         hasMore: orders.length === limit + 1,
@@ -274,8 +274,7 @@ export const orderRouter = createTRPCRouter({
     .input(z.object({ _id: z.string() }))
     .query(async ({ input }) => {
       const order = await OrderModel.findById(input._id).populate(
-        "user",
-        "name email"
+        "user.name user.email items.candy"
       );
 
       if (!order) {
