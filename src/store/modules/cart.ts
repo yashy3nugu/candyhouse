@@ -26,8 +26,9 @@ export const appSlice = createSlice({
         );
         cartArr[candyIndex]!.itemsInCart++;
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         cartArr.push({
-          ...(action.payload.candy as CartCandy),
+          ...(action.payload.candy),
           itemsInCart: 1,
         });
       }

@@ -21,7 +21,7 @@ import { addCandyToCart, removeCandyFromCart } from "@/store/modules/cart";
 import { NextPageWithLayout } from "../_app";
 import BaseLayout from "@/layouts/base-layout";
 import CandyCard from "@/components/candy-card";
-import { fakeCandy } from "./fake";
+import { fakeCandy } from "@/utils/fake";
 
 const Store: NextPageWithLayout = () => {
   const { data, isLoading } = api.candy.all.useQuery({});
