@@ -26,7 +26,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.6.3",
     "reflect-metadata": "^0.1.13",
-    "routing-controllers": "^0.10.4"
+    "routing-controllers": "^0.10.4",
+    "zod": "^3.22.4"
   },
   "scripts": {
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts"

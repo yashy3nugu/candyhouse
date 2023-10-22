@@ -1,5 +1,7 @@
 import express from "express";
 import * as userController from "../controllers/user.controller"
+import { validate } from "../middleware/validate.middleware";
+import { registerInputSchema } from "../utils/schemas/user";
 
 const router = express.Router();
 
@@ -9,7 +11,7 @@ const router = express.Router();
 
 // router.patch("/reject-friend-request", userController.rejectFriendRequest);
 
-router.post("/register", userController.signup)
+router.post("/register", validate(registerInputSchema), userController.signup)
 
 // router
 //   .route("/")
