@@ -19,12 +19,18 @@ import { AiOutlineHome, AiOutlineShoppingCart } from "react-icons/ai";
 import { BiStore } from "react-icons/bi";
 import { FiUserPlus, FiLogIn, FiLogOut } from "react-icons/fi";
 import { useAppSelector } from "@/store/hooks";
-import { api } from "@/utils/api";
+// import { api } from "@/utils/api";
+
 import NavLink from "../nav-link";
+import { useLoggedInUserQuery } from "@/api/user";
 
 const Navbar: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { data: user, isLoading } = api.auth.user.useQuery();
+  // const { data: userOld, isLoading } = api.auth.user.useQuery();
+  // const isLoading = false;
+
+  
+  const {data: user, isLoading} = useLoggedInUserQuery()
 
   const cartValue = useAppSelector((state) => state.cart.value);
   return (
@@ -91,8 +97,6 @@ const Navbar: React.FC = () => {
                     label="Logout"
                     href="/auth/logout"
                   />
-                    
-                  
                 )}
               </HStack>
             </Box>

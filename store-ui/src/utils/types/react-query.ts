@@ -1,0 +1,3 @@
+export enum RQ {
+    LOGGED_IN_USER_QUERY = 'LOGGED_IN_USER_QUERY'
+}

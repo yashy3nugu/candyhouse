@@ -26,24 +26,11 @@ import BaseLayout from "@/layouts/base-layout";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { registerFormSchema } from "@/utils/schemas/auth";
 import { Role } from "@/utils/types/user";
+import { useRegisterMutation } from "@/api/user";
 
 const Register: NextPageWithLayout = () => {
   const toast = useToast();
-  const { mutate, isLoading } = api.auth.register.useMutation({
-    onSuccess() {
-      //
-    },
-    onError() {
-      toast({
-        title: "Unable to register",
-        description: "Vendor with same email or name exists",
-        status: "error",
-        duration: 9000,
-        isClosable: true,
-        position: "top",
-      });
-    },
-  });
+  const { mutate } = useRegisterMutation();
 
   return (
     <>

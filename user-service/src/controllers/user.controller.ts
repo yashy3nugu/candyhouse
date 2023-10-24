@@ -7,7 +7,8 @@ import { z } from "zod";
 
 export const signup: ExpressResponse = async (req, res, next) => {
   try {
-    const { name, email, password, role }: z.infer<typeof registerInputSchema> = req.body;
+    const { name, email, password, role }: z.infer<typeof registerInputSchema> =
+      req.body;
 
     // Check if a user with the same name already exists
     const existingUser = await UserModel.findOne({ name });
@@ -40,8 +41,7 @@ export const signup: ExpressResponse = async (req, res, next) => {
 
 export const login: ExpressResponse = async (req, res, next) => {
   try {
-    const {  email, password,  }: z.infer<typeof loginInputSchema> =
-      req.body;
+    const { email, password }: z.infer<typeof loginInputSchema> = req.body;
 
     // Check if a user with the same name already exists
     const user = await UserModel.findOne({
@@ -58,6 +58,48 @@ export const login: ExpressResponse = async (req, res, next) => {
 
     res.status(201).json({
       token,
+      user,
+    });
+  } catch (err: any) {
+    next(err);
+  }
+};
+
+export const getUser: ExpressResponse = async (req, res, next) => {
+  try {
+    
+    const token = req.headers.authorization!.split(" ")[1];
+   
+
+    if (!token) {
+      return res.status(401).json({
+        message: "Token not provided",
+      });
+    }
+
+    // Verify the token
+    const decodedToken = jwt.decodeToken(token) as any;
+
+    if (!decodedToken) {
+      return res.status(401).json({
+        message: "Invalid token",
+      });
+    }
+
+    // Assuming that `decodedToken` contains the user data or user ID
+    const userId = decodedToken._id;
+
+    // Retrieve user data from the database using the user ID
+    const user = await UserModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // Return user data in the response
+    res.status(200).json({
       user,
     });
   } catch (err: any) {

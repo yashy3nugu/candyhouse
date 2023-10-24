@@ -16,7 +16,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 
-import { api } from "@/utils/api";
+// import { api } from "@/utils/api";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { loginInputSchema } from "@/utils/schemas/auth";
 import InputControl from "@/components/ui/input-control";
@@ -24,45 +24,12 @@ import { NextPageWithLayout } from "../_app";
 import BaseLayout from "@/layouts/base-layout";
 import Logo from "@/components/shared/logo";
 import Link from "next/link";
-import { Role } from "@/utils/types/user";
-import { useRouter } from "next/router";
+import { useLoginMutation } from "@/api/user";
 
 const Login: NextPageWithLayout = () => {
-  const toast = useToast();
-  const router = useRouter();
-  const { mutate, isLoading } = api.auth.login.useMutation({
-    onSuccess() {
-      // alert("logged in");
-      
-    },
-    onError() {
-      toast({
-        title: "Unable to log you in",
-        description: "Please check your credentials",
-        status: "error",
-        duration: 9000,
-        isClosable: true,
-        position: "top"
-      });
-    },
-    onSettled(data) {
-      if (data) {
-        let redirect;
 
-        if (data.role === Role.User) {
-          redirect = "/store";
-        }
-        else if (data.role === Role.Admin) {
-          redirect = "/admin/dashboard";
-        }
-        else {
-          redirect = "/vendor/dashboard"
-        }
+  const { mutate: loginMutate } = useLoginMutation()
 
-        router.replace(redirect);
-      }
-    }
-  });
   return (
     <>
       <Head>
@@ -106,9 +73,10 @@ const Login: NextPageWithLayout = () => {
                 }}
                 validationSchema={toFormikValidationSchema(loginInputSchema)}
                 onSubmit={(values, actions) => {
-                  mutate({
-                    ...values,
-                  });
+
+                  loginMutate({
+                    ...values
+                  })
 
                   actions.resetForm();
                 }}

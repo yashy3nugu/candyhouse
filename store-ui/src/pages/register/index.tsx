@@ -24,24 +24,27 @@ import { NextPageWithLayout } from "@/pages/_app";
 import BaseLayout from "@/layouts/base-layout";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { registerFormSchema } from "@/utils/schemas/auth";
+import { useRegisterMutation } from "@/api/user";
+import { Role } from "@/utils/types/user";
 
 const Register: NextPageWithLayout = () => {
   const toast = useToast();
-  const { mutate, isLoading } = api.auth.register.useMutation({
-    onSuccess() {
-      //
-    },
-    onError() {
-      toast({
-        title: "Unable to register",
-        description: "User with same email exists",
-        status: "error",
-        duration: 9000,
-        isClosable: true,
-        position: "top",
-      });
-    },
-  });
+  // const { mutate, isLoading } = api.auth.register.useMutation({
+  //   onSuccess() {
+  //     //
+  //   },
+  //   onError() {
+  //     toast({
+  //       title: "Unable to register",
+  //       description: "User with same email exists",
+  //       status: "error",
+  //       duration: 9000,
+  //       isClosable: true,
+  //       position: "top",
+  //     });
+  //   },
+  // });
+  const {mutate } = useRegisterMutation()
 
   return (
     <>
@@ -90,6 +93,7 @@ const Register: NextPageWithLayout = () => {
                 onSubmit={(values, actions) => {
                   mutate({
                     ...values,
+                    role: Role.User
                   });
                   actions.resetForm();
                 }}
