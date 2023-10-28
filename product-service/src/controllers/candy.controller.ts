@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import CandyModel from '@/models/candy.model';
 import { z } from 'zod';
-import { candyByIdSchema, candyUpdateSchema, paginatedCandyFetchSchema } from '@/utils/schemas/candy';
+import { candyByIdSchema, candySchema, candyUpdateSchema, paginatedCandyFetchSchema } from '@/utils/schemas/candy';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { HttpException } from '@/exceptions/httpException';
 
@@ -75,6 +75,26 @@ export class CandyController {
         price,
         quantity,
         description,
+        photo,
+      });
+
+      res.send(candy);
+    } catch (error) {
+      next(error);
+    }
+  };
+  public create = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { name, description, price, quantity, photo }: z.infer<typeof candySchema> = req.body;
+
+      const vendorId = req.user._id;
+
+      const candy = await CandyModel.create({
+        name,
+        price,
+        quantity,
+        description,
+        vendor: vendorId,
         photo,
       });
 
