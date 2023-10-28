@@ -5,12 +5,12 @@ import { User } from '@interfaces/users.interface';
 import { AuthService } from '@services/auth.service';
 import CandyModel from '@/models/candy.model';
 import { z } from 'zod';
-import { paginatedCandyFetchSchema } from '@/utils/schemas/candy';
+import { candyByIdSchema, paginatedCandyFetchSchema } from '@/utils/schemas/candy';
 
 export class CandyController {
   public all = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      let { page, limit }: z.infer<typeof paginatedCandyFetchSchema> = req.body;
+      let { page, limit }: z.infer<typeof paginatedCandyFetchSchema> = req.query;
 
       if (!page) page = 1;
       if (!limit) limit = 6;
@@ -24,6 +24,18 @@ export class CandyController {
         hasMore: candies.length === limit + 1,
         candies: candies.slice(0, limit),
       });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public oneById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id }: z.infer<typeof candyByIdSchema> = req.params;
+
+      const candy = await CandyModel.findOne({ _id: id });
+
+      res.send(candy);
     } catch (error) {
       next(error);
     }

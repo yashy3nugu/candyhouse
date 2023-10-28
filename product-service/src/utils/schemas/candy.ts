@@ -26,6 +26,10 @@ export const candyUpdateSchema = z.object({
 });
 
 export const paginatedCandyFetchSchema = z.object({
-  page: z.number().nullish(),
-  limit: z.number().nullish(),
+  page: z.number().min(1).nullish(),
+  limit: z.number().min(1).nullish(),
+});
+
+export const candyByIdSchema = z.object({
+  id: z.string({ required_error: 'Candy Id required' }),
 });
