@@ -87,7 +87,7 @@ export const getUser: ExpressResponse = async (req, res, next) => {
     }
 
     // Assuming that `decodedToken` contains the user data or user ID
-    const userId = decodedToken._id;
+    const userId = decodedToken.user._id;
 
     // Retrieve user data from the database using the user ID
     const user = await UserModel.findById(userId);

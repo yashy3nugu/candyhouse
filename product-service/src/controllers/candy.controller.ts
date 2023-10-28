@@ -1,28 +1,37 @@
 import { NextFunction, Request, Response } from 'express';
-import { Container } from 'typedi';
-import { RequestWithUser } from '@interfaces/auth.interface';
-import { User } from '@interfaces/users.interface';
-import { AuthService } from '@services/auth.service';
 import CandyModel from '@/models/candy.model';
 import { z } from 'zod';
-import { candyByIdSchema, paginatedCandyFetchSchema } from '@/utils/schemas/candy';
+import { candyByIdSchema, candyUpdateSchema, paginatedCandyFetchSchema } from '@/utils/schemas/candy';
+import { RequestWithUser } from '@/interfaces/auth.interface';
+import { HttpException } from '@/exceptions/httpException';
 
 export class CandyController {
   public all = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      let { page, limit }: z.infer<typeof paginatedCandyFetchSchema> = req.query;
+      const { page, limit }: z.infer<typeof paginatedCandyFetchSchema> = req.query;
+      let pageNum;
+      let limitNum = parseInt(limit);
 
-      if (!page) page = 1;
-      if (!limit) limit = 6;
+      if (!page) {
+        pageNum = 1;
+      } else {
+        pageNum = parseInt(page);
+      }
+
+      if (!limit) {
+        limitNum = 6;
+      } else {
+        limitNum = parseInt(limit);
+      }
 
       const candies = await CandyModel.find()
-        .skip((page - 1) * limit)
-        .limit(limit + 1)
+        .skip((pageNum - 1) * limitNum)
+        .limit(limitNum + 1)
         .populate('vendor');
 
       res.send({
-        hasMore: candies.length === limit + 1,
-        candies: candies.slice(0, limit),
+        hasMore: candies.length === limitNum + 1,
+        candies: candies.slice(0, limitNum),
       });
     } catch (error) {
       next(error);
@@ -34,6 +43,40 @@ export class CandyController {
       const { id }: z.infer<typeof candyByIdSchema> = req.params;
 
       const candy = await CandyModel.findOne({ _id: id });
+
+      res.send(candy);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public update = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { name, description, price, quantity, photo }: z.infer<typeof candyUpdateSchema> = req.body;
+      const { id } = req.params;
+
+      const vendorId = req.user._id;
+
+      const foundCandy = await CandyModel.findById(id);
+
+      if (!foundCandy) {
+        return next(new HttpException(404, 'Candy does not exist'));
+      }
+      console.log(foundCandy.vendor.toString());
+      console.log(vendorId.toString());
+
+      if (foundCandy.vendor.toString() !== vendorId.toString()) {
+        // If the vendor doesn't match, respond with a 403 Forbidden error (Unauthorized)
+        return next(new HttpException(403, 'Unauthorized'));
+      }
+
+      const candy = await CandyModel.findByIdAndUpdate(id, {
+        name,
+        price,
+        quantity,
+        description,
+        photo,
+      });
 
       res.send(candy);
     } catch (error) {

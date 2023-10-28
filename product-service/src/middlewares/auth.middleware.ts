@@ -3,7 +3,8 @@ import { verify } from 'jsonwebtoken';
 import { SECRET_KEY } from '@config';
 import { HttpException } from '@exceptions/httpException';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
-import { UserModel } from '@models/users.model';
+import { User, UserModel } from '@/models/user.model';
+import { Role } from '@/utils/types/user';
 
 const getAuthorization = req => {
   const coockie = req.cookies['Authorization'];
@@ -20,12 +21,17 @@ export const AuthMiddleware = async (req: RequestWithUser, res: Response, next: 
     const Authorization = getAuthorization(req);
 
     if (Authorization) {
-      const { id } = (await verify(Authorization, SECRET_KEY)) as DataStoredInToken;
-      const findUser = UserModel.find(user => user.id === id);
+      const { user } = (await verify(Authorization, SECRET_KEY)) as { user: User };
 
-      if (findUser) {
-        req.user = findUser;
-        next();
+      const foundUser = (await UserModel.findOne({ email: user.email })).toObject();
+
+      if (foundUser) {
+        if (foundUser.role === Role.Vendor) {
+          req.user = foundUser;
+          next();
+        } else {
+          next(new HttpException(401, 'Only vendors can perform this action'));
+        }
       } else {
         next(new HttpException(401, 'Wrong authentication token'));
       }

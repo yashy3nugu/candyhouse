@@ -5,7 +5,7 @@ import * as jwt from "jsonwebtoken";
 export const signToken = (
   payload: { user: User },
 ) => {
-  const token = jwt.sign({ _id: payload.user._id }, process.env.JWT_SECRET!, {
+  const token = jwt.sign({ user: payload.user }, process.env.JWT_SECRET!, {
     expiresIn: parseInt(process.env.JWT_EXPIRES_IN!) * 60 * 60,
   });
   return token

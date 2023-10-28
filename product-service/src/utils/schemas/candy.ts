@@ -26,8 +26,14 @@ export const candyUpdateSchema = z.object({
 });
 
 export const paginatedCandyFetchSchema = z.object({
-  page: z.number().min(1).nullish(),
-  limit: z.number().min(1).nullish(),
+  page: z
+    .string()
+    .refine(val => !isNaN(parseInt(val)))
+    .nullish(),
+  limit: z
+    .string()
+    .refine(val => !isNaN(parseInt(val)))
+    .nullish(),
 });
 
 export const candyByIdSchema = z.object({
