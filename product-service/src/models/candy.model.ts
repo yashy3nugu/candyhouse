@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
-import type { Ref, ReturnModelType } from '@typegoose/typegoose';
+import { Ref, ReturnModelType, index } from '@typegoose/typegoose';
 import { prop, modelOptions, getModelForClass, pre } from '@typegoose/typegoose';
 import { User } from '@models/user.model';
 import { Photo } from '@models/photo.model';
 
+@index({ name: 1 }, { unique: true })
 export class Candy {
   readonly _id!: string;
 
@@ -12,6 +13,7 @@ export class Candy {
     trim: true,
     lowercase: true,
     type: String,
+    unique: true,
   })
   name!: string;
 

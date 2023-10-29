@@ -19,6 +19,6 @@ export class CandyRoute implements Routes {
     this.router.get(`${this.path}`, ValidateQuery(paginatedCandyFetchSchema), this.candy.all);
     this.router.get(`${this.path}/:id`, ValidateParams(candyByIdSchema), this.candy.oneById);
     this.router.patch(`${this.path}/:id`, ValidateParams(candyUpdateSchema), AuthMiddleware, this.candy.update);
-    this.router.post(`${this.path}`, ValidateQuery(candySchema), this.candy.create);
+    this.router.post(`${this.path}`, ValidateBody(candySchema), AuthMiddleware, this.candy.create);
   }
 }

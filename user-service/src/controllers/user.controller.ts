@@ -4,6 +4,9 @@ import { Role } from "../utils/types/user";
 import * as jwt from "../lib/jwt";
 import { loginInputSchema, registerInputSchema } from "../utils/schemas/user";
 import { z } from "zod";
+import { producer } from "../lib/kafka";
+import { v4 as uuidv4 } from "uuid";
+
 
 export const signup: ExpressResponse = async (req, res, next) => {
   try {
@@ -11,11 +14,11 @@ export const signup: ExpressResponse = async (req, res, next) => {
       req.body;
 
     // Check if a user with the same name already exists
-    const existingUser = await UserModel.findOne({ name });
+    const existingUser = await UserModel.findOne({ email });
 
     if (existingUser) {
       return res.status(400).json({
-        message: "User with name already exists",
+        message: "User with email already exists",
       });
     }
 
@@ -26,9 +29,16 @@ export const signup: ExpressResponse = async (req, res, next) => {
       email,
       password,
       role,
+      appId: uuidv4()
     });
 
     const token = jwt.signToken({ user });
+    const message = JSON.stringify(user);
+    await producer.connect();
+    await producer.send({
+      topic: "test-topic",
+      messages: [{ value: message, key: user.appId }],
+    });
 
     res.status(201).json({
       token,
@@ -67,9 +77,7 @@ export const login: ExpressResponse = async (req, res, next) => {
 
 export const getUser: ExpressResponse = async (req, res, next) => {
   try {
-    
     const token = req.headers.authorization!.split(" ")[1];
-   
 
     if (!token) {
       return res.status(401).json({
@@ -102,6 +110,19 @@ export const getUser: ExpressResponse = async (req, res, next) => {
     res.status(200).json({
       user,
     });
+  } catch (err: any) {
+    next(err);
+  }
+};
+
+export const kafka: ExpressResponse = async (req, res, next) => {
+  try {
+    await producer.connect();
+    await producer.send({
+      topic: "test-topic",
+      messages: [{ value: "test" }],
+    });
+    res.send("/kafka");
   } catch (err: any) {
     next(err);
   }

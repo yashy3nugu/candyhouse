@@ -21,9 +21,9 @@ export const AuthMiddleware = async (req: RequestWithUser, res: Response, next: 
     const Authorization = getAuthorization(req);
 
     if (Authorization) {
-      const { user } = (await verify(Authorization, SECRET_KEY)) as { user: User };
+      const { appId } = (await verify(Authorization, SECRET_KEY)) as { appId: string };
 
-      const foundUser = (await UserModel.findOne({ email: user.email })).toObject();
+      const foundUser = (await UserModel.findOne({ appId })).toObject();
 
       if (foundUser) {
         if (foundUser.role === Role.Vendor) {

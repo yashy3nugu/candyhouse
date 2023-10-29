@@ -7,7 +7,8 @@ const router = express.Router();
 
 router.post("/register", validate(registerInputSchema), userController.signup)
 router.post("/login", validate(loginInputSchema), userController.login);
-router.get("/verify",userController.getUser)
+router.get("/verify", userController.getUser)
+router.post("/kafka", userController.kafka)
 
 
 export default router;

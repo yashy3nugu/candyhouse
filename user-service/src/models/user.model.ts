@@ -5,6 +5,7 @@ import {
   modelOptions,
   getModelForClass,
   pre,
+  index,
 } from "@typegoose/typegoose";
 import { Role } from "../utils/types/user";
 import bcrypt from "bcryptjs";
@@ -31,6 +32,8 @@ import { Photo } from "../models/photo.model";
   this.password = this.hashPassword(this.password);
   next();
 })
+@index({ email: 1 }, { unique: true })
+@index({ appId: 1 }, { unique: true })
 export class User {
   readonly _id!: string;
 
@@ -51,6 +54,12 @@ export class User {
   password!: string;
 
   @prop({
+    type: String,
+    required: [true, "User must have a app specific id"],
+  })
+  appId!: string;
+
+  @prop({
     required: [true, "User must provide their email address"],
     unique: true,
     lowercase: true,
@@ -64,11 +73,6 @@ export class User {
     type: String,
   })
   role!: string;
-
-  @prop({
-    type: Photo,
-  })
-  photo?: Photo;
 
   @prop({
     default: 0,

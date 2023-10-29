@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Role } from "../types/user";
 
 export const loginInputSchema = z.object({
   email: z
@@ -21,7 +22,7 @@ export const registerInputSchema = z.object({
     .min(6),
 
   name: z.string({ required_error: "user must provide their name" }),
-  role: z.string().optional(),
+  role: z.enum([Role.Admin, Role.Vendor, Role.User]),
 });
 
 export const registerFormSchema = registerInputSchema.refine(
