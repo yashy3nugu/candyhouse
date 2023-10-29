@@ -5,8 +5,6 @@ export interface User {
   name: string;
   email: string;
   role: Role;
-  createdAt: string;
-  updatedAt: string;
   balance: number;
   totalEarnedCoins: number;
   totalRedeemedCoins: number;

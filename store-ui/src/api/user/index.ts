@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Axios from "axios";
 import { useToast } from "@chakra-ui/react";
-import { RQ } from "@/utils/types/react-query";
+import { USER_RQ } from "@/utils/types/react-query";
 import { useRouter } from "next/router";
 import { Role } from "@/utils/types/user";
 import {
@@ -40,7 +40,7 @@ export const useLoginMutation = () => {
       toast.closeAll();
     },
     onSuccess: (data) => {
-      queryClient.setQueryData([RQ.LOGGED_IN_USER_QUERY], data.user);
+      queryClient.setQueryData([USER_RQ.LOGGED_IN_USER_QUERY], data.user);
       localStorage.setItem("auth.token", data.token);
       let redirect;
       if (data.user.role === Role.User) {
@@ -92,7 +92,7 @@ export const useRegisterMutation = () => {
       toast.closeAll();
     },
     onSuccess: (data) => {
-      queryClient.setQueryData([RQ.LOGGED_IN_USER_QUERY], data.user);
+      queryClient.setQueryData([USER_RQ.LOGGED_IN_USER_QUERY], data.user);
       localStorage.setItem("auth.token", data.token);
       // let redirect;
       // if (data.user.role === Role.User) {
@@ -134,7 +134,7 @@ const useLogoutMutation = () => {
       //   return res.data;
     },
     onSuccess() {
-      queryClient.setQueryData([RQ.LOGGED_IN_USER_QUERY], null);
+      queryClient.setQueryData([USER_RQ.LOGGED_IN_USER_QUERY], null);
     },
   });
 
@@ -147,7 +147,7 @@ const useLogoutMutation = () => {
 
 export const useLoggedInUserQuery = () => {
   const { data, isLoading } = useQuery<VerifyResponse>({
-    queryKey: [RQ.LOGGED_IN_USER_QUERY],
+    queryKey: [USER_RQ.LOGGED_IN_USER_QUERY],
     queryFn: async () => {
       // Get the token from localStorage
       const authToken = localStorage.getItem("auth.token");

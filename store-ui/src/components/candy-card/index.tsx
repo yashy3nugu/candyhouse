@@ -14,11 +14,12 @@ import {
   LinkOverlay,
 } from "@chakra-ui/react";
 // import Image from "@/components/shared/image";
-import { Candy } from "@/server/models/candy.model";
+
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addCandyToCart, removeCandyFromCart } from "@/store/modules/cart";
 import Image from "next/image";
 import NextLink from "next/link";
+import { Candy } from "@/api/candy/types";
 
 interface CandyCardProps {
   candy: Candy;

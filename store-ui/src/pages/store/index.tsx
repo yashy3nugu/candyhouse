@@ -22,9 +22,16 @@ import { NextPageWithLayout } from "../_app";
 import BaseLayout from "@/layouts/base-layout";
 import CandyCard from "@/components/candy-card";
 import { fakeCandy } from "@/utils/fake";
+import { usePaginatedCandyQuery } from "@/api/candy";
+import { useRouter } from "next/router";
+import usePagination from "@/hooks/use-pagination/usePagination";
 
 const Store: NextPageWithLayout = () => {
-  const { data, isLoading } = api.candy.all.useQuery({});
+  const router = useRouter();
+  const { page, handleNextPage, handlePrevPage } = usePagination({});
+  const { data, isLoading } = usePaginatedCandyQuery(
+    page
+  );
 
   const dispatch = useAppDispatch();
 

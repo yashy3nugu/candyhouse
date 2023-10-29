@@ -19,8 +19,8 @@ const config = {
     defaultLocale: "en",
   },
   images: {
-    domains: ["res.cloudinary.com"],
+    domains: ["res.cloudinary.com", "images.pexels.com"],
   },
-  output: "standalone"
+  output: "standalone",
 };
 export default config;
