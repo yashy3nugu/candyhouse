@@ -28,15 +28,19 @@ export class Candy {
   @prop({
     required: true,
     min: [0, 'Price must be at least 0'],
-    trim: true,
     type: Number,
   })
   price!: number;
 
   @prop({
+    type: String,
+    required: [true, 'Candy must have a app specific id'],
+  })
+  appId!: string;
+
+  @prop({
     required: true,
     min: [0, 'Quantity must be at least 0'],
-    trim: true,
     type: Number,
   })
   quantity!: number;

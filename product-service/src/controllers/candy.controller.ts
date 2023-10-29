@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { candyByIdSchema, candySchema, candyUpdateSchema, paginatedCandyFetchSchema } from '@/utils/schemas/candy';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { HttpException } from '@/exceptions/httpException';
+import { v4 as uuidv4 } from 'uuid';
 
 export class CandyController {
   public all = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -96,6 +97,7 @@ export class CandyController {
         description,
         vendor: vendorId,
         photo,
+        appId: uuidv4(),
       });
 
       res.send(candy);
