@@ -19,15 +19,15 @@ import { AiOutlineHome, AiOutlineShoppingCart } from "react-icons/ai";
 import { BiStore } from "react-icons/bi";
 import { FiUserPlus, FiLogIn, FiLogOut } from "react-icons/fi";
 import { useAppSelector } from "@/store/hooks";
-import { api } from "@/utils/api";
 import NavLink from "@/layouts/shared/nav-link";
 
 import { LuLayoutDashboard } from "react-icons/lu"
 import {MdOutlineInventory2} from "react-icons/md"
+import { useLoggedInUserQuery } from "@/api/user";
 
 const Navbar: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { data: user, isLoading } = api.auth.user.useQuery();
+  const { data: user, isLoading } = useLoggedInUserQuery();
 
   const cartValue = useAppSelector((state) => state.cart.value);
   return (

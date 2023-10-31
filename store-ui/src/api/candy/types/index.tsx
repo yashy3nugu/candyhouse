@@ -3,9 +3,7 @@ export type Candy = {
   name: string;
   description: string;
 
-  photo: {
-    url: string;
-  };
+  photo: Photo;
   vendor: string;
   price: number;
   quantity: number;
@@ -14,4 +12,24 @@ export type Candy = {
 export type PaginatedCandyResponse = {
   hasMore: boolean;
   candies: Candy[];
+};
+
+export type Photo = {
+  url: string;
+};
+
+export type CandyCreateBody = {
+  name: string;
+  description: string;
+  price: number;
+  quantity: number;
+  photo: Photo;
+};
+
+export type signedUrlQueryResponse = {
+  folder: string;
+  api_key: string;
+  url: string;
+  signature: string;
+  timestamp: string;
 };

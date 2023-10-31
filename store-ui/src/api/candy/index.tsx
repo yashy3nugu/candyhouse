@@ -4,7 +4,12 @@ import { useToast } from "@chakra-ui/react";
 import { PRODUCT_RQ, USER_RQ } from "@/utils/types/react-query";
 import { useRouter } from "next/router";
 import { Role } from "@/utils/types/user";
-import { PaginatedCandyResponse } from "./types";
+import {
+  Candy,
+  CandyCreateBody as CandyData,
+  PaginatedCandyResponse,
+  signedUrlQueryResponse,
+} from "./types";
 
 const productServiceBaseUrl =
   process.env.PRODUCT_SERVICE_BASE_URL || "http://localhost:4000";
@@ -16,7 +21,7 @@ const axios = Axios.create({
 
 export const usePaginatedCandyQuery = (page?: number) => {
   const { data, isLoading } = useQuery<PaginatedCandyResponse>({
-    queryKey: [PRODUCT_RQ.PAGINATED_CANDIES],
+    queryKey: [PRODUCT_RQ.PAGINATED_CANDIES, page],
     queryFn: async () => {
       // Get the token from localStorage
       const authToken = localStorage.getItem("auth.token");
@@ -37,4 +42,57 @@ export const usePaginatedCandyQuery = (page?: number) => {
   });
 
   return { data, isLoading };
+};
+
+export const useCreateCandyMutation = () => {
+  const { data, mutate, isPending } = useMutation<Candy, any, CandyData, any>({
+    mutationFn: async (data) => {
+      const authToken = localStorage.getItem("auth.token");
+      const response = await axios.post(`/candy`, data, {
+        headers: {
+          Authorization: `Bearer ${authToken || ""}`,
+        },
+      });
+
+      return response.data;
+    },
+
+    //   onMutate: () => {
+
+    //   },
+    onSuccess: (data) => {
+      // let redirect;
+      // if (data.user.role === Role.User) {
+      //   redirect = "/store";
+      // } else if (data.user.role === Role.Admin) {
+      //   redirect = "/admin/dashboard";
+      // } else {
+      //   redirect = "/vendor/dashboard";
+      // }
+      // router.replace(redirect);
+    },
+    //   onError: (error) => {
+
+    //   },
+  });
+
+  return {
+    data,
+    mutate,
+    isPending,
+  };
+};
+
+export const useSignedUrlQuery = () => {
+  const { refetch } = useQuery<signedUrlQueryResponse>({
+    queryKey: ["SignedUrl"],
+    queryFn: async () => {
+      return (await axios.get("/image")).data;
+    },
+    enabled: false,
+  });
+
+  return {
+    refetch,
+  };
 };

@@ -6,6 +6,7 @@ import { CandyRoute } from './routes/candy.route';
 import { consumer } from './lib/kafka';
 import { userSchema } from './utils/schemas/user';
 import { UserModel } from './models/user.model';
+import { ImageRoutes as ImageRoute } from './routes/image.route';
 
 const start = async () => {
   ValidateEnv();
@@ -42,7 +43,7 @@ const start = async () => {
     },
   });
 
-  const app = new App([new CandyRoute()]);
+  const app = new App([new CandyRoute(), new ImageRoute()]);
 
   app.listen();
 };

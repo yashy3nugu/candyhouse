@@ -30,23 +30,15 @@ import React from "react";
 import useImageUpload from "@/hooks/use-image-upload";
 import TextareaControl from "@/components/ui/textarea-control";
 import VendorLayout from "@/layouts/vendor-layout";
+import { useCreateCandyMutation, useSignedUrlQuery } from "@/api/candy";
 
 const CreateCandy: NextPageWithLayout = () => {
-  const { mutate, isLoading } = api.candy.create.useMutation({
-    onSuccess() {
-      alert("created");
-    },
-    onError() {
-      alert("not created");
-    },
-  });
+  const { mutate, isPending: isLoading } = useCreateCandyMutation();
 
   const imageRef = React.useRef<any>();
   const { imageDataURI, imageUrl, uploadFile } = useImageUpload();
 
-  const { refetch } = api.image.signedURL.useQuery(undefined, {
-    enabled: false,
-  });
+  const { refetch } = useSignedUrlQuery();
 
   return (
     <>
@@ -79,8 +71,7 @@ const CreateCandy: NextPageWithLayout = () => {
               <Formik
                 initialValues={{
                   name: "",
-                  description:
-                    "",
+                  description: "",
                   price: 0,
                   quantity: 0,
                 }}
