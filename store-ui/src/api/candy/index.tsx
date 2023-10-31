@@ -26,7 +26,6 @@ export const usePaginatedCandyQuery = (page?: number) => {
       // Get the token from localStorage
       const authToken = localStorage.getItem("auth.token");
 
-      // Make the GET request to /users/verify with the token
       const response = await axios.get("/candy", {
         headers: {
           Authorization: `Bearer ${authToken || ""}`,
@@ -42,6 +41,19 @@ export const usePaginatedCandyQuery = (page?: number) => {
   });
 
   return { data, isLoading };
+};
+
+export const useCandyByIdQuery = (id: string) => {
+  const { data, isLoading } = useQuery<Candy>({
+    queryKey: [PRODUCT_RQ.CANDY, id],
+    queryFn: async () => {
+      const response = await axios.get(`/candy/${id}`, {});
+
+      return response.data;
+    },
+  });
+
+  return {data, isLoading}
 };
 
 export const useCreateCandyMutation = () => {

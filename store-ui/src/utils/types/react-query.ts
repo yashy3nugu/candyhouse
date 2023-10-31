@@ -4,4 +4,6 @@ export enum USER_RQ {
 
 export enum PRODUCT_RQ {
   PAGINATED_CANDIES = "PAGINATED_CANDIES",
+  SIGNED_URL = "SIGNED_URL",
+  CANDY = "CANDY"
 }

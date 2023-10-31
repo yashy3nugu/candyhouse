@@ -1,6 +1,6 @@
 import BaseLayout from "@/layouts/base-layout";
 import { NextPageWithLayout } from "@/pages/_app";
-import { api } from "@/utils/api";
+// import { api } from "@/utils/api";
 import {
   Badge,
   Text,
@@ -39,35 +39,34 @@ import InputControl from "@/components/ui/input-control";
 import TextareaControl from "@/components/ui/textarea-control";
 
 import { FaStar } from "react-icons/fa";
+import { useCandyByIdQuery } from "@/api/candy";
 
 const Candy: NextPageWithLayout = () => {
   const router = useRouter();
 
   const dispatch = useAppDispatch();
 
-  const { isLoading: isCandyLoading, data: candy } = api.candy.oneById.useQuery(
-    {
-      id: router.query.id as string,
-    }
+  const { isLoading: isCandyLoading, data: candy } = useCandyByIdQuery(
+    router.query.id as string
   );
 
-  const { mutate, isLoading } = api.review.create.useMutation({
-    onSuccess() {
-      //
-    },
-    onError() {
-      //
-    },
-  });
+  // const { mutate, isLoading } = api.review.create.useMutation({
+  //   onSuccess() {
+  //     //
+  //   },
+  //   onError() {
+  //     //
+  //   },
+  // });
 
-  const { isLoading: isReviewsLoading, data: reviews } =
-    api.review.allByCandyId.useQuery({ id: router.query.id as string });
+  // const { isLoading: isReviewsLoading, data: reviews } =
+  //   api.review.allByCandyId.useQuery({ id: router.query.id as string });
 
   const cartCandy = useAppSelector((state) => state.cart.items).find(
     (item) => item._id === candy?._id
   );
   const { isOpen, onOpen, onClose } = useDisclosure();
-  if (isCandyLoading || isReviewsLoading) {
+  if (isCandyLoading) {
     return <></>;
   }
 
@@ -77,11 +76,11 @@ const Candy: NextPageWithLayout = () => {
         <Modal isOpen={isOpen} onClose={onClose}>
           <Formik
             onSubmit={(values) => {
-              mutate({
-                ...values,
-                candy: candy._id,
-                rating: parseInt(values.rating),
-              });
+              // mutate({
+              //   ...values,
+              //   candy: candy._id,
+              //   rating: parseInt(values.rating),
+              // });
             }}
             initialValues={{
               description: "",
@@ -222,7 +221,7 @@ const Candy: NextPageWithLayout = () => {
           <Heading fontSize="3xl" fontWeight="semibold" as="h2" mt={5}>
             Customer Reviews
           </Heading>
-          <Flex alignItems="center">
+          {/* <Flex alignItems="center">
             <Text fontSize="6xl">{reviews?.averageRating}</Text>
             <Box ml={2}>
               <HStack>
@@ -252,12 +251,12 @@ const Candy: NextPageWithLayout = () => {
                 {reviews!.reviews.length > 1 && "s"}
               </Text>
             </Box>
-          </Flex>
+          </Flex> */}
 
           <Button colorScheme="pink" onClick={onOpen}>
             Write a review
           </Button>
-          <Accordion mt={5} allowToggle>
+          {/* <Accordion mt={5} allowToggle>
             {reviews &&
               reviews.reviews.map((review, i) => (
                 <AccordionItem key={i}>
@@ -297,7 +296,7 @@ const Candy: NextPageWithLayout = () => {
                   </AccordionPanel>
                 </AccordionItem>
               ))}
-          </Accordion>
+          </Accordion> */}
         </Container>
       </>
     );
