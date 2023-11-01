@@ -26,7 +26,7 @@ export const AuthMiddleware = async (req: RequestWithUser, res: Response, next: 
       const foundUser = (await UserModel.findOne({ appId })).toObject();
 
       if (foundUser) {
-        if (foundUser.role === Role.Vendor) {
+        if (foundUser.role === Role.User) {
           req.user = foundUser;
           next();
         } else {
