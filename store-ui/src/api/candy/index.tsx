@@ -95,6 +95,38 @@ export const useCreateCandyMutation = () => {
   };
 };
 
+export const useUpdateCandyMutation = (id: string) => {
+  const { data, mutate, isPending } = useMutation<Candy, any, CandyData, any>({
+    mutationFn: async (data) => {
+      const authToken = localStorage.getItem("auth.token");
+      const response = await axios.patch(`/candy/${id}`, data, {
+        headers: {
+          Authorization: `Bearer ${authToken || ""}`,
+        },
+      });
+
+      return response.data;
+    },
+
+    //   onMutate: () => {
+
+    //   },
+    onSuccess: (data) => {
+      // let redirect;
+      
+    },
+    //   onError: (error) => {
+
+    //   },
+  });
+
+  return {
+    data,
+    mutate,
+    isPending,
+  };
+};
+
 export const useSignedUrlQuery = () => {
   const { refetch } = useQuery<signedUrlQueryResponse>({
     queryKey: ["SignedUrl"],

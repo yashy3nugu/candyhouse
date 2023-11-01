@@ -1,6 +1,6 @@
 import BaseLayout from "@/layouts/base-layout";
 import { NextPageWithLayout } from "@/pages/_app";
-import { api } from "@/utils/api";
+// import { api } from "@/utils/api";
 import {
   Badge,
   Text,
@@ -53,35 +53,23 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import candySchema from "@/utils/schemas/candy";
 import React, { useState } from "react";
 import useImageUpload from "@/hooks/use-image-upload";
+import { useCandyByIdQuery, useSignedUrlQuery, useUpdateCandyMutation } from "@/api/candy";
 
 const Candy: NextPageWithLayout = () => {
   const router = useRouter();
 
-  const { mutate, isLoading } = api.candy.update.useMutation({
-    onSuccess() {
-      alert("created");
-    },
-    onError() {
-      alert("not created");
-    },
-  });
+  const { mutate, isPending } = useUpdateCandyMutation(router.query.id as string)
 
   const dispatch = useAppDispatch();
 
-  const { isLoading: isCandyLoading, data: candy } = api.candy.oneById.useQuery(
-    {
-      id: router.query.id as string,
-    }
-  );
+  const { isLoading: isCandyLoading, data: candy } = useCandyByIdQuery(router.query.id as string)
 
   const imageRef = React.useRef<any>();
   const { imageDataURI, imageUrl, uploadFile } = useImageUpload();
 
   const [editMode, setEditMode] = useState(false);
 
-  const { refetch } = api.image.signedURL.useQuery(undefined, {
-    enabled: false,
-  });
+  const { refetch } = useSignedUrlQuery()
 
   if (candy)
     return (

@@ -12,6 +12,8 @@ import { Status } from "../../utils/types/orders";
 import { Candy } from "./candy.model";
 import { Bank } from "./bank.model";
 import { Coupon } from "./coupon.model";
+import { Photo } from "./photo.model";
+
 
 export class OrderItem {
   @prop({
@@ -19,13 +21,50 @@ export class OrderItem {
     required: [true, "Order item must have a candy ID"],
     ref: () => Candy,
   })
-  candy!: mongoose.Types.ObjectId;
+  candy!: string;
 
+  @prop({
+    required: true,
+    trim: true,
+    lowercase: true,
+    type: String,
+  })
+  name!: string;
+
+  @prop({
+    required: true,
+    min: [0, "Price must be at least 0"],
+    trim: true,
+    type: Number,
+  })
+  price!: number;
+
+  @prop({
+    required: true,
+    min: [0, "Quantity must be at least 0"],
+    trim: true,
+    type: Number,
+  })
+  quantity!: number;
+
+  @prop({
+    required: true,
+
+    trim: true,
+    type: String,
+  })
+  description!: string;
 
   @prop({
     type: Number,
   })
   itemsInCart!: number;
+
+  @prop({
+    type: Photo,
+    required: true,
+  })
+  photo!: Photo;
 }
 
 @modelOptions({
