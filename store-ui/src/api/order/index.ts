@@ -7,6 +7,7 @@ import { Role } from "@/utils/types/user";
 import {
   BankQueryResponse,
   Order,
+  OrderCancelBody,
   OrderCreateBody,
   PaginatedOrderResponse,
 } from "./types";
@@ -130,5 +131,41 @@ export const useOrderByIdQuery = (id: string) => {
     },
   });
 
-  return { data, isLoading, refetch};
+  return { data, isLoading, refetch };
+};
+
+export const useCancelOrderMutation = () => {
+  const { data, mutate, isPending } = useMutation<
+    Order,
+    any,
+    OrderCancelBody,
+    any
+  >({
+    mutationFn: async (data) => {
+      const authToken = localStorage.getItem("auth.token");
+      const response = await axios.post(`/order/cancel/${data.id}`, data, {
+        headers: {
+          Authorization: `Bearer ${authToken || ""}`,
+        },
+      });
+
+      return response.data;
+    },
+
+    //   onMutate: () => {
+
+    //   },
+    onSuccess() {
+      //
+    },
+    onError() {
+      //
+    },
+  });
+
+  return {
+    data,
+    mutate,
+    isPending,
+  };
 };

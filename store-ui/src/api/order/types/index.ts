@@ -42,3 +42,7 @@ export type PaginatedOrderResponse = {
   hasMore: boolean;
   candies: Order[];
 };
+
+export type OrderCancelBody = {
+  id: string;
+};

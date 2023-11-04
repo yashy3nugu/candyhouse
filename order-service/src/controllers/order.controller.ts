@@ -6,6 +6,7 @@ import CouponModel from '@/models/coupon.model';
 import OrderModel from '@/models/order.model';
 import { UserModel } from '@/models/user.model';
 import { orderByIdSchema, orderInputSchema, paginatedOrderFetchSchema } from '@/utils/schemas/order';
+import { Status } from '@/utils/types/order';
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
@@ -199,6 +200,48 @@ export class OrderController {
 
       res.send(order);
     } catch (error) {
+      next(error);
+    }
+  };
+
+  public cancel = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
+      const { id }: z.infer<typeof orderByIdSchema> = req.params;
+
+      const order = await OrderModel.findOne({ _id: id });
+
+      if (!order) {
+        throw new HttpException(404, 'order not found');
+      }
+
+      if (order.status === Status.Cancelled) {
+        throw new HttpException(400, 'Order is already cancelled');
+      }
+
+      const updated = await OrderModel.findByIdAndUpdate(id, {
+        status: Status.Cancelled,
+      });
+
+      const candyQuantityUpdates = order.items.map(orderItem => ({
+        key: orderItem.candy,
+        value: JSON.stringify({ quantity: orderItem.itemsInCart }),
+      }));
+
+      await session.commitTransaction();
+      session.endSession();
+
+      // await producer.connect();
+      // await producer.send({
+      //   topic: 'quantity',
+      //   messages: candyQuantityUpdates,
+      // });
+
+      res.send(order);
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
       next(error);
     }
   };

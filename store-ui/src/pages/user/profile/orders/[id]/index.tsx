@@ -29,13 +29,16 @@ import OrderDataTable from "@/components/order-data-table";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { useLoggedInUserQuery } from "@/api/user";
-import { useOrderByIdQuery } from "@/api/order";
+import { useCancelOrderMutation, useOrderByIdQuery } from "@/api/order";
+import { useQueryClient } from "@tanstack/react-query";
+import { ORDER_RQ } from "@/utils/types/react-query";
 
 const Order: NextPageWithLayout = () => {
   const router = useRouter();
   const { isLoading: isUserLoading, data: user } = useLoggedInUserQuery();
 
-  // const { mutate } = api.order.cancel.useMutation();
+  const { mutate } = useCancelOrderMutation();
+  const queryClient = useQueryClient();
 
   const { page, handleNextPage, handlePrevPage } = usePagination({
     initialPage: 1,
@@ -59,10 +62,10 @@ const Order: NextPageWithLayout = () => {
   };
 
   const confirmOrderCancellation = async () => {
-    // const { mutate } = api.order.cancel.useMutation();
-
-    // mutate({ _id: order!._id });
-    closeCancellationModal(); // Close the modal after confirmation
+    mutate({ id: order!._id });
+    closeCancellationModal();
+    // Close the modal after confirmation
+    queryClient.invalidateQueries({ queryKey: [ORDER_RQ.ORDER, order!._id] });
     await refetch();
   };
 
@@ -99,11 +102,7 @@ const Order: NextPageWithLayout = () => {
                       h={{ base: "50px", sm: "100px" }}
                       w={{ base: "50px", sm: "100px" }}
                     >
-                      <Image
-                        src={item.photo.url}
-                        alt={item.name}
-                        fill
-                      />
+                      <Image src={item.photo.url} alt={item.name} fill />
                     </Box>
                   </Flex>
                 ))}
