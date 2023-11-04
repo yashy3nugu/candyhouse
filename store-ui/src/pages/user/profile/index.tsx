@@ -1,52 +1,46 @@
 import { NextPageWithLayout } from "@/pages/_app";
-
 import React from "react";
 import UserLayout from "@/layouts/user-layout";
-import { api } from "@/utils/api";
-import {
-  Box,
-  Button,
-  Checkbox,
-  Container,
-  Divider,
-  Flex,
-  FormControl,
-  FormLabel,
-  Heading,
-  HStack,
-  Input,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
-import usePagination from "@/hooks/use-pagination/usePagination";
+import { useLoggedInUserQuery } from "@/api/user";
+import { Container, Heading, Text } from "@chakra-ui/react";
 
 const Profile: NextPageWithLayout = () => {
-  const { isLoading: isUserLoading, data: user } = api.auth.user.useQuery();
+  const { isLoading: isUserLoading, data: loggedInUserData } =
+    useLoggedInUserQuery();
 
   return (
-    <>
-      {user && (
-        <Container
-          maxW="lg"
-          py={{ base: "12", md: "24" }}
-          px={{ base: "0", sm: "8" }}
-        >
-          <Heading as="h1">User Profile</Heading>
-          {JSON.stringify(user)}
-          <Text>Name: {user.name}</Text>
-          <Text>Email: {user.email}</Text>
-          <Text>Coin Balance: {user.balance}🪙</Text>
-          <Text>
-            Total earned coins:{" "}
-            {user.totalEarnedCoins ? user.totalEarnedCoins : 0}🪙
+    <Container maxW="sm" mt="4">
+      {loggedInUserData && (
+        <div>
+          <Heading as="h1" size="lg" mb="4">
+            User Profile
+          </Heading>
+          <Text fontSize="md">
+            <strong>Name:</strong> {loggedInUserData.user.name}
           </Text>
-          <Text>
-            Total redeemed coins:{" "}
-            {user.totalRedeemedCoins ? user.totalRedeemedCoins : 0}🪙
+          <Text fontSize="md">
+            <strong>Email:</strong> {loggedInUserData.user.email}
           </Text>
-        </Container>
+          <Text fontSize="md">
+            <strong>Coin Balance:</strong> {loggedInUserData.user.balance}🪙
+          </Text>
+          <Text fontSize="md">
+            <strong>Total earned coins:</strong>{" "}
+            {loggedInUserData.user.totalEarnedCoins
+              ? loggedInUserData.user.totalEarnedCoins
+              : 0}
+            🪙
+          </Text>
+          <Text fontSize="md">
+            <strong>Total redeemed coins:</strong>{" "}
+            {loggedInUserData.user.totalRedeemedCoins
+              ? loggedInUserData.user.totalRedeemedCoins
+              : 0}
+            🪙
+          </Text>
+        </div>
       )}
-    </>
+    </Container>
   );
 };
 

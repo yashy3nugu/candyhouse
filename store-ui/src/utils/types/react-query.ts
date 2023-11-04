@@ -9,5 +9,6 @@ export enum PRODUCT_RQ {
 }
 
 export enum ORDER_RQ {
-  BANKS = "BANKS"
+  BANKS = "BANKS",
+  PAGINATED_ORDERS = "PAGINATED_ORDERS"
 }

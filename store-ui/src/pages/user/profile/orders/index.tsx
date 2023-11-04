@@ -20,16 +20,14 @@ import {
 } from "@chakra-ui/react";
 import usePagination from "@/hooks/use-pagination/usePagination";
 import OrderDataTable from "@/components/order-data-table";
+import { usePaginatedOrderQuery } from "@/api/order";
 
 const Orders: NextPageWithLayout = () => {
   const { page, handleNextPage, handlePrevPage } = usePagination({
     initialPage: 1,
   });
 
-  const { data: orders, isLoading } = api.order.user.useQuery({
-    limit: 10,
-    page,
-  });
+  const { data: orders, isLoading } = usePaginatedOrderQuery(page);
 
   return (
     <>

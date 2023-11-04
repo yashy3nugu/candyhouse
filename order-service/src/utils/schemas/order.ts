@@ -30,3 +30,14 @@ export const orderInputSchema = z.object({
   address: z.string({ required_error: 'Address Required' }),
   bank: z.string({ required_error: 'payment bank required' }),
 });
+
+export const paginatedOrderFetchSchema = z.object({
+  page: z
+    .string()
+    .refine(val => !isNaN(parseInt(val)))
+    .nullish(),
+  limit: z
+    .string()
+    .refine(val => !isNaN(parseInt(val)))
+    .nullish(),
+});

@@ -4,7 +4,11 @@ import { useToast } from "@chakra-ui/react";
 import { ORDER_RQ, PRODUCT_RQ, USER_RQ } from "@/utils/types/react-query";
 import { useRouter } from "next/router";
 import { Role } from "@/utils/types/user";
-import { BankQueryResponse, OrderData } from "./types";
+import {
+  BankQueryResponse,
+  OrderCreateBody,
+  PaginatedOrderResponse,
+} from "./types";
 import { useAppDispatch } from "@/store/hooks";
 import { clearCart } from "@/store/modules/cart";
 // import {
@@ -23,11 +27,16 @@ const axios = Axios.create({
 });
 
 export const useCreateOrderMutation = () => {
-    const toast = useToast();
-    const dispatch = useAppDispatch();
-    const router = useRouter();
+  const toast = useToast();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
-  const { data, mutate, isPending } = useMutation<any,any,OrderData,any>({
+  const { data, mutate, isPending } = useMutation<
+    any,
+    any,
+    OrderCreateBody,
+    any
+  >({
     mutationFn: async (data) => {
       const authToken = localStorage.getItem("auth.token");
       const response = await axios.post(`/order`, data, {
@@ -83,5 +92,29 @@ export const useGetBanksQuery = () => {
       return response.data;
     },
   });
+  return { data, isLoading };
+};
+
+export const usePaginatedOrderQuery = (page?: number) => {
+  const { data, isLoading } = useQuery<PaginatedOrderResponse>({
+    queryKey: [ORDER_RQ.PAGINATED_ORDERS, page],
+    queryFn: async () => {
+      // Get the token from localStorage
+      const authToken = localStorage.getItem("auth.token");
+
+      const response = await axios.get("/order/user", {
+        headers: {
+          Authorization: `Bearer ${authToken || ""}`,
+        },
+        params: {
+          limit: 10,
+          page,
+        },
+      });
+
+      return response.data;
+    },
+  });
+
   return { data, isLoading };
 };

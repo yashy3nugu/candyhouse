@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { Routes } from '@interfaces/routes.interface';
 import { OrderController } from '@/controllers/order.controller';
-import { ValidateBody } from '@/middlewares/validation.middleware';
-import { orderInputSchema } from '@/utils/schemas/order';
+import { ValidateBody, ValidateQuery } from '@/middlewares/validation.middleware';
+import { orderInputSchema, paginatedOrderFetchSchema } from '@/utils/schemas/order';
 import { AuthMiddleware } from '@/middlewares/auth.middleware';
 
 export class OrderRoute implements Routes {
@@ -17,6 +17,7 @@ export class OrderRoute implements Routes {
   private initializeRoutes() {
     this.router.get(`${this.path}`, this.order.test);
     this.router.post(`${this.path}`, ValidateBody(orderInputSchema), AuthMiddleware, this.order.create);
+    this.router.get(`${this.path}/user`, ValidateQuery(paginatedOrderFetchSchema), AuthMiddleware, this.order.getOrdersOfUser);
 
     // this.router.get(`${this.path}`, ValidationMiddleware(CreateUserDto), this.order.test);
   }

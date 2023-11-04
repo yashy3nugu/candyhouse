@@ -5,7 +5,7 @@ import CandyModel from '@/models/candy.model';
 import CouponModel from '@/models/coupon.model';
 import OrderModel from '@/models/order.model';
 import { UserModel } from '@/models/user.model';
-import { orderInputSchema } from '@/utils/schemas/order';
+import { orderInputSchema, paginatedOrderFetchSchema } from '@/utils/schemas/order';
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
@@ -153,6 +153,40 @@ export class OrderController {
       await session.abortTransaction();
       session.endSession();
 
+      console.log(error);
+      next(error);
+    }
+  };
+
+  public getOrdersOfUser = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { page, limit }: z.infer<typeof paginatedOrderFetchSchema> = req.query;
+      let pageNum;
+      let limitNum = parseInt(limit);
+
+      if (!page) {
+        pageNum = 1;
+      } else {
+        pageNum = parseInt(page);
+      }
+
+      if (!limit) {
+        limitNum = 6;
+      } else {
+        limitNum = parseInt(limit);
+      }
+
+      const orders = await OrderModel.find({ user: req.user._id })
+        .skip((pageNum - 1) * limitNum)
+        .limit(limitNum + 1);
+
+      res.send({
+        hasMore: orders.length === limitNum + 1,
+        orders: orders.slice(0, limitNum),
+      });
+
+      //******************************************* */
+    } catch (error) {
       console.log(error);
       next(error);
     }
