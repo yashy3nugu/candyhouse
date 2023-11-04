@@ -10,6 +10,7 @@ import { UserModel } from './models/user.model';
 import { userSchema } from './utils/schemas/user';
 import { candySchema } from './utils/schemas/candy';
 import CandyModel from './models/candy.model';
+import { BankRoute } from './routes/bank.route';
 
 const start = async () => {
   ValidateEnv();
@@ -75,7 +76,7 @@ const start = async () => {
     },
   });
 
-  const app = new App([new OrderRoute()]);
+  const app = new App([new OrderRoute(), new BankRoute()]);
 
   app.listen();
 };

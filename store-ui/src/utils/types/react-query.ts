@@ -7,3 +7,7 @@ export enum PRODUCT_RQ {
   SIGNED_URL = "SIGNED_URL",
   CANDY = "CANDY"
 }
+
+export enum ORDER_RQ {
+  BANKS = "BANKS"
+}

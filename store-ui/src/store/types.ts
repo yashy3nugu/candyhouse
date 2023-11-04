@@ -1,4 +1,4 @@
-import { Candy } from "@/server/models/candy.model";
+import { Candy } from "@/api/candy/types";
 
 export type CartCandy = Candy & {
   itemsInCart: number;

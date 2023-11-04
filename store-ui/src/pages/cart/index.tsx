@@ -40,6 +40,10 @@ import BaseLayout from "@/layouts/base-layout";
 import CartItem from "@/components/cart-item";
 import InputControl from "@/components/ui/input-control";
 import { useRouter } from "next/router";
+import { useLoggedInUserQuery } from "@/api/user";
+import { useCreateOrderMutation, useGetBanksQuery } from "@/api/order";
+import { Photo } from "@/api/candy/types";
+import { OrderDataItem } from "@/api/order/types";
 // import PaymentModal from "@/components/payment-modal";
 
 const Cart: NextPageWithLayout = () => {
@@ -49,53 +53,28 @@ const Cart: NextPageWithLayout = () => {
   const cartPrice = useAppSelector((state) => state.cart.price);
 
   const router = useRouter();
-  const { mutate: createOrder, isLoading } = api.order.create.useMutation({
-    onSuccess() {
-      toast({
-        title: "Order Placed",
-        description: "You have successfully placed an order of candies",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+  const { mutate: createOrder, isPending: isLoading } =
+    useCreateOrderMutation();
 
-      setTimeout(() => {
-        dispatch(clearCart());
-        router.replace("/orders");
-      }, 4000);
-    },
-    onError() {
-      toast({
-        title: "Order Not Placed",
-        description: "Unable to Place Order as Bank Server is Down",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    },
-  });
+  const { data, isLoading: isBanksLoading } = useGetBanksQuery();
 
-  const { data, isLoading: isBanksLoading } = api.bank.getAll.useQuery({});
+  const { isLoading: isUserLoading, data: loginData } = useLoggedInUserQuery();
 
-  const { isLoading: isUserLoading, data: user } = api.auth.user.useQuery();
-
-  const { mutateAsync: validateCoupon, isLoading: isCouponValidationLoading } =
-    api.coupon.validate.useMutation({});
+  // const { mutateAsync: validateCoupon, isLoading: isCouponValidationLoading } =
+  //   api.coupon.validate.useMutation({});
 
   // const { isOpen, onOpen, onClose } = useDisclosure();
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
 
   const step = 100;
-  let options: number[] = []
+  const options: number[] = [];
 
-  if (!isUserLoading && user) {
-    options = Array.from(
-      { length: (Math.min(1000,user.balance) - 100) / step + 1 },
-      (_, index) => 100 + index * step
-    );
-  }
-
-  
+  // if (!isUserLoading && user) {
+  //   options = Array.from(
+  //     { length: (Math.min(1000,user.balance) - 100) / step + 1 },
+  //     (_, index) => 100 + index * step
+  //   );
+  // }
 
   const toast = useToast();
   return (
@@ -113,6 +92,7 @@ const Cart: NextPageWithLayout = () => {
       >
         {cartValue > 0 ? (
           <>
+            {JSON.stringify(cartItems, null, 4)}
             <Card w="full" mb={5}>
               <CardBody>
                 <Flex mt={4} w="full" justifyContent="space-between">
@@ -155,9 +135,8 @@ const Cart: NextPageWithLayout = () => {
                   </Text>
                 </Flex>
 
-                {!isUserLoading && user && (
+                {!isUserLoading && loginData && (
                   <Formik
-                    
                     validate={({ address, bank }) => {
                       const errors: { address?: string; bank?: string } = {};
                       if (bank === "") {
@@ -174,19 +153,30 @@ const Cart: NextPageWithLayout = () => {
                       address: "",
                       coins: 0,
                     }}
-                    
                     onSubmit={({ address, bank, coins }) => {
-                      const items = [] as {
-                        candy: string;
-                        itemsInCart: number;
-                      }[];
+                      const items = [] as OrderDataItem[];
 
-                      cartItems.forEach(({ _id, itemsInCart }) => {
-                        items.push({
-                          candy: _id,
+                      cartItems.forEach(
+                        ({
                           itemsInCart,
-                        });
-                      });
+                          appId,
+                          description,
+                          name,
+                          photo,
+                          price,
+                          quantity,
+                        }) => {
+                          items.push({
+                            candy: appId,
+                            itemsInCart,
+                            description,
+                            name,
+                            photo,
+                            price,
+                            quantity,
+                          });
+                        }
+                      );
 
                       createOrder({
                         items,
@@ -230,7 +220,7 @@ const Cart: NextPageWithLayout = () => {
                               name="code"
                               placeholder="Coupon"
                             />
-                            <Button
+                            {/* <Button
                               isDisabled={isCouponValidationLoading || appliedCoupon !== null}
                               isLoading={isCouponValidationLoading}
                               onClick={async () => {
@@ -238,7 +228,7 @@ const Cart: NextPageWithLayout = () => {
                                   const { coupon } = await validateCoupon(
                                     values
                                   );
-                                  setAppliedCoupon(coupon);
+                                  // setAppliedCoupon(coupon);
                                   toast({
                                     title: "Applied Coupon",
 
@@ -261,20 +251,20 @@ const Cart: NextPageWithLayout = () => {
                               type="button"
                             >
                               Apply
-                            </Button>
+                            </Button> */}
                           </Flex>
-                          <Flex mt={4} w="full" justifyContent="space-between">
+                          {/* <Flex mt={4} w="full" justifyContent="space-between">
                             <Text>Available coins</Text>
-                            <Text>{user?.balance}🪙</Text>
+                            <Text>{loginData?.user.balance}🪙</Text>
                           </Flex>
-                          {user.balance < 100 && (
+                          {loginData.user.balance < 100 && (
                             <Alert mt={2} status="info">
                               <AlertIcon />
                               Minimum 100 reward coins required to be claimed
                             </Alert>
                           )}
 
-                          {user.balance > 100 && (
+                          {loginData.user.balance > 100 && (
                             <SelectControl
                               label="Redeem coins"
                               name="coins"
@@ -286,26 +276,26 @@ const Cart: NextPageWithLayout = () => {
                                 </option>
                               ))}
                             </SelectControl>
-                          )}
+                          )} */}
                         </VStack>
 
-                        {!isUserLoading && !user && (
+                        {!isUserLoading && !loginData && (
                           <Alert mt={4} status="info">
                             <AlertIcon />
                             Login to place an order.
                           </Alert>
                         )}
                         {!isUserLoading &&
-                          user &&
-                          (user.role === Role.Vendor ||
-                            user.role === Role.Admin) && (
+                          loginData &&
+                          (loginData.user.role === Role.Vendor ||
+                            loginData.user.role === Role.Admin) && (
                             <Alert mt={4} status="info">
                               <AlertIcon />
                               Login as a customer to place an order.
                             </Alert>
                           )}
 
-                        {!isUserLoading && user && (
+                        {!isUserLoading && loginData && (
                           <Button
                             isLoading={isSubmitting}
                             isDisabled={isSubmitting || !isValid || !dirty}

@@ -2,7 +2,7 @@ export type Candy = {
   _id: string;
   name: string;
   description: string;
-
+  appId: string;
   photo: Photo;
   vendor: string;
   price: number;

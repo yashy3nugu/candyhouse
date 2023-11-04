@@ -28,6 +28,7 @@ export const AuthMiddleware = async (req: RequestWithUser, res: Response, next: 
       if (foundUser) {
         if (foundUser.role === Role.User) {
           req.user = foundUser;
+
           next();
         } else {
           next(new HttpException(401, 'Only vendors can perform this action'));
@@ -39,6 +40,7 @@ export const AuthMiddleware = async (req: RequestWithUser, res: Response, next: 
       next(new HttpException(401, 'Authentication token missing'));
     }
   } catch (error) {
-    next(new HttpException(401, 'Wrong authentication token'));
+    console.log(error);
+    next(new HttpException(401, 'Error while processing auth token'));
   }
 };

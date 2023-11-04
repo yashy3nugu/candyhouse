@@ -9,7 +9,7 @@ import { Photo } from './photo.model';
 
 export class OrderItem {
   @prop({
-    type: mongoose.SchemaTypes.ObjectId,
+    type: String,
     required: [true, 'Order item must have a candy ID'],
   })
   candy!: string;

@@ -42,7 +42,7 @@ export const orderRouter = createTRPCRouter({
         let total = 0;
         for (const candyDocument of candyDocuments) {
           const numItems = items.find(
-            (item) => item.candy == candyDocument._id
+            (item) => item.candy == candyDocument.appId
           )!.itemsInCart;
           total += candyDocument.price * numItems;
 
