@@ -1,5 +1,6 @@
 import { HttpException } from '@/exceptions/httpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
+import { producer } from '@/lib/kafka';
 import CandyModel from '@/models/candy.model';
 import CouponModel from '@/models/coupon.model';
 import OrderModel from '@/models/order.model';
@@ -58,14 +59,10 @@ export class OrderController {
       }
 
       // bulk write (the case where insuficcient stock is present is taken care during total calculation)
-      // const candyQuantityUpdates = items.map(orderItem => ({
-      //   updateOne: {
-      //     filter: { _id: orderItem.candy.toString() },
-      //     update: {
-      //       $inc: { quantity: -orderItem.itemsInCart },
-      //     },
-      //   },
-      // }));
+      const candyQuantityUpdates = items.map(orderItem => ({
+        key: orderItem.candy,
+        value: JSON.stringify({ quantity: -orderItem.itemsInCart }),
+      }));
 
       // await CandyModel.bulkWrite(candyQuantityUpdates);
 
@@ -145,6 +142,11 @@ export class OrderController {
 
       await session.commitTransaction();
       session.endSession();
+      await producer.connect();
+      await producer.send({
+        topic: 'quantity',
+        messages: candyQuantityUpdates,
+      });
 
       res.send(order);
     } catch (error) {

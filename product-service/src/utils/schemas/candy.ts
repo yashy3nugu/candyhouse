@@ -39,3 +39,7 @@ export const paginatedCandyFetchSchema = z.object({
 export const candyByIdSchema = z.object({
   id: z.string({ required_error: 'Candy Id required' }),
 });
+
+export const candyQuantityUpdateSchema = z.object({
+  quantity: z.number(),
+});
