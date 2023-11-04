@@ -26,7 +26,6 @@ export class OrderController {
         session.startTransaction();
         const candyIds = [...new Set(items.map(item => item.candy))];
 
-
         // calculate total server side
         let total = 0;
 

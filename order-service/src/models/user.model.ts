@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import type { ReturnModelType } from '@typegoose/typegoose';
-import { prop, modelOptions, getModelForClass, pre } from '@typegoose/typegoose';
-import { Role } from '@/utils/types/user';
+import { prop, modelOptions, getModelForClass, pre, index } from '@typegoose/typegoose';
+import { Role } from '../utils/types/user';
 import bcrypt from 'bcryptjs';
-import { Photo } from './photo.model';
+import { Photo } from '../models/photo.model';
 
 @modelOptions({
   schemaOptions: {
@@ -18,14 +18,8 @@ import { Photo } from './photo.model';
     },
   },
 })
-@pre<User>('save', function (next) {
-  if (!this.isNew && !this.isModified('password')) {
-    return next();
-  }
-
-  this.password = this.hashPassword(this.password);
-  next();
-})
+@index({ email: 1 }, { unique: true })
+@index({ appId: 1 }, { unique: true })
 export class User {
   readonly _id!: string;
 
@@ -38,12 +32,10 @@ export class User {
   name!: string;
 
   @prop({
-    required: [true, 'User must have a password'],
-    minlength: [6, 'Password must contain atleast 6 characters'],
-    select: false,
     type: String,
+    required: [true, 'User must have a app specific id'],
   })
-  password!: string;
+  appId!: string;
 
   @prop({
     required: [true, 'User must provide their email address'],
@@ -59,11 +51,6 @@ export class User {
     type: String,
   })
   role!: string;
-
-  @prop({
-    type: Photo,
-  })
-  photo?: Photo;
 
   @prop({
     default: 0,

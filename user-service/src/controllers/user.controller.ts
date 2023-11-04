@@ -36,7 +36,7 @@ export const signup: ExpressResponse = async (req, res, next) => {
     const message = JSON.stringify(user);
     await producer.connect();
     await producer.send({
-      topic: "test-topic",
+      topic: "user",
       messages: [{ value: message, key: user.appId }],
     });
 
@@ -119,7 +119,7 @@ export const kafka: ExpressResponse = async (req, res, next) => {
   try {
     await producer.connect();
     await producer.send({
-      topic: "test-topic",
+      topic: "test",
       messages: [{ value: "test" }],
     });
     res.send("/kafka");

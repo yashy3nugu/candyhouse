@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import type { ReturnModelType } from '@typegoose/typegoose';
 import { prop, getModelForClass } from '@typegoose/typegoose';
-import { Status } from '@/utils/types/bank';
+// import { Status } from '@/utils/types/bank';
 
 export class Bank {
   readonly _id!: string;
@@ -14,8 +14,8 @@ export class Bank {
   name!: string;
 
   @prop({
-    enum: Status,
-    default: Status.Running,
+    // enum: Status,
+    // default: Status.Running,
     type: String,
   })
   status!: string;

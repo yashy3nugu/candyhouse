@@ -5,6 +5,8 @@ import { candyByIdSchema, candySchema, candyUpdateSchema, paginatedCandyFetchSch
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { HttpException } from '@/exceptions/httpException';
 import { v4 as uuidv4 } from 'uuid';
+import { producer } from '@/lib/kafka';
+import { UserModel } from '@/models/user.model';
 
 export class CandyController {
   public all = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -98,6 +100,15 @@ export class CandyController {
         vendor: vendorId,
         photo,
         appId: uuidv4(),
+      });
+
+      const candyObj = candy.toObject();
+      candyObj.vendor = req.user.appId;
+
+      await producer.connect();
+      await producer.send({
+        topic: 'candy',
+        messages: [{ key: candy.appId, value: JSON.stringify(candyObj) }],
       });
 
       res.send(candy);

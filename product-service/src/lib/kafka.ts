@@ -8,3 +8,8 @@ const kafka = new Kafka({
 export const consumer = kafka.consumer({
   groupId: 'product-service',
 });
+
+export const producer = kafka.producer({
+  allowAutoTopicCreation: true,
+  transactionTimeout: 30000,
+});

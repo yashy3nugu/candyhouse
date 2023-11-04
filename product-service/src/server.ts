@@ -13,7 +13,7 @@ const start = async () => {
   await connectDB(MONGO_URI);
 
   await consumer.connect();
-  await consumer.subscribe({ topic: 'test-topic' });
+  await consumer.subscribe({ topic: 'user' });
 
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
