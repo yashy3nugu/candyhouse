@@ -43,6 +43,6 @@ export type PaginatedOrderResponse = {
   candies: Order[];
 };
 
-export type OrderCancelBody = {
+export type OrderIdBody = {
   id: string;
 };

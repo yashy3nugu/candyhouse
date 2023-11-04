@@ -7,12 +7,13 @@ import { Role } from "@/utils/types/user";
 import {
   BankQueryResponse,
   Order,
-  OrderCancelBody,
+  OrderIdBody,
   OrderCreateBody,
   PaginatedOrderResponse,
 } from "./types";
 import { useAppDispatch } from "@/store/hooks";
 import { clearCart } from "@/store/modules/cart";
+import { Status } from "@/utils/types/orders";
 // import {
 //   Candy,
 //   CandyCreateBody as CandyData,
@@ -140,33 +141,30 @@ export const useOrderByIdQuery = (id: string) => {
 };
 
 export const useCancelOrderMutation = () => {
-  const { data, mutate, isPending } = useMutation<
-    Order,
-    any,
-    OrderCancelBody,
-    any
-  >({
-    mutationFn: async (data) => {
-      const authToken = localStorage.getItem("auth.token");
-      const response = await axios.post(`/order/cancel/${data.id}`, data, {
-        headers: {
-          Authorization: `Bearer ${authToken || ""}`,
-        },
-      });
+  const { data, mutate, isPending } = useMutation<Order, any, OrderIdBody, any>(
+    {
+      mutationFn: async (data) => {
+        const authToken = localStorage.getItem("auth.token");
+        const response = await axios.post(`/order/cancel/${data.id}`, data, {
+          headers: {
+            Authorization: `Bearer ${authToken || ""}`,
+          },
+        });
 
-      return response.data;
-    },
+        return response.data;
+      },
 
-    //   onMutate: () => {
+      //   onMutate: () => {
 
-    //   },
-    onSuccess() {
-      //
-    },
-    onError() {
-      //
-    },
-  });
+      //   },
+      onSuccess() {
+        //
+      },
+      onError() {
+        //
+      },
+    }
+  );
 
   return {
     data,
@@ -197,4 +195,43 @@ export const usePaginatedOrderQueryAdmin = (page?: number) => {
   });
 
   return { data, isLoading };
+};
+
+export const useOrderMarkDeliveredMutation = ({
+  onSuccess,
+}: {
+  onSuccess: () => void;
+}) => {
+  const { data, mutate, isPending } = useMutation<Order, any, OrderIdBody, any>(
+    {
+      mutationFn: async (data) => {
+        const authToken = localStorage.getItem("auth.token");
+        const response = await axios.patch(
+          `/order/${data.id}`,
+          { status: Status.Delivered },
+          {
+            headers: {
+              Authorization: `Bearer ${authToken || ""}`,
+            },
+          }
+        );
+
+        return response.data;
+      },
+
+      //   onMutate: () => {
+
+      //   },
+      onSuccess,
+      onError() {
+        //
+      },
+    }
+  );
+
+  return {
+    data,
+    mutate,
+    isPending,
+  };
 };

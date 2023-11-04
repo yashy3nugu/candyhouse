@@ -5,7 +5,7 @@ import CandyModel from '@/models/candy.model';
 import CouponModel from '@/models/coupon.model';
 import OrderModel from '@/models/order.model';
 import { UserModel } from '@/models/user.model';
-import { orderByIdSchema, orderInputSchema, paginatedOrderFetchSchema } from '@/utils/schemas/order';
+import { orderByIdSchema, orderInputSchema, orderUpdateSchema, paginatedOrderFetchSchema } from '@/utils/schemas/order';
 import { Status } from '@/utils/types/order';
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
@@ -220,6 +220,10 @@ export class OrderController {
 
       const order = await OrderModel.findOne({ _id: id });
 
+      if (!order) {
+        throw new HttpException(404, 'Order not found');
+      }
+
       res.send(order);
     } catch (error) {
       next(error);
@@ -264,6 +268,19 @@ export class OrderController {
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
+      next(error);
+    }
+  };
+
+  public update = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { address, bank, items, status }: z.infer<typeof orderUpdateSchema> = req.body;
+
+      const { id } = req.params;
+
+      const order = await OrderModel.findByIdAndUpdate(id, { address, bank, items, status });
+      res.send(order);
+    } catch (error) {
       next(error);
     }
   };

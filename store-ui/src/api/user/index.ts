@@ -146,7 +146,7 @@ const useLogoutMutation = () => {
 };
 
 export const useLoggedInUserQuery = () => {
-  const { data, isLoading } = useQuery<VerifyResponse>({
+  const { data, isLoading, isPending } = useQuery<VerifyResponse>({
     queryKey: [USER_RQ.LOGGED_IN_USER_QUERY],
     queryFn: async () => {
       // Get the token from localStorage
@@ -163,5 +163,5 @@ export const useLoggedInUserQuery = () => {
     },
   });
 
-  return { data, isLoading };
+  return { data, isLoading: isPending };
 };

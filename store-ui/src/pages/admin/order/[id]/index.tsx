@@ -22,7 +22,7 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import { useState } from "react";
 import { Status } from "@/utils/types/orders";
-import { useOrderByIdQuery } from "@/api/order";
+import { useOrderByIdQuery, useOrderMarkDeliveredMutation } from "@/api/order";
 
 const Order: NextPageWithLayout = () => {
   const router = useRouter();
@@ -33,11 +33,11 @@ const Order: NextPageWithLayout = () => {
     refetch,
   } = useOrderByIdQuery(router.query.id as string);
 
-  // const { mutate, isLoading } = api.order.markDelivered.useMutation({
-  //   async onSuccess() {
-  //     await refetch();
-  //   },
-  // });
+  const { mutate, isPending: isLoading } = useOrderMarkDeliveredMutation({
+    async onSuccess() {
+      await refetch();
+    },
+  });
 
   return (
     <>
@@ -61,7 +61,7 @@ const Order: NextPageWithLayout = () => {
                   <Button
                     mt={3}
                     onClick={() => {
-                      // mutate({ _id: order._id });
+                      mutate({ id: order._id });
                     }}
                   >
                     Mark delivered
@@ -82,11 +82,7 @@ const Order: NextPageWithLayout = () => {
                       h={{ base: "50px", sm: "100px" }}
                       w={{ base: "50px", sm: "100px" }}
                     >
-                      <Image
-                        src={item.photo.url}
-                        alt={item.name}
-                        fill
-                      />
+                      <Image src={item.photo.url} alt={item.name} fill />
                     </Box>
                   </Flex>
                 ))}

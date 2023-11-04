@@ -287,8 +287,8 @@ const Cart: NextPageWithLayout = () => {
                         )}
                         {!isUserLoading &&
                           loginData &&
-                          (loginData.user.role === Role.Vendor ||
-                            loginData.user.role === Role.Admin) && (
+                          (loginData.user?.role === Role.Vendor ||
+                            loginData.user?.role === Role.Admin) && (
                             <Alert mt={4} status="info">
                               <AlertIcon />
                               Login as a customer to place an order.
