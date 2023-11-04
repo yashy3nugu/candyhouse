@@ -12,9 +12,31 @@ import mongoose from 'mongoose';
 import { z } from 'zod';
 
 export class OrderController {
-  public test = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public allForAdmin = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
     try {
-      res.send('test');
+      const { page, limit }: z.infer<typeof paginatedOrderFetchSchema> = req.query;
+      let pageNum;
+      let limitNum = parseInt(limit);
+
+      if (!page) {
+        pageNum = 1;
+      } else {
+        pageNum = parseInt(page);
+      }
+
+      if (!limit) {
+        limitNum = 6;
+      } else {
+        limitNum = parseInt(limit);
+      }
+      const orders = await OrderModel.find()
+        .skip((pageNum - 1) * limitNum)
+        .limit(limitNum + 1);
+
+      res.send({
+        hasMore: orders.length === limitNum + 1,
+        orders: orders.slice(0, limitNum),
+      });
     } catch (error) {
       next(error);
     }

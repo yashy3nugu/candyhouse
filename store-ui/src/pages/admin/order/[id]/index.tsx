@@ -1,6 +1,6 @@
 import AdminLayout from "@/layouts/admin-layout/navbar";
 import { NextPageWithLayout } from "@/pages/_app";
-import { api } from "@/utils/api";
+// import { api } from "@/utils/api";
 import {
   Text,
   Box,
@@ -22,6 +22,7 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import { useState } from "react";
 import { Status } from "@/utils/types/orders";
+import { useOrderByIdQuery } from "@/api/order";
 
 const Order: NextPageWithLayout = () => {
   const router = useRouter();
@@ -30,15 +31,13 @@ const Order: NextPageWithLayout = () => {
     isLoading: isCandyLoading,
     data: order,
     refetch,
-  } = api.order.oneById.useQuery({
-    _id: router.query.id as string,
-  });
+  } = useOrderByIdQuery(router.query.id as string);
 
-  const { mutate, isLoading } = api.order.markDelivered.useMutation({
-    async onSuccess() {
-      await refetch();
-    },
-  });
+  // const { mutate, isLoading } = api.order.markDelivered.useMutation({
+  //   async onSuccess() {
+  //     await refetch();
+  //   },
+  // });
 
   return (
     <>
@@ -62,7 +61,7 @@ const Order: NextPageWithLayout = () => {
                   <Button
                     mt={3}
                     onClick={() => {
-                      mutate({ _id: order._id });
+                      // mutate({ _id: order._id });
                     }}
                   >
                     Mark delivered
@@ -74,9 +73,9 @@ const Order: NextPageWithLayout = () => {
                 <Heading as="h2" size="lg">
                   Items
                 </Heading>
-                {order.items.map((item: any) => (
+                {order.items.map((item) => (
                   <Flex key={item._id} align="center" justify="space-between">
-                    <Text>{item.candy.name}</Text>
+                    <Text>{item.name}</Text>
                     <Text>Quantity: {item.itemsInCart}</Text>
                     <Box
                       position="relative"
@@ -84,8 +83,8 @@ const Order: NextPageWithLayout = () => {
                       w={{ base: "50px", sm: "100px" }}
                     >
                       <Image
-                        src={item.candy.photo.url}
-                        alt={item.candy.name}
+                        src={item.photo.url}
+                        alt={item.name}
                         fill
                       />
                     </Box>

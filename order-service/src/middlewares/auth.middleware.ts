@@ -16,7 +16,7 @@ const getAuthorization = req => {
   return null;
 };
 
-export const AuthMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const AuthMiddleware = (allowedRoles: string[]) => async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
     const Authorization = getAuthorization(req);
 
@@ -26,7 +26,7 @@ export const AuthMiddleware = async (req: RequestWithUser, res: Response, next: 
       const foundUser = (await UserModel.findOne({ appId })).toObject();
 
       if (foundUser) {
-        if (foundUser.role === Role.User) {
+        if (allowedRoles.includes(foundUser.role)) {
           req.user = foundUser;
 
           next();

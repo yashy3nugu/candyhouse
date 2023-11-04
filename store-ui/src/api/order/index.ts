@@ -125,7 +125,12 @@ export const useOrderByIdQuery = (id: string) => {
   const { data, isLoading, refetch } = useQuery<Order>({
     queryKey: [ORDER_RQ.ORDER, id],
     queryFn: async () => {
-      const response = await axios.get(`/order/${id}`, {});
+      const authToken = localStorage.getItem("auth.token");
+      const response = await axios.get(`/order/${id}`, {
+        headers: {
+          Authorization: `Bearer ${authToken || ""}`,
+        },
+      });
 
       return response.data;
     },
@@ -168,4 +173,28 @@ export const useCancelOrderMutation = () => {
     mutate,
     isPending,
   };
+};
+
+export const usePaginatedOrderQueryAdmin = (page?: number) => {
+  const { data, isLoading } = useQuery<PaginatedOrderResponse>({
+    queryKey: [ORDER_RQ.PAGINATED_ORDERS, page],
+    queryFn: async () => {
+      // Get the token from localStorage
+      const authToken = localStorage.getItem("auth.token");
+
+      const response = await axios.get("/order", {
+        headers: {
+          Authorization: `Bearer ${authToken || ""}`,
+        },
+        params: {
+          limit: 10,
+          page,
+        },
+      });
+
+      return response.data;
+    },
+  });
+
+  return { data, isLoading };
 };

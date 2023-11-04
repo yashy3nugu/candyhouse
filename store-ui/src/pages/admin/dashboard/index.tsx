@@ -1,8 +1,8 @@
+import { usePaginatedOrderQueryAdmin } from "@/api/order";
 import OrderDataTable from "@/components/order-data-table";
 import usePagination from "@/hooks/use-pagination/usePagination";
 import AdminLayout from "@/layouts/admin-layout/navbar";
 import { NextPageWithLayout } from "@/pages/_app";
-import { api } from "@/utils/api";
 import {
   Container,
   Heading,
@@ -20,10 +20,7 @@ import {
 const AdminDashboard: NextPageWithLayout = () => {
   const { page, handleNextPage, handlePrevPage } = usePagination({});
 
-  const { data: orders, isLoading } = api.order.all.useQuery({
-    limit: 10,
-    page,
-  });
+  const { data: orders, isLoading } = usePaginatedOrderQueryAdmin(page);
 
   if (isLoading) {
     return <></>;
@@ -41,7 +38,7 @@ const AdminDashboard: NextPageWithLayout = () => {
           <OrderDataTable
             {...{ page }}
             data={orders}
-            linkUrl="/user/profile/orders"
+            linkUrl="/admin/order"
             nextPage={handleNextPage}
             previousPage={handlePrevPage}
           />
