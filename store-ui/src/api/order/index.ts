@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { Role } from "@/utils/types/user";
 import {
   BankQueryResponse,
+  Order,
   OrderCreateBody,
   PaginatedOrderResponse,
 } from "./types";
@@ -117,4 +118,17 @@ export const usePaginatedOrderQuery = (page?: number) => {
   });
 
   return { data, isLoading };
+};
+
+export const useOrderByIdQuery = (id: string) => {
+  const { data, isLoading, refetch } = useQuery<Order>({
+    queryKey: [ORDER_RQ.ORDER, id],
+    queryFn: async () => {
+      const response = await axios.get(`/order/${id}`, {});
+
+      return response.data;
+    },
+  });
+
+  return { data, isLoading, refetch};
 };

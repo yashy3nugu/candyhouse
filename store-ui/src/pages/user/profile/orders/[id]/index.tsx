@@ -2,7 +2,6 @@ import { NextPageWithLayout } from "@/pages/_app";
 
 import React, { useState } from "react";
 import UserLayout from "@/layouts/user-layout";
-import { api } from "@/utils/api";
 import {
   Box,
   Button,
@@ -29,20 +28,24 @@ import usePagination from "@/hooks/use-pagination/usePagination";
 import OrderDataTable from "@/components/order-data-table";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import { useLoggedInUserQuery } from "@/api/user";
+import { useOrderByIdQuery } from "@/api/order";
 
 const Order: NextPageWithLayout = () => {
-    const router = useRouter();
-  const { isLoading: isUserLoading, data: user } = api.auth.user.useQuery();
+  const router = useRouter();
+  const { isLoading: isUserLoading, data: user } = useLoggedInUserQuery();
 
-  const { mutate } = api.order.cancel.useMutation()
+  // const { mutate } = api.order.cancel.useMutation();
 
   const { page, handleNextPage, handlePrevPage } = usePagination({
     initialPage: 1,
   });
 
-  const { data: order, isLoading, refetch } = api.order.oneById.useQuery({
-    _id: router.query.id as string
-  });
+  const {
+    data: order,
+    isLoading,
+    refetch,
+  } = useOrderByIdQuery(router.query.id as string);
 
   const [isCancellationModalOpen, setIsCancellationModalOpen] = useState(false);
 
@@ -55,13 +58,12 @@ const Order: NextPageWithLayout = () => {
     setIsCancellationModalOpen(false);
   };
 
-   const confirmOrderCancellation = async () => {
-    
-    const { mutate } = api.order.cancel.useMutation();
-    
-    mutate({ _id: order!._id });
-     closeCancellationModal(); // Close the modal after confirmation
-     await refetch();
+  const confirmOrderCancellation = async () => {
+    // const { mutate } = api.order.cancel.useMutation();
+
+    // mutate({ _id: order!._id });
+    closeCancellationModal(); // Close the modal after confirmation
+    await refetch();
   };
 
   return (
@@ -88,9 +90,9 @@ const Order: NextPageWithLayout = () => {
                 <Heading as="h2" size="lg">
                   Items
                 </Heading>
-                {order.items.map((item: any) => (
+                {order.items.map((item) => (
                   <Flex key={item._id} align="center" justify="space-between">
-                    <Text>{item.candy.name}</Text>
+                    <Text>{item.name}</Text>
                     <Text>Quantity: {item.itemsInCart}</Text>
                     <Box
                       position="relative"
@@ -98,8 +100,8 @@ const Order: NextPageWithLayout = () => {
                       w={{ base: "50px", sm: "100px" }}
                     >
                       <Image
-                        src={item.candy.photo.url}
-                        alt={item.candy.name}
+                        src={item.photo.url}
+                        alt={item.name}
                         fill
                       />
                     </Box>

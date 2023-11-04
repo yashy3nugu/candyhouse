@@ -41,3 +41,7 @@ export const paginatedOrderFetchSchema = z.object({
     .refine(val => !isNaN(parseInt(val)))
     .nullish(),
 });
+
+export const orderByIdSchema = z.object({
+  id: z.string({ required_error: 'Order Id required' }),
+});

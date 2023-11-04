@@ -5,7 +5,7 @@ import CandyModel from '@/models/candy.model';
 import CouponModel from '@/models/coupon.model';
 import OrderModel from '@/models/order.model';
 import { UserModel } from '@/models/user.model';
-import { orderInputSchema, paginatedOrderFetchSchema } from '@/utils/schemas/order';
+import { orderByIdSchema, orderInputSchema, paginatedOrderFetchSchema } from '@/utils/schemas/order';
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
@@ -187,7 +187,18 @@ export class OrderController {
 
       //******************************************* */
     } catch (error) {
-      console.log(error);
+      next(error);
+    }
+  };
+
+  public oneById = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id }: z.infer<typeof orderByIdSchema> = req.params;
+
+      const order = await OrderModel.findOne({ _id: id });
+
+      res.send(order);
+    } catch (error) {
       next(error);
     }
   };
