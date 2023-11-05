@@ -1,6 +1,6 @@
 import React from "react";
-import Footer from "@/layouts/shared/footer";
-import Navbar from "@/layouts/shared/navbar";
+import Footer from "@/components/shared/footer";
+import Navbar from "@/components/shared/navbar";
 
 const BaseLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (

@@ -1,4 +1,4 @@
-import AdminLayout from "@/layouts/admin-layout/navbar";
+import AdminLayout from "@/layouts/admin-layout";
 import { NextPageWithLayout } from "@/pages/_app";
 // import { api } from "@/utils/api";
 import {

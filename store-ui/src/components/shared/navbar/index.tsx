@@ -13,7 +13,7 @@ import {
   useDisclosure,
   Skeleton,
 } from "@chakra-ui/react";
-import MobileDrawer from "@/layouts/shared/mobile-drawer";
+import MobileDrawer from "@/components/shared/mobile-drawer";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { AiOutlineHome, AiOutlineShoppingCart } from "react-icons/ai";
 import { BiStore } from "react-icons/bi";
@@ -108,6 +108,17 @@ const Navbar: React.FC = () => {
                           icon={LuPlus}
                           href="/vendor/create"
                           label="Create"
+                        />
+                      </>
+                    )}
+
+                    {loginData?.user.role == Role.Admin && (
+                      <>
+                        <NavLink
+                          isLoaded={!isLoading}
+                          icon={LuLayoutDashboard}
+                          href="/admin/dashboard"
+                          label="Dashboard"
                         />
                       </>
                     )}

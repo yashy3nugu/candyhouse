@@ -1,5 +1,5 @@
 import React from "react";
-import Footer from "@/layouts/shared/footer";
+import Footer from "@/components/shared/footer";
 import Navbar from "@/components/shared/navbar";
 import VendorProvider from "@/components/provider/VendorProvider";
 
