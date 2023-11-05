@@ -149,3 +149,17 @@ export const useUpdateCandyMutation = (id: string) => {
     isPending,
   };
 };
+
+export const useSignedUrlQuery = () => {
+  const { refetch } = useQuery<signedUrlQueryResponse>({
+    queryKey: ["SignedUrl"],
+    queryFn: async () => {
+      return (await axios.get("/image")).data;
+    },
+    enabled: false,
+  });
+
+  return {
+    refetch,
+  };
+};

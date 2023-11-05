@@ -48,9 +48,6 @@ import Head from "next/head";
 
 import NumberInputControl from "@/components/ui/number-input-control";
 
-import VendorProvider from "@/components/provider/VendorProvider";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import candySchema from "@/utils/schemas/candy";
 import React, { useState } from "react";
 import useImageUpload from "@/hooks/use-image-upload";
 import { useCandyByIdQuery, useSignedUrlQuery, useUpdateCandyMutation } from "@/api/candy";
