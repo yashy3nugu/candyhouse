@@ -5,6 +5,7 @@ export const fakeCandy = {
   price: 20,
   quantity: 100,
   vendor: "648d67a0315f0b8530bdf21e",
+  appId: "",
   photo: {
     url: "https://res.cloudinary.com/yashyenugu/image/upload/v1687339232/candies/p0dvxdwtuxd5kmiyxjpw.jpg",
     publicId: "candies/p0dvxdwtuxd5kmiyxjpw",
