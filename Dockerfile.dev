@@ -8,11 +8,11 @@ COPY . ./app
 WORKDIR /app
 
 # Install Node Package
-RUN yarn install --network-timeout 500000
+RUN npm install --legacy-peer-deps
 
 # Set Env
 ENV NODE_ENV development
 EXPOSE 3000
 
 # Cmd script
-CMD ["yarn", "run", "dev"]
+CMD ["npm", "run", "dev"]
