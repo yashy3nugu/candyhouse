@@ -40,6 +40,7 @@ import TextareaControl from "@/components/ui/textarea-control";
 
 import { FaStar } from "react-icons/fa";
 import { useCandyByIdQuery } from "@/api/candy";
+import Seo from "@/components/shared/seo";
 
 const Candy: NextPageWithLayout = () => {
   const router = useRouter();
@@ -73,6 +74,7 @@ const Candy: NextPageWithLayout = () => {
   if (candy)
     return (
       <>
+        <Seo title="View Candy" />
         <Modal isOpen={isOpen} onClose={onClose}>
           <Formik
             onSubmit={(values) => {
@@ -144,7 +146,6 @@ const Candy: NextPageWithLayout = () => {
           </Formik>
         </Modal>
         <Container
-          as="main"
           maxW="4xl"
           py={{ base: "12", md: "24" }}
           px={{ base: "0", sm: "8" }}

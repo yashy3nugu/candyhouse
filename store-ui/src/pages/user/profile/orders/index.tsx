@@ -21,6 +21,7 @@ import {
 import usePagination from "@/hooks/use-pagination/usePagination";
 import OrderDataTable from "@/components/order-data-table";
 import { usePaginatedOrderQuery } from "@/api/order";
+import Seo from "@/components/shared/seo";
 
 const Orders: NextPageWithLayout = () => {
   const { page, handleNextPage, handlePrevPage } = usePagination({
@@ -31,6 +32,7 @@ const Orders: NextPageWithLayout = () => {
 
   return (
     <>
+      <Seo title="User Profile" />
       <Container
         maxW="3xl"
         py={{ base: "12", md: "24" }}

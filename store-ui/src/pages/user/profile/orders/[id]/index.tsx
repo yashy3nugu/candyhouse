@@ -32,6 +32,7 @@ import { useLoggedInUserQuery } from "@/api/user";
 import { useCancelOrderMutation, useOrderByIdQuery } from "@/api/order";
 import { useQueryClient } from "@tanstack/react-query";
 import { ORDER_RQ } from "@/utils/types/react-query";
+import Seo from "@/components/shared/seo";
 
 const Order: NextPageWithLayout = () => {
   const router = useRouter();
@@ -71,6 +72,7 @@ const Order: NextPageWithLayout = () => {
 
   return (
     <>
+      <Seo title="View Order" />
       {order && (
         <>
           <Container
