@@ -16,18 +16,19 @@ const getAuthorization = req => {
   return null;
 };
 
-export const AuthMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const AuthMiddleware = (allowedRoles: string[]) => async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
     const Authorization = getAuthorization(req);
 
     if (Authorization) {
-      const { appId } = (await verify(Authorization, SECRET_KEY)) as { appId: string };
+      const { appId } = (await verify(Authorization, SECRET_KEY)) as DataStoredInToken;
 
       const foundUser = (await UserModel.findOne({ appId })).toObject();
 
       if (foundUser) {
-        if (foundUser.role === Role.Vendor) {
+        if (allowedRoles.includes(foundUser.role)) {
           req.user = foundUser;
+
           next();
         } else {
           next(new HttpException(401, 'Only vendors can perform this action'));
@@ -39,6 +40,7 @@ export const AuthMiddleware = async (req: RequestWithUser, res: Response, next: 
       next(new HttpException(401, 'Authentication token missing'));
     }
   } catch (error) {
-    next(new HttpException(401, 'Wrong authentication token'));
+    console.log(error);
+    next(new HttpException(401, 'Error while processing auth token'));
   }
 };

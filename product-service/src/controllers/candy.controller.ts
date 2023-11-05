@@ -116,4 +116,35 @@ export class CandyController {
       next(error);
     }
   };
+
+  public vendor = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { page, limit }: z.infer<typeof paginatedCandyFetchSchema> = req.query;
+      let pageNum;
+      let limitNum = parseInt(limit);
+
+      if (!page) {
+        pageNum = 1;
+      } else {
+        pageNum = parseInt(page);
+      }
+
+      if (!limit) {
+        limitNum = 6;
+      } else {
+        limitNum = parseInt(limit);
+      }
+
+      const candies = await CandyModel.find({ vendor: req.user._id })
+        .skip((pageNum - 1) * limitNum)
+        .limit(limitNum + 1);
+
+      res.send({
+        hasMore: candies.length === limitNum + 1,
+        candies: candies.slice(0, limitNum),
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }

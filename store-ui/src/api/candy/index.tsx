@@ -43,6 +43,30 @@ export const usePaginatedCandyQuery = (page?: number) => {
   return { data, isLoading };
 };
 
+export const usePaginatedCandyQueryVendor = (page?: number) => {
+  const { data, isLoading } = useQuery<PaginatedCandyResponse>({
+    queryKey: [PRODUCT_RQ.VENDOR, PRODUCT_RQ.PAGINATED_CANDIES, page],
+    queryFn: async () => {
+      // Get the token from localStorage
+      const authToken = localStorage.getItem("auth.token");
+
+      const response = await axios.get("/candy/vendor", {
+        headers: {
+          Authorization: `Bearer ${authToken || ""}`,
+        },
+        params: {
+          limit: 10,
+          page,
+        },
+      });
+
+      return response.data;
+    },
+  });
+
+  return { data, isLoading };
+};
+
 export const useCandyByIdQuery = (id: string) => {
   const { data, isLoading } = useQuery<Candy>({
     queryKey: [PRODUCT_RQ.CANDY, id],
@@ -53,7 +77,7 @@ export const useCandyByIdQuery = (id: string) => {
     },
   });
 
-  return {data, isLoading}
+  return { data, isLoading };
 };
 
 export const useCreateCandyMutation = () => {
@@ -113,7 +137,6 @@ export const useUpdateCandyMutation = (id: string) => {
     //   },
     onSuccess: (data) => {
       // let redirect;
-      
     },
     //   onError: (error) => {
 
