@@ -40,7 +40,7 @@ export const useLoginMutation = () => {
       toast.closeAll();
     },
     onSuccess: (data) => {
-      queryClient.setQueryData([USER_RQ.LOGGED_IN_USER_QUERY], data.user);
+      queryClient.setQueryData([USER_RQ.LOGGED_IN_USER_QUERY], data);
       localStorage.setItem("auth.token", data.token);
       let redirect;
       if (data.user.role === Role.User) {
@@ -92,7 +92,7 @@ export const useRegisterMutation = () => {
       toast.closeAll();
     },
     onSuccess: (data) => {
-      queryClient.setQueryData([USER_RQ.LOGGED_IN_USER_QUERY], data.user);
+      queryClient.setQueryData([USER_RQ.LOGGED_IN_USER_QUERY], data);
       localStorage.setItem("auth.token", data.token);
       // let redirect;
       // if (data.user.role === Role.User) {

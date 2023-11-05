@@ -5,7 +5,9 @@ import { Role } from "@/utils/types/user";
 import { Spinner } from "@chakra-ui/react";
 import { useLoggedInUserQuery } from "@/api/user";
 
-const SuperAdminProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
+const SuperAdminProvider: React.FC<React.PropsWithChildren> = ({
+  children,
+}) => {
   const router = useRouter();
   const { isLoading, data } = useLoggedInUserQuery();
 

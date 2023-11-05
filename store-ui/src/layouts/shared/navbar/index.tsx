@@ -23,16 +23,18 @@ import { useAppSelector } from "@/store/hooks";
 
 import NavLink from "../nav-link";
 import { useLoggedInUserQuery } from "@/api/user";
+import { Role } from "@/utils/types/user";
+import { LuLayoutDashboard } from "react-icons/lu";
 
 const Navbar: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   // const { data: userOld, isLoading } = api.auth.user.useQuery();
   // const isLoading = false;
 
-  
-  const {data: user, isLoading} = useLoggedInUserQuery()
+  const { data: loginData, isLoading } = useLoggedInUserQuery();
 
   const cartValue = useAppSelector((state) => state.cart.value);
+
   return (
     <>
       <Box as="header" position="sticky" top={0} left={0} zIndex={15}>
@@ -51,23 +53,27 @@ const Navbar: React.FC = () => {
             <Box as="nav">
               <HStack>
                 {/* <Skeleton>
-                  <Button leftIcon={<AiOutlineHome />}>****</Button>
-                </Skeleton> */}
+                    <Button leftIcon={<AiOutlineHome />}>****</Button>
+                  </Skeleton> */}
+                {(!loginData ||
+                  (loginData.user && loginData.user.role === Role.User)) && (
+                  <>
+                    <NavLink
+                      isLoaded={!isLoading}
+                      icon={AiOutlineHome}
+                      href="/"
+                      label="Home"
+                    />
 
-                <NavLink
-                  isLoaded={!isLoading}
-                  icon={AiOutlineHome}
-                  href="/"
-                  label="Home"
-                />
-
-                <NavLink
-                  isLoaded={!isLoading}
-                  icon={BiStore}
-                  href="/store"
-                  label="Store"
-                />
-                {!user && (
+                    <NavLink
+                      isLoaded={!isLoading}
+                      icon={BiStore}
+                      href="/store"
+                      label="Store"
+                    />
+                  </>
+                )}
+                {!loginData && (
                   <>
                     <NavLink
                       isLoaded={!isLoading}
@@ -83,14 +89,26 @@ const Navbar: React.FC = () => {
                     />
                   </>
                 )}
+                {(!loginData ||
+                  (loginData.user && loginData.user.role === Role.User)) && (
+                  <NavLink
+                    isLoaded={!isLoading}
+                    icon={AiOutlineShoppingCart}
+                    href="/cart"
+                    label={`Cart (${cartValue})`}
+                  />
+                )}
 
-                <NavLink
-                  isLoaded={!isLoading}
-                  icon={AiOutlineShoppingCart}
-                  href="/cart"
-                  label={`Cart (${cartValue})`}
-                />
-                {user && (
+                {loginData && loginData.user.role == Role.Vendor && (
+                  <NavLink
+                    isLoaded={!isLoading}
+                    icon={LuLayoutDashboard}
+                    href="/vendor/dashboard"
+                    label="Dashboard"
+                  />
+                )}
+
+                {loginData && (
                   <NavLink
                     icon={FiLogOut}
                     isLoaded={!isLoading}

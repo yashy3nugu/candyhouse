@@ -1,6 +1,6 @@
 import React from "react";
 import Footer from "@/layouts/shared/footer";
-import Navbar from "@/layouts/vendor-layout/navbar";
+import Navbar from "@/components/shared/navbar";
 
 import UserProvider from "@/components/provider/user-provider";
 
