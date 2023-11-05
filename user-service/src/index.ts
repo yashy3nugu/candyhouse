@@ -4,8 +4,10 @@ import cors from "cors";
 import helmet from "helmet";
 import { connectDB } from "./lib/mongoose";
 import authRouter from "./routers/user.router"
+import { ValidateEnv } from "./utils/validate/validate-env";
 
 dotenv.config();
+ValidateEnv()
 
 if (!process.env.PORT) {
   process.exit(1);
