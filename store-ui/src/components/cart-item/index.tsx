@@ -24,13 +24,13 @@ const CartItem: React.FC<CartItemProps> = ({ candy }) => {
   return (
     <SimpleGrid columns={12} spacingX={2} px={1}>
       <GridItem colSpan={2}>
-        <Box position="relative" h={{base: "50px",sm:"100px"}} w={{base: "50px",sm:"100px"}}>
+        <Box position="relative" h={{base: "40px",sm:"100px"}} w={{base: "40px",sm:"100px"}}>
           <Image src={candy.photo.url} alt={candy.name} fill />
         </Box>
       </GridItem>
       <GridItem colSpan={2}>
         <VStack h="full" alignItems="start" justifyContent={"center"}>
-          <Text fontSize="md" fontWeight="">
+          <Text fontSize={{base:"sm",sm:"md"}} fontWeight="">
             {candy.name}
           </Text>
           <Text fontWeight="semibold" fontSize="sm">

@@ -88,7 +88,6 @@ const Cart: NextPageWithLayout = () => {
       >
         {cartValue > 0 ? (
           <>
-            {JSON.stringify(cartItems, null, 4)}
             <Card w="full" mb={5}>
               <CardBody>
                 <Flex mt={4} w="full" justifyContent="space-between">
@@ -185,7 +184,6 @@ const Cart: NextPageWithLayout = () => {
                   >
                     {({ values, isSubmitting, isValid, dirty }) => (
                       <Form>
-                        {JSON.stringify(values, null, 4)}
                         <VStack alignItems="start" mt={4}>
                           {true && (
                             <SelectControl
@@ -210,12 +208,12 @@ const Cart: NextPageWithLayout = () => {
                             alignItems="center"
                             justifyContent="center"
                           >
-                            <Field
+                            {/* <Field
                               mr={4}
                               as={Input}
                               name="code"
                               placeholder="Coupon"
-                            />
+                            /> */}
                             {/* <Button
                               isDisabled={isCouponValidationLoading || appliedCoupon !== null}
                               isLoading={isCouponValidationLoading}
@@ -299,6 +297,8 @@ const Cart: NextPageWithLayout = () => {
                             type="submit"
                             py={6}
                             w="full"
+                            colorScheme="pink"
+                            size={{base: "sm", sm: "md"}}
                           >
                             Place Order
                           </Button>
@@ -311,7 +311,7 @@ const Cart: NextPageWithLayout = () => {
             </Card>
 
             <Heading>Your cart ({cartValue})</Heading>
-            <VStack divider={<StackDivider />} px={6}>
+            <VStack divider={<StackDivider />} px={6} mt={4}>
               {cartValue > 0 &&
                 cartItems.map((candy, i) => {
                   return <CartItem key={i} candy={candy} />;
