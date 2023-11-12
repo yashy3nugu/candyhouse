@@ -110,7 +110,7 @@ const Order: NextPageWithLayout = () => {
                 ))}
               </Box>
               <Box>
-                <Button colorScheme="red" onClick={openCancellationModal}>
+                <Button colorScheme="pink" onClick={openCancellationModal}>
                   Cancel Order
                 </Button>
               </Box>
@@ -127,8 +127,8 @@ const Order: NextPageWithLayout = () => {
               <ModalCloseButton />
               <ModalBody>Are you sure you want to cancel this order?</ModalBody>
               <ModalFooter>
-                <Button colorScheme="red" onClick={confirmOrderCancellation}>
-                  Confirm Cancellation
+                <Button colorScheme="pink" mr={2} onClick={confirmOrderCancellation}>
+                  Confirm
                 </Button>
                 <Button variant="ghost" onClick={closeCancellationModal}>
                   Close
