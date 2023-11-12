@@ -1,0 +1,27 @@
+name: Build and publish product-service image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push-product-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build product-service image
+        run: cd product-service && docker build -t product-service .
+
+      # - name: Push product-service image to Docker Hub
+      #   uses: docker/push-action@v3
+      #   with:
+      #     username: ${{ secrets.DOCKER_HUB_USERNAME }}
+      #     password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      #     repository: your-docker-hub-username/product-service
