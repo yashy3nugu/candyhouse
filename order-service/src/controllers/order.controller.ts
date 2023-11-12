@@ -1,4 +1,4 @@
-import { HttpException } from '@/exceptions/httpException';
+import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { producer } from '@/lib/kafka';
 import CandyModel from '@/models/candy.model';
