@@ -1,50 +1,24 @@
-import BaseLayout from "@/layouts/base-layout";
 import { NextPageWithLayout } from "@/pages/_app";
 // import { api } from "@/utils/api";
 import {
-  Badge,
   Text,
   Box,
-  Card,
   Container,
   Flex,
-  SimpleGrid,
-  GridItem,
-  VStack,
   Button,
-  HStack,
   Heading,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalContent,
-  ModalCloseButton,
-  Accordion,
-  Icon,
-  AccordionItem,
-  AccordionButton,
-  AccordionIcon,
-  AccordionPanel,
   Stack,
   Input,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { addCandyToCart, removeCandyFromCart } from "@/store/modules/cart";
+
 import { Form, Formik } from "formik";
-import SelectControl from "@/components/ui/select-control";
+
 import InputControl from "@/components/ui/input-control";
 import TextareaControl from "@/components/ui/textarea-control";
 
-import { FaStar } from "react-icons/fa";
 import VendorLayout from "@/layouts/vendor-layout";
-
-import { type NextPage } from "next";
-import Head from "next/head";
 
 import NumberInputControl from "@/components/ui/number-input-control";
 
@@ -60,20 +34,15 @@ import Seo from "@/components/shared/seo";
 const Candy: NextPageWithLayout = () => {
   const router = useRouter();
 
-  const { mutate, isPending } = useUpdateCandyMutation(
-    router.query.id as string
-  );
+  const { mutate } = useUpdateCandyMutation(router.query.id as string);
 
-  const dispatch = useAppDispatch();
-
-  const { isLoading: isCandyLoading, data: candy } = useCandyByIdQuery(
-    router.query.id as string
-  );
+  const { data: candy } = useCandyByIdQuery(router.query.id as string);
 
   const imageRef = React.useRef<any>();
   const { imageDataURI, imageUrl, uploadFile } = useImageUpload();
 
   const [editMode, setEditMode] = useState(false);
+  const [imageChanged, setImageChanged] = useState(false);
 
   const { refetch } = useSignedUrlQuery();
 
@@ -147,7 +116,7 @@ const Candy: NextPageWithLayout = () => {
                   }
                 }}
               >
-                {({ isSubmitting, isValid, dirty, values, errors }) => (
+                {({ isSubmitting, isValid, dirty }) => (
                   <Form>
                     {editMode ? (
                       <>
@@ -170,30 +139,6 @@ const Candy: NextPageWithLayout = () => {
                           ref={imageRef}
                           onChange={uploadFile}
                         />
-                        {/* <Flex
-                            my={4}
-                            w="full"
-                            alignItems="center"
-                            justifyContent="space-between"
-                          >
-                            <Box position="relative" h={20} w={20}>
-                              {imageUrl && (
-                                <Image
-                                  src={imageUrl || ""}
-                                  alt="Candy Picture"
-                                  fill
-                                />
-                              )}
-                            </Box>
-                            <Button
-                              onClick={() => {
-                                imageRef.current.click();
-                              }}
-                              type="button"
-                            >
-                              Upload Image
-                            </Button>
-                          </Flex> */}
                       </>
                     ) : (
                       <>
@@ -226,6 +171,7 @@ const Candy: NextPageWithLayout = () => {
                       {editMode && (
                         <Button
                           onClick={() => {
+                            setImageChanged(true);
                             imageRef.current.click();
                           }}
                           type="button"
@@ -237,12 +183,21 @@ const Candy: NextPageWithLayout = () => {
 
                     {editMode ? (
                       <>
+                        {/* dirty && valid || !dirty && isValid && imageDataUri */}
+
                         <Button
                           isLoading={isSubmitting}
-                          isDisabled={isSubmitting || !isValid || !dirty}
+                          // isDisabled={isSubmitting || !isValid || !dirty}
+                          isDisabled={
+                            !(
+                              (imageChanged && isValid) ||
+                              (isValid && dirty)
+                            ) || isSubmitting
+                          }
                           colorScheme="pink"
                           type="submit"
                           w="full"
+                          mb={2}
                         >
                           Save
                         </Button>
