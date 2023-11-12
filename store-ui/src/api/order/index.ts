@@ -144,7 +144,7 @@ export const useCancelOrderMutation = () => {
     {
       mutationFn: async (data) => {
         const authToken = localStorage.getItem("auth.token");
-        const response = await axios.post(`/order/cancel/${data.id}`, data, {
+        const response = await axios.patch(`/order/${data.id}/cancel`, data, {
           headers: {
             Authorization: `Bearer ${authToken || ""}`,
           },

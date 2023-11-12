@@ -20,7 +20,7 @@ export class OrderRoute implements Routes {
     this.router.post(`${this.path}`, ValidateBody(orderInputSchema), AuthMiddleware([Role.User]), this.order.create);
     this.router.get(`${this.path}/user`, ValidateQuery(paginatedOrderFetchSchema), AuthMiddleware([Role.User]), this.order.getOrdersOfUser);
     this.router.get(`${this.path}/:id`, ValidateParams(orderByIdSchema), AuthMiddleware([Role.User, Role.Admin]), this.order.oneById);
-    this.router.post(`${this.path}/cancel/:id`, ValidateParams(orderByIdSchema), AuthMiddleware([Role.User]), this.order.cancel);
+    this.router.patch(`${this.path}/:id/cancel`, ValidateParams(orderByIdSchema), AuthMiddleware([Role.User]), this.order.cancel);
     this.router.patch(`${this.path}/:id`, ValidateParams(orderByIdSchema), ValidateBody(orderUpdateSchema), this.order.update);
 
     // this.router.get(`${this.path}`, ValidationMiddleware(CreateUserDto), this.order.test);

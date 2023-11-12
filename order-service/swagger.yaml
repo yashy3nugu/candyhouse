@@ -1,123 +1,315 @@
-tags:
-- name: users
-  description: users API
+openapi: 3.0.0
+info:
+  title: E-commerce API
+  version: 1.0.0
+  description: API documentation for the E-commerce application
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+security:
+  - BearerAuth: []
 
 paths:
-# [GET] users
-  /users:
+  /order:
     get:
-      tags:
-      - users
-      summary: Find All Users
+      summary: Get paginated orders (Admin)
+      description: Get paginated orders for admin users
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
       responses:
-        200:
-          description: 'OK'
-        500:
-          description: 'Server Error'
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                hasMore: false
+                orders:
+                  - _id: "order_id"
+                    user: "user_id"
+                    items:
+                      - candy: "candy_id"
+                        itemsInCart: 2
+                        price: 10.0
+                    price: 20.0
+                    address: "Shipping Address"
+                    bank: "Bank Name"
+                    coinsRedeemed: 0
+                    status: "Processing"
+                  # Additional orders...
+      security:
+        - BearerAuth: []
 
-# [POST] users
     post:
-      tags:
-      - users
-      summary: Add User
-      parameters:
-      - name: body
-        in: body
-        description: user Data
+      summary: Create a new order (User)
+      description: Create a new order for a user
+      requestBody:
         required: true
-        schema:
-          $ref: '#/definitions/users'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderInput'
       responses:
-        201:
-          description: 'Created'
-        400:
-          description: 'Bad Request'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                _id: "6fc02cb7f068b18fad8a65a7"
+                user: "5fc02cb7f068b18fad8a65a7"
+                items:
+                  - candy: "candy_id"
+                    itemsInCart: 2
+                    price: 10.0
+                price: 20.0
+                address: "Shipping Address"
+                bank: "Bank Name"
+                coinsRedeemed: 0
+                status: "Processing"
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+      security:
+        - BearerAuth: []
 
-# [GET] users/id
-  /users/{id}:
+  /order/user:
     get:
-      tags:
-      - users
-      summary: Find User By Id
+      summary: Get paginated orders for a user
+      description: Get paginated orders for a specific user
       parameters:
-      - name: id
-        in: path
-        description: User Id
-        required: true
-        type: integer
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
       responses:
-        200:
-          description: 'OK'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                hasMore: false
+                orders:
+                  - _id: "6fc02cb7f068b18fad8a65a7"
+                    user: "5fc02cb7f068b18fad8a65a7"
+                    items:
+                      - candy: "candy_id"
+                        itemsInCart: 2
+                        price: 10.0
+                    price: 20.0
+                    address: "Shipping Address"
+                    bank: "Bank Name"
+                    coinsRedeemed: 0
+                    status: "Processing"
+                  # Additional orders...
+      security:
+        - BearerAuth: []
 
-# [PUT] users/id
-    put:
-      tags:
-      - users
-      summary: Update User By Id
+  /order/{id}:
+    get:
+      summary: Get order by ID (User/Admin)
+      description: Get details of a specific order by ID
       parameters:
-      - name: id
-        in: path
-        description: user Id
-        required: true
-        type: integer
-      - name: body
-        in: body
-        description: user Data
-        required: true
-        schema:
-          $ref: '#/definitions/users'
+        - name: id
+          in: path
+          description: Order ID
+          required: true
+          schema:
+            type: string
       responses:
-        200:
-          description: 'OK'
-        400:
-          description: 'Bad Request'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                _id: "5fc02cb7f068b18fad8a65a7"
+                user: "6fc02cb7f068b18fad8a65a7"
+                items:
+                  - candy: "7fc02cb7f068b18fad8a65a7"
+                    itemsInCart: 2
+                    price: 10.0
+                price: 20.0
+                address: "Shipping Address"
+                bank: "Bank Name"
+                coinsRedeemed: 0
+                status: "Processing"
+        '404':
+          description: Order not found
+      security:
+        - BearerAuth: []
 
-# [DELETE] users/id
-    delete:
-      tags:
-      - users
-      summary: Delete User By Id
+    post:
+      summary: Cancel order by ID (User)
+      description: Cancel a specific order by ID
       parameters:
-      - name: id
-        in: path
-        description: user Id
-        required: true
-        type: integer
+        - name: id
+          in: path
+          description: Order ID
+          required: true
+          schema:
+            type: string
       responses:
-        200:
-          description: 'OK'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                _id: "5fc02cb7f068b18fad8a65a7"
+                user: "6fc02cb7f068b18fad8a65a7"
+                items:
+                  - candy: "7fc02cb7f068b18fad8a65a7"
+                    itemsInCart: 2
+                    price: 10.0
+                price: 20.0
+                address: "Shipping Address"
+                bank: "Bank Name"
+                coinsRedeemed: 0
+                status: "Cancelled"
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Order not found
+      security:
+        - BearerAuth: []
 
-# definitions
-definitions:
-  users:
-    type: object
-    required:
-        - email
-        - password
-    properties:
-      email:
-        type: string
-        description: user Email
-      password:
-        type: string
-        description: user Password
+    patch:
+      summary: Update order by ID (Any)
+      description: Update details of a specific order by ID
+      parameters:
+        - name: id
+          in: path
+          description: Order ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderUpdate'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                _id: "5fc02cb7f068b18fad8a65a7"
+                user: "6fc02cb7f068b18fad8a65a7"
+                items:
+                  - candy: "8fc02cb7f068b18fad8a65a7"
+                    itemsInCart: 2
+                    price: 10.0
+                price: 20.0
+                address: "Updated Shipping Address"
+                bank: "Updated Bank Name"
+                coinsRedeemed: 0
+                status: "Processing"
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Order not found
+      security:
+        - BearerAuth: []
 
-schemes:
- - https
- - http
+  /order/{id}/cancel:
+    patch:
+      summary: Cancel an order
+      description: |
+        Marks the status of the order document as "cancelled".
+        Only the status field can be modified in this operation.
+
+      parameters:
+        - name: id
+          in: path
+          description: Order ID
+          required: true
+          schema:
+            type: string
+            example: "5fc02cb7f068b18fad8a65a7"
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - cancelled
+                  description: The new status of the order.
+
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                _id: "order_id"
+                user: "user_id"
+                items:
+                  - candy: "candy_id"
+                    itemsInCart: 2
+                    price: 10.0
+                price: 20.0
+                address: "Shipping Address"
+                bank: "Bank Name"
+                coinsRedeemed: 0
+                status: "cancelled"
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Order not found
+        '500':
+          description: Internal Server Error
+
+      security:
+        - BearerAuth: []
+  /bank:
+    get:
+      summary: Get all banks
+      description: Get a list of all banks
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                banks:
+                  - _id: "5fc02cb7f068b18fad8a65a7"
+                    name: "SBI"
+                  # Additional banks...
+      security:
+        - BearerAuth: []
