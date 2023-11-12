@@ -5,6 +5,7 @@ import helmet from "helmet";
 import { connectDB } from "./lib/mongoose";
 import authRouter from "./routers/user.router"
 import { ValidateEnv } from "./utils/validate/validate-env";
+import { producer } from "./lib/kafka";
 
 dotenv.config();
 ValidateEnv()
