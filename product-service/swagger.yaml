@@ -1,123 +1,202 @@
-tags:
-- name: users
-  description: users API
+openapi: 3.0.0
+info:
+  title: Ecommerce Candy Microservice
+  version: 1.0.0
+  description: APIs for managing candies in an ecommerce application.
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
 
 paths:
-# [GET] users
-  /users:
+  /candy:
     get:
-      tags:
-      - users
-      summary: Find All Users
+      summary: Get paginated list of candies
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number (default: 1)
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of items per page (default: 6)
       responses:
-        200:
-          description: 'OK'
-        500:
-          description: 'Server Error'
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                hasMore: true
+                candies:
+                  - _id: "123"
+                    name: "Candy 1"
+                    description: "Description 1"
+                    price: 2.5
+                    quantity: 10
+                    vendor: "456"
+                    photo:
+                      url: "https://example.com/photo1.jpg"
+                      publicId: "abc123"
 
-# [POST] users
     post:
-      tags:
-      - users
-      summary: Add User
-      parameters:
-      - name: body
-        in: body
-        description: user Data
+      summary: Create a new candy
+      requestBody:
         required: true
-        schema:
-          $ref: '#/definitions/users'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Candy'
+      security:
+        - BearerAuth: []
       responses:
-        201:
-          description: 'Created'
-        400:
-          description: 'Bad Request'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                _id: "456"
+                name: "New Candy"
+                description: "New candy description"
+                price: 3.0
+                quantity: 20
+                vendor: "789"
+                photo:
+                  url: "https://example.com/newphoto.jpg"
+                  publicId: "xyz456"
 
-# [GET] users/id
-  /users/{id}:
+  /candy/vendor:
     get:
-      tags:
-      - users
-      summary: Find User By Id
+      summary: Get paginated list of candies for a vendor
       parameters:
-      - name: id
-        in: path
-        description: User Id
-        required: true
-        type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number (default: 1)
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of items per page (default: 6)
+      security:
+        - BearerAuth: []
       responses:
-        200:
-          description: 'OK'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                hasMore: true
+                candies:
+                  - _id: "123"
+                    name: "Vendor Candy 1"
+                    description: "Vendor description 1"
+                    price: 2.5
+                    quantity: 10
+                    vendor: "789"
+                    photo:
+                      url: "https://example.com/vendorphoto1.jpg"
+                      publicId: "abc123"
 
-# [PUT] users/id
-    put:
-      tags:
-      - users
-      summary: Update User By Id
+  /candy/{id}:
+    get:
+      summary: Get details of a candy by ID
       parameters:
-      - name: id
-        in: path
-        description: user Id
-        required: true
-        type: integer
-      - name: body
-        in: body
-        description: user Data
-        required: true
-        schema:
-          $ref: '#/definitions/users'
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
       responses:
-        200:
-          description: 'OK'
-        400:
-          description: 'Bad Request'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                _id: "123"
+                name: "Candy 1"
+                description: "Description 1"
+                price: 2.5
+                quantity: 10
+                vendor: "456"
+                photo:
+                  url: "https://example.com/photo1.jpg"
+                  publicId: "abc123"
 
-# [DELETE] users/id
-    delete:
-      tags:
-      - users
-      summary: Delete User By Id
+    patch:
+      summary: Update candy details by ID
       parameters:
-      - name: id
-        in: path
-        description: user Id
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      requestBody:
         required: true
-        type: integer
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CandyUpdate'
+      security:
+        - BearerAuth: []
       responses:
-        200:
-          description: 'OK'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              example:
+                _id: "123"
+                name: "Updated Candy"
+                description: "Updated candy description"
+                price: 3.0
+                quantity: 15
+                vendor: "456"
+                photo:
+                  url: "https://example.com/updatedphoto.jpg"
+                  publicId: "def789"
 
-# definitions
-definitions:
-  users:
-    type: object
-    required:
-        - email
-        - password
-    properties:
-      email:
-        type: string
-        description: user Email
-      password:
-        type: string
-        description: user Password
+components:
+  schemas:
+    Candy:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        quantity:
+          type: integer
+      required:
+        - name
+        - description
+        - price
+        - quantity
 
-schemes:
- - https
- - http
+    CandyUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        quantity:
+          type: integer
+        photo:
+          type: object
+          properties:
+            url:
+              type: string
+            publicId:
+              type: string
+      required:
+        - name
+        - description
+        - price
+        - quantity
