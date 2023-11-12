@@ -1,0 +1,121 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: "Candyhouse Ecommerce User Service API"
+  description: "API for user management in the Candyhouse Ecommerce App"
+
+servers:
+  - url: "/api/v1"
+    description: "Development Server"
+    variables:
+      basePath:
+        default: ""
+
+paths:
+  /register:
+    post:
+      tags:
+        - "User"
+      summary: "Register a new user"
+      requestBody:
+        description: "User details for registration"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRegistrationInput"
+      responses:
+        "201":
+          description: "User registered successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: "Bad Request - User with the same email already exists"
+        "500":
+          description: "Internal Server Error"
+
+  /login:
+    post:
+      tags:
+        - "User"
+      summary: "User login"
+      requestBody:
+        description: "User credentials for login"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLoginInput"
+      responses:
+        "201":
+          description: "User logged in successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: "Bad Request - Invalid credentials"
+        "500":
+          description: "Internal Server Error"
+
+  /verify:
+    get:
+      tags:
+        - "User"
+      summary: "Verify user details"
+      parameters:
+        - in: "header"
+          name: "Authorization"
+          description: "JWT token for authentication"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "User details retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "401":
+          description: "Unauthorized - Token not provided or invalid"
+        "404":
+          description: "User not found"
+        "500":
+          description: "Internal Server Error"
+
+components:
+  schemas:
+    UserRegistrationInput:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        email:
+          type: "string"
+        password:
+          type: "string"
+        role:
+          type: "string"
+          enum:
+            - "user"
+            - "vendor"
+            - "admin"
+
+    UserLoginInput:
+      type: "object"
+      properties:
+        email:
+          type: "string"
+        password:
+          type: "string"
+
+    UserResponse:
+      type: "object"
+      properties:
+        token:
+          type: "string"
+        user:
+          $ref: "#/components/schemas/UserRegistrationInput"

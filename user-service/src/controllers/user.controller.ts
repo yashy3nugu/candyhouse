@@ -114,16 +114,3 @@ export const getUser: ExpressResponse = async (req, res, next) => {
     next(err);
   }
 };
-
-export const kafka: ExpressResponse = async (req, res, next) => {
-  try {
-    await producer.connect();
-    await producer.send({
-      topic: "test",
-      messages: [{ value: "test" }],
-    });
-    res.send("/kafka");
-  } catch (err: any) {
-    next(err);
-  }
-};
