@@ -2,7 +2,6 @@ import BaseLayout from "@/layouts/base-layout";
 import { NextPageWithLayout } from "@/pages/_app";
 // import { api } from "@/utils/api";
 import {
-  Badge,
   Text,
   Box,
   Card,
@@ -70,7 +69,7 @@ const Candy: NextPageWithLayout = () => {
         <Seo title="View Candy" />
         <Modal isOpen={isOpen} onClose={onClose}>
           <Formik
-            onSubmit={(values) => {
+            onSubmit={() => {
               // mutate({
               //   ...values,
               //   candy: candy._id,
@@ -83,7 +82,7 @@ const Candy: NextPageWithLayout = () => {
               title: "",
             }}
           >
-            {({ isSubmitting, isValid, dirty, values }) => (
+            {({ isSubmitting, isValid, dirty }) => (
               <>
                 <Form>
                   <ModalOverlay />
@@ -165,9 +164,7 @@ const Candy: NextPageWithLayout = () => {
                     </Text>
                     <Text mt={0} as="h3" fontWeight="medium" fontSize="xl">
                       {candy.name}
-                      <Badge ml={2} colorScheme="purple">
-                        New
-                      </Badge>
+                      
                     </Text>
                     <Text fontSize="sm" fontWeight="normal">
                       {candy.description}
@@ -247,7 +244,7 @@ const Candy: NextPageWithLayout = () => {
             </Box>
           </Flex> */}
 
-          <Button colorScheme="pink" onClick={onOpen}>
+          <Button colorScheme="pink" onClick={onOpen} mt={3}>
             Write a review
           </Button>
           {/* <Accordion mt={5} allowToggle>
