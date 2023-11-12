@@ -60,7 +60,7 @@ const Candy: NextPageWithLayout = () => {
             <Stack spacing="6">
               <Stack spacing={{ base: "2", md: "3" }} textAlign="center">
                 <Heading size={{ base: "xs", md: "sm", lg: "xl" }}>
-                  Create a candy
+                  View/Edit your candy
                 </Heading>
               </Stack>
             </Stack>
