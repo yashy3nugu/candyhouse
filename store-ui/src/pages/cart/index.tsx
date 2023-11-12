@@ -20,8 +20,6 @@ import {useAppSelector } from "@/store/hooks";
 import { Role } from "@/utils/types/user";
 import { Form, Formik } from "formik";
 import SelectControl from "@/components/ui/select-control";
-import { useState } from "react";
-import { Coupon } from "@/server/models/coupon.model";
 import { NextPageWithLayout } from "../_app";
 import BaseLayout from "@/layouts/base-layout";
 import CartItem from "@/components/cart-item";
@@ -51,7 +49,7 @@ const Cart: NextPageWithLayout = () => {
   //   api.coupon.validate.useMutation({});
 
   // const { isOpen, onOpen, onClose } = useDisclosure();
-  const [appliedCoupon] = useState<Coupon | null>(null);
+  // const [appliedCoupon] = useState<Coupon | null>(null);
 
 
 
@@ -83,7 +81,7 @@ const Cart: NextPageWithLayout = () => {
                   </Text>
                 </Flex>
 
-                {appliedCoupon && (
+                {/* {appliedCoupon && (
                   <Flex mt={4} w="full" justifyContent="space-between">
                     <Text fontSize="md" fontWeight="base">
                       Discount (
@@ -96,7 +94,7 @@ const Cart: NextPageWithLayout = () => {
                         : 0}
                     </Text>
                   </Flex>
-                )}
+                )} */}
 
                 <Divider />
 
@@ -104,14 +102,14 @@ const Cart: NextPageWithLayout = () => {
                   <Text fontSize="lg" fontWeight="semibold">
                     Order Total
                   </Text>
-                  <Text fontSize="lg" fontWeight="semibold">
+                  {/* <Text fontSize="lg" fontWeight="semibold">
                     ₹
                     {appliedCoupon
                       ? Math.round(
                           cartPrice * (1 - appliedCoupon.discount / 100)
                         )
                       : cartPrice}
-                  </Text>
+                  </Text> */}
                 </Flex>
 
                 {!isUserLoading && loginData && (
@@ -161,7 +159,7 @@ const Cart: NextPageWithLayout = () => {
                         items,
                         address,
                         bank,
-                        code: appliedCoupon?.code,
+                        code: undefined,
                         coinsToRedeem: Number(coins),
                       });
                     }}
