@@ -1,56 +1,99 @@
-# Create T3 App
+# CandyHouse E-Commerce Frontend
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+This repository contains the frontend code for the CandyHouse E-Commerce application. The frontend is built with Next.js and is designed to work seamlessly with the accompanying backend services.
 
-## What's next? How do I make an app with this?
+## Local Setup
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+### Prerequisites
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+1. Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+### Steps
 
-## Learn More
+#### 1. Clone the Repository
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+```bash
+git clone <repository-url>
+cd <repository-directory>
+```
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+#### 2. Install Dependencies
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+```bash
+# Using npm
+npm install
 
-## How do I deploy this?
+# Using yarn
+yarn
+```
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+#### 3. Set Environment Variables
 
+Create a `.env` file in the root of the project and add the following content:
 
-# Challenge Requirements
+```env
+USER_SERVICE_BASE_URL="http://localhost:7000"
+PRODUCT_SERVICE_BASE_URL="http://localhost:4000"
+PRODUCT_SERVICE_BASE_URL="http://localhost:5000"
+```
 
-1. **Create an E-commerce Store**: Participants are required to build a functional web app, specifically an e-commerce store.
-2. **Login Page**: The store must have a login page for Super Admins (Spense), Vendors (merchants), and end-users (shoppers).
-3. **Super Admin Dashboard**: Super Admin should be able to view and edit vendors, products, inventory and also be able to monitor reviews, ratings, and orders.
-4. **Vendor Dashboard**: Vendors should be able to add products, manage inventory, and perform CRUD operations.
-5. **Customer Functionality**: End-users should be able to view products, add them to the cart, and checkout.
-6. **Payment Gateway**: No payment gateway integration is required. However, a success and failure response after checkout should be implemented.
-7. **Data Tracking & Analytics**: The app should be able to track user behaviour, including the products viewed, added to the cart, and purchased. Furthermore, events should be fired at key interactions to enable the collection of analytical data for improving the platform.
-8. **Discount Campaigns**: The app should be able to run multiple discount campaigns. This would require a system for managing discount codes, tracking their usage, and applying them during the checkout process. For example: 10% off on HDFC Regalia Credit Card; 15% off on ICICI Platinum Credit Card.
-9. **Reward Coins**: A reward system should be implemented where users earn coins when they shop. The mechanism of how the coins are calculated, stored, and redeemed should be carefully designed.
-10. **Technology Stack**: Any JavaScript framework for Frontend and Node.js for Backend is acceptable.
-11. **Compatibility**: The app should be responsive and compatible with different browsers.
+#### 4. Run the Application Locally
 
+```bash
+# Using npm
+npm run dev
 
-Candy House (super admin handles orders)
-Vendors must raise a request to add products or change inventory
-Vendors get notified when a new order is placed
-Vendors have access to analytics
-Create a candysubmission request model which only has ref of candy, vendor and approval status (canduy also has approval status field)
-Store info like balance, totalCoinsEarned, totalCoinsredeemed for reward coins. 1 coin for every 10 rupees spent. 100 coins can be used to get 10 rupees discount.
-Create functionality to run discount coupons for banks by admins
+# Using yarn
+yarn dev
+```
 
- 
-TODO:
-make mongodb operations as transactions
+The application will be accessible at [http://localhost:3000](http://localhost:3000).
+
+## Docker Setup
+
+### Prerequisites
+
+1. Ensure you have [Docker](https://www.docker.com/) installed on your machine.
+
+### Steps
+
+#### 1. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd <repository-directory>
+```
+
+#### 2. Build the Docker Image (Development)
+
+```bash
+docker build -t candyhouse-frontend:dev -f Dockerfile.dev .
+```
+
+#### 3. Set Environment Variables
+
+Create a `.env` file in the root of the project and add the following content:
+
+```env
+USER_SERVICE_BASE_URL="http://localhost:7000"
+PRODUCT_SERVICE_BASE_URL="http://localhost:4000"
+PRODUCT_SERVICE_BASE_URL="http://localhost:5000"
+```
+
+#### 4. Run the Docker Container (Development)
+
+```bash
+docker run -p 3000:3000 --env-file .env candyhouse-frontend:dev
+```
+
+The development version of the application will be accessible at [http://localhost:3000](http://localhost:3000).
+
+#### 5. Build and Run the Docker Container (Production)
+
+```bash
+docker build -t candyhouse-frontend:prod -f Dockerfile.prod .
+docker run -p 3000:3000 --env-file .env candyhouse-frontend:prod
+```
+
+The production version of the application will be accessible at [http://localhost:3000](http://localhost:3000).
+
