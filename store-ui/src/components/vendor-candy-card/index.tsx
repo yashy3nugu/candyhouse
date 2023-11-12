@@ -38,7 +38,7 @@ const VendorCandyCard: React.FC<CandyCardProps> = ({ candy }) => {
           <Text textColor="gray.400" fontSize={"sm"}>
             {(candy.vendor as any).name}
           </Text>
-          <LinkOverlay as={NextLink} href={`/candy/${candy._id}`}>
+          <LinkOverlay as={NextLink} href={`/vendor/candy/${candy._id}`}>
             <Text mt={0} as="h3" fontWeight="medium" fontSize="xl">
               {candy.name}
               <Badge ml={2} colorScheme="purple">

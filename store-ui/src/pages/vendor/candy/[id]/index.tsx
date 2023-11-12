@@ -223,14 +223,16 @@ const Candy: NextPageWithLayout = () => {
                           fill
                         />
                       </Box>
-                      <Button
-                        onClick={() => {
-                          imageRef.current.click();
-                        }}
-                        type="button"
-                      >
-                        Change Image
-                      </Button>
+                      {editMode && (
+                        <Button
+                          onClick={() => {
+                            imageRef.current.click();
+                          }}
+                          type="button"
+                        >
+                          Change Image
+                        </Button>
+                      )}
                     </Flex>
 
                     {editMode ? (
