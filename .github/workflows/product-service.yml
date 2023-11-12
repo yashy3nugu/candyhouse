@@ -30,4 +30,4 @@ jobs:
         with:
           context: ./product-service
           push: true
-          tags: user/app:latest
+          tags: yashyenugu/product-service:latest
