@@ -14,6 +14,7 @@ import {
   SimpleGrid,
   GridItem,
   Skeleton,
+  Center
 } from "@chakra-ui/react";
 import Image from "@/components/shared/image";
 import { useAppDispatch } from "@/store/hooks";
@@ -40,6 +41,19 @@ const Store: NextPageWithLayout = () => {
       <Seo title="store" />
       <Box>
         <Box maxWidth="3xl" margin="0 auto" px={5}>
+          <Center w="full" mb={2}>
+            {data && (
+              <Pagination
+                handleNextPage={handleNextPage}
+                handlePrevPage={handlePrevPage}
+                page={page}
+                prevDisabled={page === 1}
+                nextDisabled={!data.hasMore}
+                hasMore={data.hasMore}
+              />
+            )}
+          </Center>
+
           <SimpleGrid
             columns={{ sm: 2, md: 3 }}
             spacing={{ base: 3, md: 4, lg: 4 }}
@@ -59,16 +73,6 @@ const Store: NextPageWithLayout = () => {
                 </GridItem>
               ))}
           </SimpleGrid>
-          {data && (
-            <Pagination
-              handleNextPage={handleNextPage}
-              handlePrevPage={handlePrevPage}
-              page={page}
-              prevDisabled={page === 1}
-              nextDisabled={!data.hasMore}
-              hasMore={data.hasMore}
-            />
-          )}
         </Box>
       </Box>
     </>

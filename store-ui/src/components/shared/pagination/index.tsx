@@ -1,4 +1,5 @@
-import { Button, Text, Box } from "@chakra-ui/react";
+import { Button, Text, Box, IconButton } from "@chakra-ui/react";
+import {GrFormNext, GrFormPrevious} from "react-icons/gr"
 
 interface PaginationProps
   extends React.DetailedHTMLProps<
@@ -26,7 +27,8 @@ const Pagination: React.FC<PaginationProps> = ({
   return (
     <>
       <Box {...props}>
-        <Button
+        <IconButton
+          icon={<GrFormPrevious />}
           size="sm"
           isDisabled={page === 1 || prevDisabled}
           onClick={() => {
@@ -34,11 +36,13 @@ const Pagination: React.FC<PaginationProps> = ({
               handlePrevPage();
             }
           }}
+          aria-label="Next Page"
+          mr={2}
         >
           Prev Page
-        </Button>
-        <Text as="span">{page}</Text>
-        <Button
+        </IconButton>
+        <Text as="span" fontSize="sm" fontWeight="semibold">{page}</Text>
+        <IconButton
           isDisabled={!hasMore || nextDisabled}
           size="sm"
           onClick={() => {
@@ -46,9 +50,12 @@ const Pagination: React.FC<PaginationProps> = ({
               handleNextPage();
             }
           }}
+          aria-label="Next page"
+          icon={<GrFormNext />}
+          ml={2}
         >
           Next Page
-        </Button>
+        </IconButton>
       </Box>
     </>
   );

@@ -53,9 +53,6 @@ const CandyCard: React.FC<CandyCardProps> = ({ candy }) => {
           <LinkOverlay as={NextLink} href={`/candy/${candy._id}`}>
             <Text mt={0} as="h3" fontWeight="medium" fontSize="xl">
               {candy.name}
-              <Badge ml={2} colorScheme="purple">
-                New
-              </Badge>
             </Text>
           </LinkOverlay>
         </CardHeader>
