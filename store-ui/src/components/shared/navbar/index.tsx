@@ -4,14 +4,12 @@ import Link from "next/link";
 import Logo from "@/components/shared/logo";
 import {
   Box,
-  Button,
   Flex,
   HStack,
   Hide,
   IconButton,
   Show,
   useDisclosure,
-  Skeleton,
 } from "@chakra-ui/react";
 import MobileDrawer from "@/components/shared/mobile-drawer";
 import { GiHamburgerMenu } from "react-icons/gi";

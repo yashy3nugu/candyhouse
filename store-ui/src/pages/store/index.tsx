@@ -1,24 +1,12 @@
-import { type NextPage } from "next";
-import Head from "next/head";
 
-import { api } from "@/utils/api";
 import {
-  Spinner,
-  Card,
-  CardHeader,
-  CardBody,
-  Heading,
-  Text,
-  Button,
   Box,
   SimpleGrid,
   GridItem,
   Skeleton,
   Center
 } from "@chakra-ui/react";
-import Image from "@/components/shared/image";
 import { useAppDispatch } from "@/store/hooks";
-import { addCandyToCart, removeCandyFromCart } from "@/store/modules/cart";
 import { NextPageWithLayout } from "../_app";
 import BaseLayout from "@/layouts/base-layout";
 import CandyCard from "@/components/candy-card";

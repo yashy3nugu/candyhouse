@@ -1,23 +1,15 @@
-import { type NextPage } from "next";
-import Head from "next/head";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form } from "formik";
 import {
   Box,
   Button,
-  Checkbox,
   Container,
-  Divider,
-  FormControl,
-  FormLabel,
   Heading,
   HStack,
-  Input,
   Stack,
   Text,
   useToast,
 } from "@chakra-ui/react";
 
-import { api } from "@/utils/api";
 import InputControl from "@/components/ui/input-control";
 import Link from "next/link";
 import { NextPageWithLayout } from "@/pages/_app";

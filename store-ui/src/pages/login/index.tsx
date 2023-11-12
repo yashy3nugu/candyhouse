@@ -1,19 +1,12 @@
-import Head from "next/head";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form } from "formik";
 import {
   Box,
   Button,
-  Checkbox,
   Container,
-  Divider,
-  FormControl,
-  FormLabel,
   Heading,
   HStack,
-  Input,
   Stack,
   Text,
-  useToast,
 } from "@chakra-ui/react";
 
 // import { api } from "@/utils/api";
@@ -22,7 +15,6 @@ import { loginInputSchema } from "@/utils/schemas/auth";
 import InputControl from "@/components/ui/input-control";
 import { NextPageWithLayout } from "../_app";
 import BaseLayout from "@/layouts/base-layout";
-import Logo from "@/components/shared/logo";
 import Link from "next/link";
 import { useLoginMutation } from "@/api/user";
 import Seo from "@/components/shared/seo";

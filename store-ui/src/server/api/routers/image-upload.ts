@@ -1,10 +1,8 @@
 import { v2 } from "cloudinary";
 
 import {
-  consumerProcedure,
   createTRPCRouter,
   publicProcedure,
-  vendorProcedure,
 } from "@/server/api/trpc";
 
 export const imageUploadRouter = createTRPCRouter({

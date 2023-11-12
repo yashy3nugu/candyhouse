@@ -5,15 +5,10 @@ import UserLayout from "@/layouts/user-layout";
 import {
   Box,
   Button,
-  Checkbox,
   Container,
   Divider,
   Flex,
-  FormControl,
-  FormLabel,
   Heading,
-  HStack,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -25,7 +20,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 import usePagination from "@/hooks/use-pagination/usePagination";
-import OrderDataTable from "@/components/order-data-table";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { useLoggedInUserQuery } from "@/api/user";

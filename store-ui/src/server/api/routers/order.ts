@@ -3,8 +3,6 @@ import {
   consumerProcedure,
   createRoleProcedure,
   createTRPCRouter,
-  publicProcedure,
-  vendorProcedure,
 } from "@/server/api/trpc";
 import CandyModel from "@/server/models/candy.model";
 import CouponModel from "@/server/models/coupon.model";

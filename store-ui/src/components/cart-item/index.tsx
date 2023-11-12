@@ -1,17 +1,14 @@
-import { Candy } from "@/server/models/candy.model";
 import { useAppDispatch } from "@/store/hooks";
 import { addCandyToCart, removeCandyFromCart } from "@/store/modules/cart";
 import { CartCandy } from "@/store/types";
 import {
   Box,
-  Flex,
   HStack,
   Text,
   VStack,
   Button,
   SimpleGrid,
   GridItem,
-  Center,
 } from "@chakra-ui/react";
 import Image from "next/image";
 

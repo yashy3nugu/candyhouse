@@ -9,18 +9,10 @@ import {
   Divider,
   Flex,
   Heading,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Stack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { useState } from "react";
 import { Status } from "@/utils/types/orders";
 import { useOrderByIdQuery, useOrderMarkDeliveredMutation } from "@/api/order";
 

@@ -2,15 +2,11 @@
 import {
   Flex,
   Heading,
-  SimpleGrid,
   Button,
-  Box,
-  Image,
   Text,
   Container,
 } from "@chakra-ui/react";
 
-import Head from "next/head";
 import Link from "next/link";
 import { NextPageWithLayout } from "./_app";
 import BaseLayout from "@/layouts/base-layout";

@@ -1,31 +1,19 @@
-import { type NextPage } from "next";
-import Head from "next/head";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form } from "formik";
 import {
   Box,
   Button,
-  Checkbox,
   Container,
-  Divider,
   Flex,
-  FormControl,
-  FormLabel,
   Heading,
-  HStack,
   Input,
   Stack,
-  Text,
 } from "@chakra-ui/react";
 
 import Image from "next/image";
 
-import { api } from "@/utils/api";
 import NumberInputControl from "@/components/ui/number-input-control";
 import InputControl from "@/components/ui/input-control";
 import { NextPageWithLayout } from "@/pages/_app";
-import VendorProvider from "@/components/provider/VendorProvider";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import candySchema from "@/utils/schemas/candy";
 import React from "react";
 import useImageUpload from "@/hooks/use-image-upload";
 import TextareaControl from "@/components/ui/textarea-control";

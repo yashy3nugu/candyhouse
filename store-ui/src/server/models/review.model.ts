@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import type { Ref, ReturnModelType } from "@typegoose/typegoose";
-import { prop, getModelForClass, pre } from "@typegoose/typegoose";
+import { prop, getModelForClass } from "@typegoose/typegoose";
 import { User } from "./user.model";
 import { Candy } from "./candy.model";
 

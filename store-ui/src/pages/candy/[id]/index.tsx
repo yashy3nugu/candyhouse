@@ -22,12 +22,6 @@ import {
   ModalFooter,
   ModalContent,
   ModalCloseButton,
-  Accordion,
-  Icon,
-  AccordionItem,
-  AccordionButton,
-  AccordionIcon,
-  AccordionPanel,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import Image from "next/image";
@@ -38,7 +32,6 @@ import SelectControl from "@/components/ui/select-control";
 import InputControl from "@/components/ui/input-control";
 import TextareaControl from "@/components/ui/textarea-control";
 
-import { FaStar } from "react-icons/fa";
 import { useCandyByIdQuery } from "@/api/candy";
 import Seo from "@/components/shared/seo";
 

@@ -6,15 +6,6 @@ import { NextPageWithLayout } from "@/pages/_app";
 import {
   Container,
   Heading,
-  Table,
-  TableCaption,
-  TableContainer,
-  Tbody,
-  Td,
-  Tfoot,
-  Th,
-  Thead,
-  Tr,
 } from "@chakra-ui/react";
 
 const AdminDashboard: NextPageWithLayout = () => {

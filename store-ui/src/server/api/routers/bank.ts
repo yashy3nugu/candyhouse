@@ -1,9 +1,7 @@
 import {
   adminProcedure,
-  consumerProcedure,
   createTRPCRouter,
   publicProcedure,
-  vendorProcedure,
 } from "@/server/api/trpc";
 import BankModel from "@/server/models/bank.model";
 import { bankUpdateSchema } from "@/utils/schemas/bank";

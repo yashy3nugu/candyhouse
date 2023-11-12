@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import React from "react";
-import { api } from "@/utils/api";
 import { Role } from "../../utils/types/user";
 import {Spinner} from '@chakra-ui/react'
 import { useLoggedInUserQuery } from "@/api/user";

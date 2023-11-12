@@ -5,7 +5,6 @@ import { TRPCError } from "@trpc/server";
 import * as jwt from "@/server/lib/jwt";
 import { Cookie } from "next-cookie";
 import { loginInputSchema, registerInputSchema } from "@/utils/schemas/auth";
-import CandyModel from "@/server/models/candy.model";
 import { Role } from "@/utils/types/user";
 
 export const authRouter = createTRPCRouter({

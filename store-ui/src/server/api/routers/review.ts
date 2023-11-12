@@ -2,15 +2,10 @@ import {
   consumerProcedure,
   createTRPCRouter,
   publicProcedure,
-  vendorProcedure,
 } from "@/server/api/trpc";
-import CandyModel from "@/server/models/candy.model";
-import OrderModel from "@/server/models/order.model";
 import ReviewModel from "@/server/models/review.model";
-import {
-  orderInputSchema,
-  updateOrderStatusSchema,
-} from "@/utils/schemas/order";
+
+
 import { reviewInputSchema } from "@/utils/schemas/review";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

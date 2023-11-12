@@ -1,9 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Axios from "axios";
 import { useToast } from "@chakra-ui/react";
-import { ORDER_RQ, PRODUCT_RQ, USER_RQ } from "@/utils/types/react-query";
+import { ORDER_RQ } from "@/utils/types/react-query";
 import { useRouter } from "next/router";
-import { Role } from "@/utils/types/user";
 import {
   BankQueryResponse,
   Order,

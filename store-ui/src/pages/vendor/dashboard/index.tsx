@@ -1,29 +1,16 @@
 import { usePaginatedCandyQueryVendor } from "@/api/candy";
-import CandyCard from "@/components/candy-card";
-import VendorProvider from "@/components/provider/VendorProvider";
 import Seo from "@/components/shared/seo";
 import VendorCandyCard from "@/components/vendor-candy-card";
 import usePagination from "@/hooks/use-pagination/usePagination";
 import VendorLayout from "@/layouts/vendor-layout";
 import { NextPageWithLayout } from "@/pages/_app";
-import { api } from "@/utils/api";
 import { fakeCandy } from "@/utils/fake";
 import {
   Box,
   GridItem,
   SimpleGrid,
   Skeleton,
-  Table,
-  TableCaption,
-  TableContainer,
-  Tbody,
-  Td,
-  Tfoot,
-  Th,
-  Thead,
-  Tr,
 } from "@chakra-ui/react";
-import Head from "next/head";
 
 const VendorDashboard: NextPageWithLayout = () => {
   const { page, handleNextPage, handlePrevPage } = usePagination({});

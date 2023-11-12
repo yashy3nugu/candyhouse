@@ -1,23 +1,13 @@
-import { type NextPage } from "next";
-import Head from "next/head";
 
-import { api } from "@/utils/api";
 import {
-  List,
   Heading,
-  ListItem,
   Text,
   Button,
-  useDisclosure,
-  Input,
   Container,
-  HStack,
   VStack,
-  UnorderedList,
   StackDivider,
   Card,
   CardBody,
-  Box,
   Flex,
   Divider,
   Alert,
@@ -25,13 +15,10 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  addCandyToCart,
-  clearCart,
-  removeCandyFromCart,
-} from "@/store/modules/cart";
+
+
 import { Role } from "@/utils/types/user";
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import SelectControl from "@/components/ui/select-control";
 import { useState } from "react";
 import { Coupon } from "@/server/models/coupon.model";
@@ -42,7 +29,6 @@ import InputControl from "@/components/ui/input-control";
 import { useRouter } from "next/router";
 import { useLoggedInUserQuery } from "@/api/user";
 import { useCreateOrderMutation, useGetBanksQuery } from "@/api/order";
-import { Photo } from "@/api/candy/types";
 import { OrderDataItem } from "@/api/order/types";
 import Seo from "@/components/shared/seo";
 // import PaymentModal from "@/components/payment-modal";

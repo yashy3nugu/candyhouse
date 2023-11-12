@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Modal, Button, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, ModalFooter, useDisclosure } from "@chakra-ui/react";
+import { Modal, Button, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, ModalFooter } from "@chakra-ui/react";
 
 interface PaymentModalProps {
     isOpen: boolean,

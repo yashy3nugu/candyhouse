@@ -1,4 +1,4 @@
-import { Button, Text, Box, IconButton } from "@chakra-ui/react";
+import { Text, Box, IconButton } from "@chakra-ui/react";
 import {GrFormNext, GrFormPrevious} from "react-icons/gr"
 
 interface PaginationProps

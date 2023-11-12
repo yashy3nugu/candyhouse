@@ -2,9 +2,7 @@ import mongoose from "mongoose";
 import type { ReturnModelType } from "@typegoose/typegoose";
 import {
   prop,
-  modelOptions,
   getModelForClass,
-  pre,
 } from "@typegoose/typegoose";
 import { Bank } from "./bank.model";
 import { User } from "./user.model";

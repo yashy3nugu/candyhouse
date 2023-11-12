@@ -1,5 +1,3 @@
-import mongoose from "mongoose";
-import type { ReturnModelType } from "@typegoose/typegoose";
 import {
   prop,
   modelOptions,
