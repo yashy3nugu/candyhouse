@@ -7,7 +7,7 @@ import {
   HStack,
   Stack,
   Text,
-  useToast,
+  
 } from "@chakra-ui/react";
 
 import InputControl from "@/components/ui/input-control";
@@ -21,7 +21,7 @@ import { Role } from "@/utils/types/user";
 import Seo from "@/components/shared/seo";
 
 const Register: NextPageWithLayout = () => {
-  const toast = useToast();
+  
   // const { mutate, isLoading } = api.auth.register.useMutation({
   //   onSuccess() {
   //     //

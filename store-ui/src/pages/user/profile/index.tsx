@@ -9,14 +9,14 @@ import usePagination from "@/hooks/use-pagination/usePagination";
 import OrderDataTable from "@/components/order-data-table";
 
 const Profile: NextPageWithLayout = () => {
-  const { isLoading: isUserLoading, data: loggedInUserData } =
+  const { data: loggedInUserData } =
     useLoggedInUserQuery();
 
   const { page, handleNextPage, handlePrevPage } = usePagination({
     initialPage: 1,
   });
 
-  const { data: orders, isLoading } = usePaginatedOrderQuery(page);
+  const { data: orders } = usePaginatedOrderQuery(page);
 
   return (
     <>

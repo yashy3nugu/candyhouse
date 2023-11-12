@@ -12,9 +12,9 @@ import {
   Divider,
   Alert,
   AlertIcon,
-  useToast,
+  
 } from "@chakra-ui/react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {useAppSelector } from "@/store/hooks";
 
 
 import { Role } from "@/utils/types/user";
@@ -26,7 +26,7 @@ import { NextPageWithLayout } from "../_app";
 import BaseLayout from "@/layouts/base-layout";
 import CartItem from "@/components/cart-item";
 import InputControl from "@/components/ui/input-control";
-import { useRouter } from "next/router";
+
 import { useLoggedInUserQuery } from "@/api/user";
 import { useCreateOrderMutation, useGetBanksQuery } from "@/api/order";
 import { OrderDataItem } from "@/api/order/types";
@@ -34,13 +34,13 @@ import Seo from "@/components/shared/seo";
 // import PaymentModal from "@/components/payment-modal";
 
 const Cart: NextPageWithLayout = () => {
-  const dispatch = useAppDispatch();
+  
   const cartItems = useAppSelector((state) => state.cart.items);
   const cartValue = useAppSelector((state) => state.cart.value);
   const cartPrice = useAppSelector((state) => state.cart.price);
 
-  const router = useRouter();
-  const { mutate: createOrder, isPending: isLoading } =
+  
+  const { mutate: createOrder } =
     useCreateOrderMutation();
 
   const { data, isLoading: isBanksLoading } = useGetBanksQuery();
@@ -51,10 +51,9 @@ const Cart: NextPageWithLayout = () => {
   //   api.coupon.validate.useMutation({});
 
   // const { isOpen, onOpen, onClose } = useDisclosure();
-  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [appliedCoupon] = useState<Coupon | null>(null);
 
-  const step = 100;
-  const options: number[] = [];
+
 
   // if (!isUserLoading && user) {
   //   options = Array.from(
@@ -63,7 +62,6 @@ const Cart: NextPageWithLayout = () => {
   //   );
   // }
 
-  const toast = useToast();
   return (
     <>
       <Seo title="Cart" />
@@ -168,7 +166,7 @@ const Cart: NextPageWithLayout = () => {
                       });
                     }}
                   >
-                    {({ values, isSubmitting, isValid, dirty }) => (
+                    {({  isSubmitting, isValid, dirty }) => (
                       <Form>
                         <VStack alignItems="start" mt={4}>
                           {true && (

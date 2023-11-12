@@ -7,7 +7,6 @@ import {
   HStack,
   Stack,
   Text,
-  useToast,
 } from "@chakra-ui/react";
 
 import InputControl from "@/components/ui/input-control";
@@ -22,7 +21,7 @@ import { useRegisterMutation } from "@/api/user";
 import Seo from "@/components/shared/seo";
 
 const Register: NextPageWithLayout = () => {
-  const toast = useToast();
+  
   const { mutate } = useRegisterMutation();
 
   return (

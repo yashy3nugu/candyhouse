@@ -93,7 +93,7 @@ export const useCreateCandyMutation = () => {
     //   onMutate: () => {
 
     //   },
-    onSuccess: (data) => {
+    onSuccess: () => {
       // let redirect;
       // if (data.user.role === Role.User) {
       //   redirect = "/store";
@@ -132,7 +132,7 @@ export const useUpdateCandyMutation = (id: string) => {
     //   onMutate: () => {
 
     //   },
-    onSuccess: (data) => {
+    onSuccess: () => {
       // let redirect;
     },
     //   onError: (error) => {

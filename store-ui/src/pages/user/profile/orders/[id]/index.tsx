@@ -19,10 +19,9 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import usePagination from "@/hooks/use-pagination/usePagination";
 import { useRouter } from "next/router";
 import Image from "next/image";
-import { useLoggedInUserQuery } from "@/api/user";
+
 import { useCancelOrderMutation, useOrderByIdQuery } from "@/api/order";
 import { useQueryClient } from "@tanstack/react-query";
 import { ORDER_RQ } from "@/utils/types/react-query";
@@ -30,18 +29,14 @@ import Seo from "@/components/shared/seo";
 
 const Order: NextPageWithLayout = () => {
   const router = useRouter();
-  const { isLoading: isUserLoading, data: user } = useLoggedInUserQuery();
 
   const { mutate } = useCancelOrderMutation();
   const queryClient = useQueryClient();
 
-  const { page, handleNextPage, handlePrevPage } = usePagination({
-    initialPage: 1,
-  });
 
   const {
     data: order,
-    isLoading,
+    
     refetch,
   } = useOrderByIdQuery(router.query.id as string);
 

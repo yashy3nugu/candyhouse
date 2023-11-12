@@ -46,7 +46,7 @@ const config = {
       },
     ],
     "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-imports": "warn",
   },
 };
 

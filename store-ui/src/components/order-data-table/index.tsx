@@ -25,7 +25,6 @@ interface OrderDataTableProps {
 const OrderDataTable: React.FC<OrderDataTableProps> = ({
   data,
   linkUrl,
-  glass,
   page,
   nextPage,
   previousPage,

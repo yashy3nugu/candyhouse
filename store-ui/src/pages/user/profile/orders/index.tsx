@@ -16,7 +16,7 @@ const Orders: NextPageWithLayout = () => {
     initialPage: 1,
   });
 
-  const { data: orders, isLoading } = usePaginatedOrderQuery(page);
+  const { data: orders } = usePaginatedOrderQuery(page);
 
   return (
     <>

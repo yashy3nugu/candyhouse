@@ -52,7 +52,7 @@ export const useLoginMutation = () => {
       }
       router.replace(redirect);
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Unable to log you in",
         description: "Please check your credentials",
@@ -104,7 +104,7 @@ export const useRegisterMutation = () => {
       }
       router.replace(redirect);
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Unable to register",
         description: "Please try again later",
@@ -123,30 +123,30 @@ export const useRegisterMutation = () => {
   };
 };
 
-const useLogoutMutation = () => {
-  const queryClient = useQueryClient();
-  const { data, mutate, isPending } = useMutation({
-    mutationFn: async () => {
-      //   const res = await axios({
-      //     url: "/auth/logout",
-      //     method: "post",
-      //   });
-      //   return res.data;
-    },
-    onSuccess() {
-      queryClient.setQueryData([USER_RQ.LOGGED_IN_USER_QUERY], null);
-    },
-  });
+// const useLogoutMutation = () => {
+//   const queryClient = useQueryClient();
+//   const { data, mutate, isPending } = useMutation({
+//     mutationFn: async () => {
+//       //   const res = await axios({
+//       //     url: "/auth/logout",
+//       //     method: "post",
+//       //   });
+//       //   return res.data;
+//     },
+//     onSuccess() {
+//       queryClient.setQueryData([USER_RQ.LOGGED_IN_USER_QUERY], null);
+//     },
+//   });
 
-  return {
-    data,
-    mutate,
-    isPending,
-  };
-};
+//   return {
+//     data,
+//     mutate,
+//     isPending,
+//   };
+// };
 
 export const useLoggedInUserQuery = () => {
-  const { data, isLoading, isPending } = useQuery<VerifyResponse>({
+  const { data, isPending } = useQuery<VerifyResponse>({
     queryKey: [USER_RQ.LOGGED_IN_USER_QUERY],
     queryFn: async () => {
       // Get the token from localStorage

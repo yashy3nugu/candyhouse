@@ -22,7 +22,7 @@ import { useCreateCandyMutation, useSignedUrlQuery } from "@/api/candy";
 import Seo from "@/components/shared/seo";
 
 const CreateCandy: NextPageWithLayout = () => {
-  const { mutate, isPending: isLoading } = useCreateCandyMutation();
+  const { mutate } = useCreateCandyMutation();
 
   const imageRef = React.useRef<any>();
   const { imageDataURI, imageUrl, uploadFile } = useImageUpload();
@@ -99,7 +99,7 @@ const CreateCandy: NextPageWithLayout = () => {
                 }
               }}
             >
-              {({ isSubmitting, isValid, dirty, values, errors }) => (
+              {({ isSubmitting, isValid, dirty, }) => (
                 <Form>
                   <InputControl name="name" label="Name" placeholder="Name" />
                   <TextareaControl

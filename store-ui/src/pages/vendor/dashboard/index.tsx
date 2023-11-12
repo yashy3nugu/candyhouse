@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 
 const VendorDashboard: NextPageWithLayout = () => {
-  const { page, handleNextPage, handlePrevPage } = usePagination({});
+  const { page } = usePagination({});
 
   const { data, isLoading } = usePaginatedCandyQueryVendor(page);
 
