@@ -19,9 +19,9 @@ jobs:
       - name: Build product-service image
         run: cd product-service && docker build -t product-service .
 
-      # - name: Push product-service image to Docker Hub
-      #   uses: docker/push-action@v3
-      #   with:
-      #     username: ${{ secrets.DOCKER_HUB_USERNAME }}
-      #     password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      #     repository: your-docker-hub-username/product-service
+      - name: Push product-service image to Docker Hub
+        uses: docker/push-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          repository: yashyenugu/candyhouse
