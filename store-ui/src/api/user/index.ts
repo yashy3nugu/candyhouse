@@ -94,20 +94,20 @@ export const useRegisterMutation = () => {
     onSuccess: (data) => {
       queryClient.setQueryData([USER_RQ.LOGGED_IN_USER_QUERY], data);
       localStorage.setItem("auth.token", data.token);
-      // let redirect;
-      // if (data.user.role === Role.User) {
-      //   redirect = "/store";
-      // } else if (data.user.role === Role.Admin) {
-      //   redirect = "/admin/dashboard";
-      // } else {
-      //   redirect = "/vendor/dashboard";
-      // }
-      // router.replace(redirect);
+      let redirect;
+      if (data.user.role === Role.User) {
+        redirect = "/store";
+      } else if (data.user.role === Role.Admin) {
+        redirect = "/admin/dashboard";
+      } else {
+        redirect = "/vendor/dashboard";
+      }
+      router.replace(redirect);
     },
     onError: (error) => {
       toast({
         title: "Unable to register",
-        description: "User with same email exists",
+        description: "Please try again later",
         status: "error",
         duration: 9000,
         isClosable: true,
