@@ -128,7 +128,7 @@ const Navbar: React.FC = () => {
                         icon={FiLogOut}
                         isLoaded={!isLoading}
                         label="Logout"
-                        href="/auth/logout"
+                        href="/logout"
                       />
                     )}
                   </>
