@@ -33,14 +33,15 @@ const OrderDataTable: React.FC<OrderDataTableProps> = ({
   return (
     <>
       <TableContainer>
-        <Table variant="simple">
+        <Table variant="simple" size="xs">
           <TableCaption>Current Orders</TableCaption>
           <Thead>
             <Tr>
               <Th>Order ID</Th>
               <Th>Order Date</Th>
-              <Th isNumeric>Order Total (Rs)</Th>
-              <Th isNumeric>Order Status</Th>
+              <Th>Order Total (Rs)</Th>
+              <Th>Order Status</Th>
+              <Th>View</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -54,7 +55,7 @@ const OrderDataTable: React.FC<OrderDataTableProps> = ({
                 <Td>{order.status}</Td>
                 <Td>
                   <Link href={`${linkUrl}/${order._id as string}`}>
-                    <Button>View</Button>
+                    <Button colorScheme="pink">View</Button>
                   </Link>
                 </Td>
               </Tr>

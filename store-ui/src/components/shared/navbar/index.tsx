@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import MobileDrawer from "@/components/shared/mobile-drawer";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { AiOutlineHome, AiOutlineShoppingCart } from "react-icons/ai";
+import { AiOutlineHome, AiOutlineShoppingCart, AiOutlineUser } from "react-icons/ai";
 import { BiStore } from "react-icons/bi";
 import { FiUserPlus, FiLogIn, FiLogOut } from "react-icons/fi";
 import { useAppSelector } from "@/store/hooks";
@@ -87,12 +87,21 @@ const Navbar: React.FC = () => {
                       </>
                     )}
                     {(!loginData || loginData.user.role === Role.User) && (
-                      <NavLink
-                        isLoaded={!isLoading}
-                        icon={AiOutlineShoppingCart}
-                        href="/cart"
-                        label={`Cart (${cartValue})`}
-                      />
+                      <>
+                        <NavLink
+                          isLoaded={!isLoading}
+                          icon={AiOutlineShoppingCart}
+                          href="/cart"
+                          label={`Cart (${cartValue})`}
+                        />
+                        <NavLink
+                          isLoaded={!isLoading}
+                          icon={AiOutlineUser}
+                          href="/user/profile"
+                          label={`Profile`}
+                        />
+                        
+                      </>
                     )}
 
                     {loginData?.user.role == Role.Vendor && (
