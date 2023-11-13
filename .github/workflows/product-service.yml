@@ -61,4 +61,6 @@ jobs:
       - name: Run Tests and Coverage
         run: |
           cd product-service
-          docker-compose -f docker-compose.yml up
+          docker-compose -f docker-compose.yml build
+          docker-compose -f docker-compose.yml run product-service yarn test
+
