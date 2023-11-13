@@ -31,3 +31,31 @@ jobs:
           context: ./product-service
           push: true
           tags: yashyenugu/product-service:latest
+
+  run-tests:
+    env:
+      PORT: 4000
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      LOG_FORMAT: combined
+      LOG_DIR: ../logs
+      ORIGIN: your.domain.com
+      CREDENTIALS: true
+      MONGO_URI: ${{ secrets.PRODUCT_MONGO_URI }}
+      MONGO_TEST_URI: ${{ secrets.MONGO_TEST_URI }}
+      CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+      CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+      CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+      CLOUDINARY_FOLDER_NAME: ${{ secrets.CLOUDINARY_FOLDER_NAME }}
+      UPSTASH_KAFKA_USERNAME: ${{ secrets.UPSTASH_KAFKA_USERNAME }}
+      UPSTASH_KAFKA_PASSWORD: ${{ secrets.UPSTASH_KAFKA_PASSWORD }}
+      UPSTASH_KAFKA_URL: ${{ secrets.UPSTASH_KAFKA_URL }}
+      runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Build Containers
+        run: docker-compose build
+
+      - name: Run Tests and Coverage
+        run: docker-compose -f docker-compose.yml up
