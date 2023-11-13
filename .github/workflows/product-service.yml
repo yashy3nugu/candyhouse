@@ -36,6 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
       - name: Set up Environment Variables
         run: |
           echo "PORT=4000" > ./product-service/.env
@@ -53,8 +55,7 @@ jobs:
           echo "UPSTASH_KAFKA_USERNAME=${{ secrets.UPSTASH_KAFKA_USERNAME }}" >> ./product-service/.env
           echo "UPSTASH_KAFKA_PASSWORD=${{ secrets.UPSTASH_KAFKA_PASSWORD }}" >> ./product-service/.env
           echo "UPSTASH_KAFKA_URL=${{ secrets.UPSTASH_KAFKA_URL }}" >> ./product-service/.env
-      - name: Checkout Repo
-        uses: actions/checkout@v3
+      
 
       # - name: Build Containers
       #   run: docker-compose build
