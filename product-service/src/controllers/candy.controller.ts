@@ -3,7 +3,7 @@ import CandyModel from '@/models/candy.model';
 import { z } from 'zod';
 import { candyByIdSchema, candySchema, candyUpdateSchema, paginatedCandyFetchSchema } from '@/utils/schemas/candy';
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import { HttpException } from '@/exceptions/httpException';
+import { HttpException } from '@/exceptions/HttpException';
 import { v4 as uuidv4 } from 'uuid';
 import { producer } from '@/lib/kafka';
 import { UserModel } from '@/models/user.model';
