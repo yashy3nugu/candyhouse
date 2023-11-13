@@ -38,21 +38,21 @@ jobs:
     steps:
       - name: Set up Environment Variables
         run: |
-          echo "PORT=4000" > product-service/.env
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> product-service/.env
-          echo "LOG_FORMAT=combined" >> product-service/.env
-          echo "LOG_DIR=../logs" >> product-service/.env
-          echo "ORIGIN=your.domain.com" >> product-service/.env
-          echo "CREDENTIALS=true" >> product-service/.env
-          echo "MONGO_URI=${{ secrets.PRODUCT_MONGO_URI }}" >> product-service/.env
-          echo "MONGO_TEST_URI=${{ secrets.MONGO_TEST_URI }}" >> product-service/.env
-          echo "CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}" >> product-service/.env
-          echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> product-service/.env
-          echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> product-service/.env
-          echo "CLOUDINARY_FOLDER_NAME=${{ secrets.CLOUDINARY_FOLDER_NAME }}" >> product-service/.env
-          echo "UPSTASH_KAFKA_USERNAME=${{ secrets.UPSTASH_KAFKA_USERNAME }}" >> product-service/.env
-          echo "UPSTASH_KAFKA_PASSWORD=${{ secrets.UPSTASH_KAFKA_PASSWORD }}" >> product-service/.env
-          echo "UPSTASH_KAFKA_URL=${{ secrets.UPSTASH_KAFKA_URL }}" >> product-service/.env
+          echo "PORT=4000" > ./product-service/.env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> ./product-service/.env
+          echo "LOG_FORMAT=combined" >> ./product-service/.env
+          echo "LOG_DIR=../logs" >> ./product-service/.env
+          echo "ORIGIN=your.domain.com" >> ./product-service/.env
+          echo "CREDENTIALS=true" >> ./product-service/.env
+          echo "MONGO_URI=${{ secrets.PRODUCT_MONGO_URI }}" >> ./product-service/.env
+          echo "MONGO_TEST_URI=${{ secrets.MONGO_TEST_URI }}" >> ./product-service/.env
+          echo "CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}" >> ./product-service/.env
+          echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> ./product-service/.env
+          echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> ./product-service/.env
+          echo "CLOUDINARY_FOLDER_NAME=${{ secrets.CLOUDINARY_FOLDER_NAME }}" >> ./product-service/.env
+          echo "UPSTASH_KAFKA_USERNAME=${{ secrets.UPSTASH_KAFKA_USERNAME }}" >> ./product-service/.env
+          echo "UPSTASH_KAFKA_PASSWORD=${{ secrets.UPSTASH_KAFKA_PASSWORD }}" >> ./product-service/.env
+          echo "UPSTASH_KAFKA_URL=${{ secrets.UPSTASH_KAFKA_URL }}" >> ./product-service/.env
       - name: Checkout Repo
         uses: actions/checkout@v3
 
