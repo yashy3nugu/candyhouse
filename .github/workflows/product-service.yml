@@ -51,7 +51,6 @@ jobs:
           echo "UPSTASH_KAFKA_USERNAME=${{ secrets.UPSTASH_KAFKA_USERNAME }}" >> product-service/.env
           echo "UPSTASH_KAFKA_PASSWORD=${{ secrets.UPSTASH_KAFKA_PASSWORD }}" >> product-service/.env
           echo "UPSTASH_KAFKA_URL=${{ secrets.UPSTASH_KAFKA_URL }}" >> product-service/.env
-      runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
