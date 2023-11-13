@@ -33,6 +33,7 @@ jobs:
           tags: yashyenugu/product-service:latest
 
   run-tests:
+    runs-on: ubuntu-latest
     env:
       PORT: 4000
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
