@@ -58,8 +58,8 @@ jobs:
       - name: Change Directory
         run: cd product-service
 
-      - name: Build Containers
-        run: docker-compose build
+      # - name: Build Containers
+      #   run: docker-compose build
 
       - name: Run Tests and Coverage
         run: docker-compose -f docker-compose.yml up
