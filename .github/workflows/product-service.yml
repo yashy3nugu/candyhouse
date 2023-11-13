@@ -34,7 +34,9 @@ jobs:
 
   run-tests:
     runs-on: ubuntu-latest
-    - name: Set up Environment Variables
+    
+    steps:
+      - name: Set up Environment Variables
         run: |
           echo "PORT=4000" > product-service/.env
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> product-service/.env
@@ -51,7 +53,6 @@ jobs:
           echo "UPSTASH_KAFKA_USERNAME=${{ secrets.UPSTASH_KAFKA_USERNAME }}" >> product-service/.env
           echo "UPSTASH_KAFKA_PASSWORD=${{ secrets.UPSTASH_KAFKA_PASSWORD }}" >> product-service/.env
           echo "UPSTASH_KAFKA_URL=${{ secrets.UPSTASH_KAFKA_URL }}" >> product-service/.env
-    steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
