@@ -53,13 +53,12 @@ jobs:
       runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
-
-      - name: Change Directory
-        run: cd product-service
+        uses: actions/checkout@v3
 
       # - name: Build Containers
       #   run: docker-compose build
 
       - name: Run Tests and Coverage
-        run: docker-compose -f docker-compose.yml up
+        run: |
+          cd product-service
+          docker-compose -f docker-compose.yml up
