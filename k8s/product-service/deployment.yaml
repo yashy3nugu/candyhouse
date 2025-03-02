@@ -46,7 +46,10 @@ spec:
               name: cloudinary-secrets
               key: api-secret
         - name: KAFKA_URL
-          value: "candyhouse-kafka:9092"
+          valueFrom:
+            secretKeyRef:
+              name: kafka-secret
+              key: url
         resources:
           requests:
             cpu: "100m"
