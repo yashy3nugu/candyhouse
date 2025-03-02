@@ -1,0 +1,123 @@
+# Global configuration
+global:
+  environment: production
+  kafka:
+    url: candyhouse-kafka:9092
+
+# Store UI Configuration
+storeUI:
+  name: store-ui
+  image:
+    repository: yashyenugu/candyhouse-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 60
+  replicas: 1
+  
+# User Service Configuration
+userService:
+  name: user-service
+  image:
+    repository: yashyenugu/user-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 7000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 60
+  replicas: 1
+  
+# Order Service Configuration
+orderService:
+  name: order-service
+  image:
+    repository: yashyenugu/order-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 5000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 60
+  replicas: 1
+  
+# Product Service Configuration
+productService:
+  name: product-service
+  image:
+    repository: yashyenugu/product-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 4000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 60
+  replicas: 1
+
+# Secrets configuration
+secrets:
+  kafka:
+    create: true
+    name: kafka-secret
+  userService:
+    create: true
+    name: user-service-secrets
+  orderService:
+    create: true
+    name: order-service-secrets
+  productService:
+    create: true
+    name: product-service-secrets
+  cloudinary:
+    create: true
+    name: cloudinary-secrets 

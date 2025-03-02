@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.storeUI.name }}
+spec:
+  type: {{ .Values.storeUI.service.type }}
+  selector:
+    app: {{ .Values.storeUI.name }}
+  ports:
+  - port: {{ .Values.storeUI.service.port }}
+    targetPort: {{ .Values.storeUI.service.targetPort }} 
