@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: candyhouse-zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - kafka-net
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: candyhouse-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: candyhouse-zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://candyhouse-kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    depends_on:
+      - zookeeper
+    networks:
+      - kafka-net
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  kafka-setup:
+    image: confluentinc/cp-kafka:latest
+    container_name: candyhouse-kafka-setup
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command: >
+      bash -c "
+        echo 'Waiting for Kafka to be ready...' &&
+        kafka-topics --bootstrap-server candyhouse-kafka:9092 --list &&
+        echo 'Creating topics if not exists...' &&
+        kafka-topics --bootstrap-server candyhouse-kafka:9092 --create --if-not-exists --topic user --partitions 3 --replication-factor 1 &&
+        kafka-topics --bootstrap-server candyhouse-kafka:9092 --create --if-not-exists --topic candy --partitions 3 --replication-factor 1 &&
+        kafka-topics --bootstrap-server candyhouse-kafka:9092 --create --if-not-exists --topic quantity --partitions 3 --replication-factor 1 &&
+        kafka-topics --bootstrap-server candyhouse-kafka:9092 --create --if-not-exists --topic test --partitions 3 --replication-factor 1 &&
+        echo 'All topics created successfully!'
+      "
+    networks:
+      - kafka-net
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: candyhouse-kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: candyhouse-kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: candyhouse-kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: candyhouse-zookeeper:2181
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - kafka-net
+
+networks:
+  kafka-net:
+    driver: bridge 
