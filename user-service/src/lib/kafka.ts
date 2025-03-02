@@ -4,13 +4,7 @@ dotenv.config();
 
 const kafka = new Kafka({
   clientId: "user-service",
-  brokers: [process.env.UPSTASH_KAFKA_URL!],
-  sasl: {
-    mechanism: "scram-sha-256",
-    username: process.env.UPSTASH_KAFKA_USERNAME!,
-    password: process.env.UPSTASH_KAFKA_PASSWORD!,
-  },
-  ssl: true,
+  brokers: ['candyhouse-kafka:9092'],
 });
 
 export const producer = kafka.producer({
