@@ -30,21 +30,8 @@ spec:
             secretKeyRef:
               name: order-service-secrets
               key: mongo-uri
-        - name: UPSTASH_KAFKA_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: kafka-secrets
-              key: username
-        - name: UPSTASH_KAFKA_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: kafka-secrets
-              key: password
-        - name: UPSTASH_KAFKA_URL
-          valueFrom:
-            secretKeyRef:
-              name: kafka-secrets
-              key: url
+        - name: KAFKA_URL
+          value: "candyhouse-kafka:9092"
         resources:
           requests:
             cpu: "100m"
