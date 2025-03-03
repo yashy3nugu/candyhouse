@@ -5,7 +5,7 @@ global:
     url: candyhouse-kafka:9092
   logging:
     format: "combined"
-    directory: "../logs"
+    directory: "/dev/stdout"
 
 # Store UI Configuration
 storeUI:
@@ -26,9 +26,9 @@ storeUI:
       cpu: 250m
       memory: 256Mi
   autoscaling:
-    enabled: true
-    minReplicas: 2
-    maxReplicas: 5
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
     targetCPUUtilizationPercentage: 60
   replicas: 1
   
@@ -49,11 +49,11 @@ userService:
       memory: 128Mi
     limits:
       cpu: 500m
-      memory: 256Mi
+      memory: 512Mi
   autoscaling:
-    enabled: true
-    minReplicas: 3
-    maxReplicas: 10
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 5
     targetCPUUtilizationPercentage: 60
   replicas: 1
   
@@ -76,9 +76,9 @@ orderService:
       cpu: 500m
       memory: 256Mi
   autoscaling:
-    enabled: true
-    minReplicas: 3
-    maxReplicas: 10
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 5
     targetCPUUtilizationPercentage: 60
   replicas: 1
   
@@ -101,9 +101,9 @@ productService:
       cpu: 500m
       memory: 256Mi
   autoscaling:
-    enabled: true
-    minReplicas: 3
-    maxReplicas: 10
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 5
     targetCPUUtilizationPercentage: 60
   replicas: 1
 
@@ -128,6 +128,7 @@ secrets:
   jwt:
     create: true
     name: jwt-secret
+    expiresIn: "24"
 
 # Kafka Configuration
 kafka:

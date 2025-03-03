@@ -52,9 +52,7 @@ jobs:
           echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> ./product-service/.env
           echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> ./product-service/.env
           echo "CLOUDINARY_FOLDER_NAME=${{ secrets.CLOUDINARY_FOLDER_NAME }}" >> ./product-service/.env
-          echo "UPSTASH_KAFKA_USERNAME=${{ secrets.UPSTASH_KAFKA_USERNAME }}" >> ./product-service/.env
-          echo "UPSTASH_KAFKA_PASSWORD=${{ secrets.UPSTASH_KAFKA_PASSWORD }}" >> ./product-service/.env
-          echo "UPSTASH_KAFKA_URL=${{ secrets.UPSTASH_KAFKA_URL }}" >> ./product-service/.env
+          echo "KAFKA_URL=${{ secrets.KAFKA_URL || 'candyhouse-kafka:9092' }}" >> ./product-service/.env
       
 
       # - name: Build Containers

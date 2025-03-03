@@ -76,9 +76,6 @@ spec:
             port: {{ .Values.productService.service.targetPort }}
           initialDelaySeconds: 5
           periodSeconds: 10
-        volumeMounts:
-        - name: logs-volume
-          mountPath: /app/logs
       volumes:
       - name: logs-volume
         persistentVolumeClaim:

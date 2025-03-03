@@ -47,6 +47,11 @@ spec:
             secretKeyRef:
               name: {{ .Values.secrets.jwt.name }}
               key: secret
+        - name: JWT_EXPIRES_IN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.jwt.name }}
+              key: expires-in
         resources:
           {{- toYaml .Values.userService.resources | nindent 10 }}
         livenessProbe:
