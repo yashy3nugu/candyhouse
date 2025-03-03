@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.orderService.name }}
+spec:
+  type: {{ .Values.orderService.service.type }}
+  selector:
+    app: {{ .Values.orderService.name }}
+  ports:
+  - port: {{ .Values.orderService.service.port }}
+    targetPort: {{ .Values.orderService.service.targetPort }} 

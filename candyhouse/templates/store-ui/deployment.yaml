@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.storeUI.name }}
+  labels:
+    app: {{ .Values.storeUI.name }}
+    {{- include "candyhouse.labels" (dict "name" .Values.storeUI.name "Release" .Release) | nindent 4 }}
+spec:
+  replicas: {{ .Values.storeUI.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.storeUI.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.storeUI.name }}
+    spec:
+      containers:
+      - name: {{ .Values.storeUI.name }}
+        image: "{{ .Values.storeUI.image.repository }}:{{ .Values.storeUI.image.tag }}"
+        imagePullPolicy: {{ .Values.storeUI.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.storeUI.service.targetPort }}
+        env:
+        - name: NODE_ENV
+          value: {{ .Values.global.environment }}
+        - name: USER_SERVICE_BASE_URL
+          value: "http://{{ .Values.userService.name }}"
+        - name: PRODUCT_SERVICE_BASE_URL
+          value: "http://{{ .Values.productService.name }}"
+        - name: ORDER_SERVICE_BASE_URL
+          value: "http://{{ .Values.orderService.name }}"
+        resources:
+          {{- toYaml .Values.storeUI.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.storeUI.service.targetPort }}
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.storeUI.service.targetPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 10 

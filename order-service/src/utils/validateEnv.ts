@@ -5,8 +5,6 @@ export const ValidateEnv = () => {
     NODE_ENV: str(),
     PORT: port(),
     MONGO_URI: url(),
-    UPSTASH_KAFKA_USERNAME: str(),
-    UPSTASH_KAFKA_PASSWORD: str(),
-    UPSTASH_KAFKA_URL: url(),
+    KAFKA_URL: url(),
   });
 };

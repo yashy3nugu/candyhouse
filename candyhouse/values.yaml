@@ -1,0 +1,216 @@
+# Global configuration
+global:
+  environment: production
+  kafka:
+    url: candyhouse-kafka:9092
+  logging:
+    format: "combined"
+    directory: "../logs"
+
+# Store UI Configuration
+storeUI:
+  name: store-ui
+  image:
+    repository: yashyenugu/candyhouse-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 60
+  replicas: 1
+  
+# User Service Configuration
+userService:
+  name: user-service
+  image:
+    repository: yashyenugu/user-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 7000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 60
+  replicas: 1
+  
+# Order Service Configuration
+orderService:
+  name: order-service
+  image:
+    repository: yashyenugu/order-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 5000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 60
+  replicas: 1
+  
+# Product Service Configuration
+productService:
+  name: product-service
+  image:
+    repository: yashyenugu/product-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 4000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 60
+  replicas: 1
+
+# Secrets configuration
+secrets:
+  # Secret names in Kubernetes
+  kafka:
+    create: true
+    name: kafka-secret
+  userService:
+    create: true
+    name: user-service-secrets
+  orderService:
+    create: true
+    name: order-service-secrets
+  productService:
+    create: true
+    name: product-service-secrets
+  cloudinary:
+    create: true
+    name: cloudinary-secrets
+  jwt:
+    create: true
+    name: jwt-secret
+
+# Kafka Configuration
+kafka:
+  enabled: true
+  name: candyhouse-kafka
+  image:
+    repository: confluentinc/cp-kafka
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 9092
+  env:
+    KAFKA_BROKER_ID: 1
+    KAFKA_ZOOKEEPER_CONNECT: candyhouse-zookeeper:2181
+    KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+    KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://candyhouse-kafka:9092
+    KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  topics:
+    - name: user
+      partitions: 3
+      replicationFactor: 1
+    - name: candy
+      partitions: 3
+      replicationFactor: 1
+    - name: quantity
+      partitions: 3
+      replicationFactor: 1
+    - name: test
+      partitions: 3
+      replicationFactor: 1
+
+# Zookeeper Configuration
+zookeeper:
+  enabled: true
+  name: candyhouse-zookeeper
+  image:
+    repository: confluentinc/cp-zookeeper
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 2181
+  env:
+    ZOOKEEPER_CLIENT_PORT: 2181
+    ZOOKEEPER_TICK_TIME: 2000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
+
+# Kafka UI Configuration
+kafkaUI:
+  enabled: true
+  name: candyhouse-kafka-ui
+  image:
+    repository: provectuslabs/kafka-ui
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8080
+  env:
+    KAFKA_CLUSTERS_0_NAME: candyhouse-kafka
+    KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: candyhouse-kafka:9092
+    KAFKA_CLUSTERS_0_ZOOKEEPER: candyhouse-zookeeper:2181
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi 

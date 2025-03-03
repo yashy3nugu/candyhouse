@@ -1,0 +1,31 @@
+{{- if and .Values.kafka.enabled .Values.kafka.topics }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.kafka.name }}-topic-creator
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      containers:
+      - name: topic-creator
+        image: "{{ .Values.kafka.image.repository }}:{{ .Values.kafka.image.tag }}"
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "Waiting for Kafka to be ready..."
+          sleep 30
+          {{- range .Values.kafka.topics }}
+          kafka-topics --bootstrap-server {{ $.Values.kafka.name }}:{{ $.Values.kafka.service.port }} \
+            --create --if-not-exists \
+            --topic {{ .name }} \
+            --partitions {{ .partitions }} \
+            --replication-factor {{ .replicationFactor }}
+          {{- end }}
+          echo "All topics created successfully!"
+      restartPolicy: OnFailure
+  backoffLimit: 5
+{{- end }} 

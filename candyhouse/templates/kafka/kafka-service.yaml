@@ -1,0 +1,13 @@
+{{- if and .Values.kafka.enabled .Values.zookeeper.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.kafka.name }}
+spec:
+  type: {{ .Values.kafka.service.type }}
+  selector:
+    app: {{ .Values.kafka.name }}
+  ports:
+  - port: {{ .Values.kafka.service.port }}
+    targetPort: {{ .Values.kafka.service.port }}
+{{- end }} 

@@ -1,0 +1,13 @@
+{{- if and .Values.kafkaUI.enabled .Values.kafka.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.kafkaUI.name }}
+spec:
+  type: {{ .Values.kafkaUI.service.type }}
+  selector:
+    app: {{ .Values.kafkaUI.name }}
+  ports:
+  - port: {{ .Values.kafkaUI.service.port }}
+    targetPort: {{ .Values.kafkaUI.service.port }}
+{{- end }} 

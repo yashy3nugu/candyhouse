@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.productService.name }}
+  labels:
+    app: {{ .Values.productService.name }}
+    {{- include "candyhouse.labels" (dict "name" .Values.productService.name "Release" .Release) | nindent 4 }}
+spec:
+  replicas: {{ .Values.productService.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.productService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.productService.name }}
+    spec:
+      containers:
+      - name: {{ .Values.productService.name }}
+        image: "{{ .Values.productService.image.repository }}:{{ .Values.productService.image.tag }}"
+        imagePullPolicy: {{ .Values.productService.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.productService.service.targetPort }}
+        env:
+        - name: NODE_ENV
+          value: {{ .Values.global.environment }}
+        - name: PORT
+          value: "{{ .Values.productService.service.targetPort }}"
+        - name: LOG_FORMAT
+          value: "{{ .Values.global.logging.format }}"
+        - name: LOG_DIR
+          value: "{{ .Values.global.logging.directory }}"
+        - name: ORIGIN
+          value: "*"
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.productService.name }}
+              key: mongo-uri
+        - name: CLOUDINARY_CLOUD_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.cloudinary.name }}
+              key: cloud-name
+        - name: CLOUDINARY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.cloudinary.name }}
+              key: api-key
+        - name: CLOUDINARY_API_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.cloudinary.name }}
+              key: api-secret
+        - name: CLOUDINARY_FOLDER_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.cloudinary.name }}
+              key: folder-name
+        - name: KAFKA_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.kafka.name }}
+              key: url
+        resources:
+          {{- toYaml .Values.productService.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.productService.service.targetPort }}
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.productService.service.targetPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        volumeMounts:
+        - name: logs-volume
+          mountPath: /app/logs
+      volumes:
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: {{ .Values.productService.name }}-logs-pvc 

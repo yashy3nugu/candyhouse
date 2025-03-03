@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.userService.name }}
+  labels:
+    app: {{ .Values.userService.name }}
+    {{- include "candyhouse.labels" (dict "name" .Values.userService.name "Release" .Release) | nindent 4 }}
+spec:
+  replicas: {{ .Values.userService.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.userService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.userService.name }}
+    spec:
+      containers:
+      - name: {{ .Values.userService.name }}
+        image: "{{ .Values.userService.image.repository }}:{{ .Values.userService.image.tag }}"
+        imagePullPolicy: {{ .Values.userService.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.userService.service.targetPort }}
+        env:
+        - name: NODE_ENV
+          value: {{ .Values.global.environment }}
+        - name: PORT
+          value: "{{ .Values.userService.service.targetPort }}"
+        - name: LOG_FORMAT
+          value: "{{ .Values.global.logging.format }}"
+        - name: LOG_DIR
+          value: "{{ .Values.global.logging.directory }}"
+        - name: ORIGIN
+          value: "*"
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.userService.name }}
+              key: mongo-uri
+        - name: KAFKA_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.kafka.name }}
+              key: url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.jwt.name }}
+              key: secret
+        resources:
+          {{- toYaml .Values.userService.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.userService.service.targetPort }}
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.userService.service.targetPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 10 
