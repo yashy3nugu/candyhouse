@@ -46,6 +46,11 @@ spec:
             secretKeyRef:
               name: {{ .Values.secrets.cloudinary.name }}
               key: api-secret
+        - name: CLOUDINARY_FOLDER_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.cloudinary.name }}
+              key: folder-name
         - name: KAFKA_URL
           valueFrom:
             secretKeyRef:
