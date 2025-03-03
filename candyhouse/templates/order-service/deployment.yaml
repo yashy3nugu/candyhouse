@@ -55,4 +55,10 @@ spec:
             path: /health
             port: {{ .Values.orderService.service.targetPort }}
           initialDelaySeconds: 5
-          periodSeconds: 10 
+          periodSeconds: 10
+        volumeMounts:
+        - name: logs-volume
+          mountPath: /app/logs
+      volumes:
+      - name: logs-volume
+        emptyDir: {}  # Simple in-memory volume, no PVC required 

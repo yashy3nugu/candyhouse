@@ -5,7 +5,7 @@ global:
     url: candyhouse-kafka:9092
   logging:
     format: "combined"
-    directory: "/dev/stdout"
+    directory: "logs"
 
 # Store UI Configuration
 storeUI:
