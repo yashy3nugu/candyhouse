@@ -1,0 +1,32 @@
+{{- if and .Values.kafka.enabled .Values.zookeeper.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.kafka.name }}
+  labels:
+    app: {{ .Values.kafka.name }}
+    {{- include "candyhouse.labels" (dict "name" .Values.kafka.name "Release" .Release) | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.kafka.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.kafka.name }}
+    spec:
+      containers:
+      - name: {{ .Values.kafka.name }}
+        image: "{{ .Values.kafka.image.repository }}:{{ .Values.kafka.image.tag }}"
+        imagePullPolicy: {{ .Values.kafka.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.kafka.service.port }}
+        env:
+        {{- range $key, $value := .Values.kafka.env }}
+        - name: {{ $key }}
+          value: "{{ $value }}"
+        {{- end }}
+        resources:
+          {{- toYaml .Values.kafka.resources | nindent 10 }}
+{{- end }} 

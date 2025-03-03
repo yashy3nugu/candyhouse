@@ -36,6 +36,11 @@ spec:
             secretKeyRef:
               name: {{ .Values.secrets.kafka.name }}
               key: url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.jwt.name }}
+              key: secret
         resources:
           {{- toYaml .Values.userService.resources | nindent 10 }}
         livenessProbe:

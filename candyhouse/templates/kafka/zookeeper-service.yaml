@@ -1,0 +1,13 @@
+{{- if .Values.zookeeper.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.zookeeper.name }}
+spec:
+  type: {{ .Values.zookeeper.service.type }}
+  selector:
+    app: {{ .Values.zookeeper.name }}
+  ports:
+  - port: {{ .Values.zookeeper.service.port }}
+    targetPort: {{ .Values.zookeeper.service.port }}
+{{- end }} 

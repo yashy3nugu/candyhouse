@@ -1,0 +1,32 @@
+{{- if and .Values.kafkaUI.enabled .Values.kafka.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.kafkaUI.name }}
+  labels:
+    app: {{ .Values.kafkaUI.name }}
+    {{- include "candyhouse.labels" (dict "name" .Values.kafkaUI.name "Release" .Release) | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.kafkaUI.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.kafkaUI.name }}
+    spec:
+      containers:
+      - name: {{ .Values.kafkaUI.name }}
+        image: "{{ .Values.kafkaUI.image.repository }}:{{ .Values.kafkaUI.image.tag }}"
+        imagePullPolicy: {{ .Values.kafkaUI.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.kafkaUI.service.port }}
+        env:
+        {{- range $key, $value := .Values.kafkaUI.env }}
+        - name: {{ $key }}
+          value: "{{ $value }}"
+        {{- end }}
+        resources:
+          {{- toYaml .Values.kafkaUI.resources | nindent 10 }}
+{{- end }} 
