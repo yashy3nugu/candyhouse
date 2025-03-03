@@ -7,5 +7,6 @@ export const ValidateEnv = () => {
     MONGO_URI: url(),
     JWT_SECRET: str(),
     JWT_EXPIRES_IN: num(),
+    KAFKA_URL: url(),
   });
 };

@@ -9,8 +9,6 @@ export const ValidateEnv = () => {
     CLOUDINARY_API_SECRET: str(),
     CLOUDINARY_API_KEY: str(),
     CLOUDINARY_FOLDER_NAME: str(),
-    UPSTASH_KAFKA_USERNAME: str(),
-    UPSTASH_KAFKA_PASSWORD: str(),
-    UPSTASH_KAFKA_URL: url(),
+    KAFKA_URL: url(),
   });
 };

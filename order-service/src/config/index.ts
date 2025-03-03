@@ -10,7 +10,5 @@ export const {
   LOG_DIR,
   ORIGIN,
   MONGO_URI,
-  UPSTASH_KAFKA_PASSWORD,
-  UPSTASH_KAFKA_URL,
-  UPSTASH_KAFKA_USERNAME,
+  KAFKA_URL,
 } = process.env;
