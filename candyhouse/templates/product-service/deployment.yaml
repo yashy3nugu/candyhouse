@@ -26,6 +26,12 @@ spec:
           value: {{ .Values.global.environment }}
         - name: PORT
           value: "{{ .Values.productService.service.targetPort }}"
+        - name: LOG_FORMAT
+          value: "{{ .Values.global.logging.format }}"
+        - name: LOG_DIR
+          value: "{{ .Values.global.logging.directory }}"
+        - name: ORIGIN
+          value: "*"
         - name: MONGO_URI
           valueFrom:
             secretKeyRef:
@@ -69,4 +75,11 @@ spec:
             path: /health
             port: {{ .Values.productService.service.targetPort }}
           initialDelaySeconds: 5
-          periodSeconds: 10 
+          periodSeconds: 10
+        volumeMounts:
+        - name: logs-volume
+          mountPath: /app/logs
+      volumes:
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: {{ .Values.productService.name }}-logs-pvc 

@@ -26,6 +26,12 @@ spec:
           value: {{ .Values.global.environment }}
         - name: PORT
           value: "{{ .Values.orderService.service.targetPort }}"
+        - name: LOG_FORMAT
+          value: "{{ .Values.global.logging.format }}"
+        - name: LOG_DIR
+          value: "{{ .Values.global.logging.directory }}"
+        - name: ORIGIN
+          value: "*"
         - name: MONGO_URI
           valueFrom:
             secretKeyRef:

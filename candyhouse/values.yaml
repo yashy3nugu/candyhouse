@@ -3,6 +3,9 @@ global:
   environment: production
   kafka:
     url: candyhouse-kafka:9092
+  logging:
+    format: "combined"
+    directory: "../logs"
 
 # Store UI Configuration
 storeUI:
