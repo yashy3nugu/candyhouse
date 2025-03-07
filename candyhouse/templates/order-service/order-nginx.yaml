@@ -1,0 +1,68 @@
+# Kubernetes configuration for order load balancer using Nginx
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-nginx-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-nginx-config
+
+# Nginx config for order service
+
+data:
+  nginx.conf: |
+    worker_processes 1;
+    events { worker_connections 1024; }
+    http {
+      upstream order_backend {
+         server order-service:8080;
+      }
+      server {
+         listen 80;
+         location / {
+           proxy_pass http://order_backend;
+         }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-nginx
+  template:
+    metadata:
+      labels:
+        app: order-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - name: nginx-config
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: order-nginx-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-nginx-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: order-nginx 

@@ -1,0 +1,61 @@
+# Kubernetes configuration for user load balancer using Nginx
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-nginx-config
+---
+data:
+  nginx.conf: |
+    worker_processes 1;
+    events { worker_connections 1024; }
+    http {
+      upstream user_backend {
+         server user-service:8080;
+      }
+      server {
+         listen 80;
+         location / {
+           proxy_pass http://user_backend;
+         }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-nginx
+  template:
+    metadata:
+      labels:
+        app: user-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - name: nginx-config
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: user-nginx-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-nginx-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: user-nginx 
