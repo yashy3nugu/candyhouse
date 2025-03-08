@@ -1,9 +1,3 @@
-# Kubernetes configuration for order load balancer using Nginx
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: order-nginx-config
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
