@@ -27,6 +27,8 @@ export class App {
   }
 
   public listen() {
+    // Add health check endpoint
+    this.app.get('/health', (req, res) => res.status(200).send('OK'));
     this.app.listen(this.port, () => {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
