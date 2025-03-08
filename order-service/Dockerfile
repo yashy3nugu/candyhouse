@@ -1,5 +1,5 @@
 # NodeJS Version 16
-FROM node:16.18-buster-slim
+    FROM node:16.18-buster-slim
 
 # Copy Dir
 COPY . ./app
@@ -12,7 +12,7 @@ RUN yarn install
 
 # Set Env
 ENV NODE_ENV production
-EXPOSE 3000
+EXPOSE 5000
 
 # Cmd script
 CMD ["yarn", "run", "start"]

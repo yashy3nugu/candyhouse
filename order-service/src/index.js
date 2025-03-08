@@ -6,10 +6,8 @@
 // ... existing code ...
 
 // At the end of your configuration for your Express app, add the following:
-if (typeof app !== 'undefined' && app.get) {
-  app.get('/health', (req, res) => {
-    res.status(200).send('OK');
-  });
-}
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 // ... existing code ... 

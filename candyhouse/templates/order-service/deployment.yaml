@@ -21,6 +21,7 @@ spec:
         imagePullPolicy: {{ .Values.orderService.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.orderService.service.targetPort }}
+          hostPort: {{ .Values.orderService.service.targetPort }}
         env:
         - name: NODE_ENV
           value: {{ .Values.global.environment }}
@@ -44,18 +45,18 @@ spec:
               key: url
         resources:
           {{- toYaml .Values.orderService.resources | nindent 10 }}
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: {{ .Values.orderService.service.targetPort }}
-          initialDelaySeconds: 15
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: {{ .Values.orderService.service.targetPort }}
-          initialDelaySeconds: 5
-          periodSeconds: 10
+        # livenessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: {{ .Values.orderService.service.targetPort }}
+        #   initialDelaySeconds: 15
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: {{ .Values.orderService.service.targetPort }}
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 10
         volumeMounts:
         - name: logs-volume
           mountPath: /app/logs
