@@ -29,6 +29,7 @@ app.use(express.json());
   try {
     await connectDB(process.env.MONGO_URI as string);
 
+    app.get('/health', (req, res) => res.status(200).send('OK'));
     app.use("/users",authRouter)
 
     app.listen(PORT, () => {
