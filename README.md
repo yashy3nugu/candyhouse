@@ -8,14 +8,17 @@ CandyHouse is a scalable and feature-rich e-commerce application designed for a 
 2. [Architecture](#architecture)
 3. [Microservices](#microservices)
 4. [Scalability](#scalability)
-5. [Project Structure](#project-structure)
-6. [User Roles](#user-roles)
-7. [Getting Started](#getting-started)
-8. [License](#license)
+5. [Deployment and Orchestration](#deployment-and-orchestration)
+6. [Project Structure](#project-structure)
+7. [User Roles](#user-roles)
+8. [Getting Started](#getting-started)
+9. [License](#license)
 
 ## Overview
 
 CandyHouse provides a platform for users to browse and purchase candies. It supports three user roles: customer, vendor, and admin. Customers can place orders and cancel them, vendors can create and sell candies, and admins have comprehensive control over orders, and statistics with respect to sales and trends.
+
+The system employs a microservices architecture in which the store UI, built with Next.js, communicates with dedicated services (order-service, product-service, and user-service) through configurable base URLs. Each service is containerized and interacts via RESTful APIs and Kafka-driven event updates, ensuring cohesive and scalable integration.
 
 ## Architecture
 
@@ -28,6 +31,7 @@ The microservices communicate via Kafka, ensuring efficient and real-time update
 - **Microservices:** User, Product, and Order services, dockerized.
 - **Databases:** MongoDB databases associated with each microservice.
 - **Kafka:** Facilitates communication between microservices.
+- **Kubernetes:** Deployed using Helm charts for orchestration, ensuring seamless scalability, load balancing, and service discovery.
 
 ## Microservices
 Candyhouse adopts a microservices architecture, dividing the application into distinct, independent services that communicate through APIs. This approach promotes modularity, enabling independent development and deployment of each service.
@@ -51,6 +55,9 @@ Candyhouse adopts a microservices architecture, dividing the application into di
 
 CandyHouse is designed with scalability in mind. The microservices architecture allows for independent scaling of different components based on demand. Dockerization ensures easy deployment and management of services, making it suitable for handling increased traffic and growing user bases. The use of Kafka enables efficient communication between services, ensuring responsiveness and reliability in real-world scenarios.
 
+## Deployment and Orchestration
+
+CandyHouse leverages modern container orchestration via Kubernetes. Helm charts located in the 'candyhouse/charts' directory manage the deployment of microservices (order-service, product-service, and user-service) and the store UI, ensuring seamless scalability, high availability, and efficient resource management. This orchestration facilitates rolling updates, load balancing, and robust service discovery, enabling the frontend to reliably connect with domain-specific services.
 
 ## Project Structure
 
@@ -59,13 +66,11 @@ CandyHouse is designed with scalability in mind. The microservices architecture 
 3. **product-service:** Microservice performing CRUD operations on candies, dockerized.
 4. **order-service:** Microservice associated with CRUD operations on orders and processing quantity updates, dockerized.
 
-
 ## User Roles
 
 1. **User:** Customers who can place and cancel orders.
 2. **Vendor:** Users who create and sell candies on the platform.
 3. **Admin:** Users with CRUD capabilities on orders, managing orders as a whole.
-
 
 ## Getting Started
 
@@ -78,6 +83,14 @@ To run CandyHouse locally, follow these steps:
 
 ## Technologies used
 
+CandyHouse employs a variety of modern tools and technologies that underpin its architecture and facilitate robust, scalable development and deployment:
+
+- **Frontend:** Next.js, Chakra UI, and React Query, providing a responsive and dynamic user interface.
+- **Backend Microservices:** Node.js with TypeScript, Dockerized for isolated and scalable service deployment.
+- **Database:** MongoDB, with dedicated databases for each microservice to maintain data integrity.
+- **Communication:** Apache Kafka for efficient, real-time inter-service messaging.
+- **Orchestration:** Kubernetes managed via Helm charts, enabling seamless scaling, load balancing, and high availability.
+- **Code Quality & Testing:** ESLint, Prettier, Husky for pre-commit hooks, and Jest for testing.
 
 ## License
 
