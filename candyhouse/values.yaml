@@ -214,4 +214,26 @@ kafkaUI:
       memory: 128Mi
     limits:
       cpu: 250m
-      memory: 256Mi 
+      memory: 256Mi
+
+# Ingress configuration
+ingress:
+  enabled: true
+  host: "example.com"
+  paths:
+    userService: /user-service
+    orderService: /order-service
+    productService: /product-service
+    storeUI: /store-ui
+
+# Ingress Controller configuration
+ingressController:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: k8s.gcr.io/ingress-nginx/controller
+    tag: "v1.8.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: LoadBalancer
+    port: 80 
