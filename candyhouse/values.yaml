@@ -237,3 +237,32 @@ ingressController:
   service:
     type: LoadBalancer
     port: 80 
+  
+# Logging Configuration
+# This configuration disables both logging-related Elasticsearch features
+# by setting enabled: false under the elasticsearch section
+logging:
+  enabled: true
+  elasticsearch:
+    enabled: false
+  # elasticsearch:
+  #   host: elasticsearch-service
+  #   port: 9200
+  # kibana:
+  #   host: kibana-service
+  #   port: 5601
+  # filebeat:
+  #   enabled: true
+  #   image:
+  #     repository: elastic/filebeat
+  #     tag: 8.11.0
+  #     pullPolicy: IfNotPresent
+  #   resources:
+  #     requests:
+  #       cpu: 100m
+  #       memory: 128Mi
+
+# Added logging configuration for subchart
+debug:
+  enabled: false
+

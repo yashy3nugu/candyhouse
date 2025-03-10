@@ -1,0 +1,5 @@
+apiVersion: v2
+name: logging
+description: A Helm subchart for centralized logging using the ELK stack.
+version: 0.1.0
+appVersion: "7.10.0" 

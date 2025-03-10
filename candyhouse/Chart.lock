@@ -1,0 +1,6 @@
+dependencies:
+- name: logging
+  repository: file://charts/logging
+  version: 0.1.0
+digest: sha256:57eecdfd15b905ba530da191ec6537baa53427ea5c0a6de47dad3c30df6537fa
+generated: "2025-03-09T23:48:00.6889-07:00"
