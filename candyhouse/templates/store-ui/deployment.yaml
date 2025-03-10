@@ -25,22 +25,22 @@ spec:
         - name: NODE_ENV
           value: {{ .Values.global.environment }}
         - name: USER_SERVICE_BASE_URL
-          value: "http://{{ .Values.userService.name }}"
+          value: "http://candyhouse.com/user-service"
         - name: PRODUCT_SERVICE_BASE_URL
-          value: "http://{{ .Values.productService.name }}"
+          value: "http://candyhouse.com/product-service"
         - name: ORDER_SERVICE_BASE_URL
-          value: "http://{{ .Values.orderService.name }}"
+          value: "http://candyhouse.com/order-service"
         resources:
           {{- toYaml .Values.storeUI.resources | nindent 10 }}
         livenessProbe:
           httpGet:
-            path: /health
+            path: /
             port: {{ .Values.storeUI.service.targetPort }}
           initialDelaySeconds: 15
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /health
+            path: /
             port: {{ .Values.storeUI.service.targetPort }}
           initialDelaySeconds: 5
           periodSeconds: 10 

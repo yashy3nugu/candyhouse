@@ -219,7 +219,7 @@ kafkaUI:
 # Ingress configuration
 ingress:
   enabled: true
-  host: "example.com"
+  host: "candyhouse.com"
   paths:
     userService: "/user-service(/|$)(.*)$"
     orderService: "/order-service(/|$)(.*)$"
