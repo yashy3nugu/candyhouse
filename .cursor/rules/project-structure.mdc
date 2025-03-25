@@ -1,0 +1,84 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# CandyHouse Project Structure
+
+## Project Overview
+CandyHouse is a microservices-based e-commerce application for candy shopping, built with modern technologies and best practices.
+
+## Core Components
+
+### Frontend (@store-ui)
+- Next.js application with TypeScript
+- Uses Chakra UI for components
+- React Query for data fetching
+- Located in `store-ui/` directory
+- Key files:
+  - `src/` - Main application code
+  - `public/` - Static assets
+  - `Dockerfile` and `Dockerfile.dev` - Container configurations
+  - `next.config.mjs` - Next.js configuration
+
+### Microservices
+1. **User Service** (@user-service)
+   - Authentication and user management
+   - JWT token handling
+   - User roles and permissions
+
+2. **Product Service** (@product-service)
+   - Candy CRUD operations
+   - Inventory management
+   - Product catalog
+
+3. **Order Service** (@order-service)
+   - Order processing
+   - Status management
+   - Integration with product service via Kafka
+
+### Infrastructure
+- **Kafka** (@kafka)
+  - Message broker for inter-service communication
+  - Event-driven architecture
+
+- **Kubernetes** (@candyhouse)
+  - Container orchestration using Helm charts
+  - Repository Structure:
+    - `charts/` - Contains packaged Helm charts
+      - `logging/` - Logging infrastructure (ELK Stack, Fluentd)
+    - `templates/` - Kubernetes resource templates
+      - `store-ui/` - Frontend deployment templates
+      - `user-service/` - User service deployment templates
+      - `product-service/` - Product service deployment templates
+      - `order-service/` - Order service deployment templates
+      - `kafka/` - Kafka cluster deployment templates
+      - `hooks/` - Pre/post-install hooks
+      - `ingress.yaml` - Ingress configuration
+      - `ingress-controller.yaml` - NGINX ingress controller setup
+    - `values.yaml` - Default configuration values used across all the repository. Every value being used within yaml files might have the value stored here and is being referred as .values.* . So it is crucial to update all those references here.
+    - `Chart.yaml` - Chart metadata and dependencies
+    - `Chart.lock` - Locked chart dependencies
+  - To run using helm from root repository use the command helm install candyhouse ./candyhouse -f secrets.yaml (it wont build without the values in secrets)
+## Key Relationships
+- Frontend communicates with all microservices via REST APIs
+- Microservices communicate via Kafka events
+- Each service has its own MongoDB database
+- Services are containerized and deployed on Kubernetes
+
+## Development Guidelines
+- TypeScript is used across all services
+- Docker is used for containerization
+- ESLint and Prettier for code formatting
+- Jest for testing
+- Husky for pre-commit hooks
+
+## Environment Setup
+- Each service has its own `.env` configuration
+- Docker Compose for local development
+- Kubernetes for production deployment
+
+## Important Files
+- `storageclass.yaml` - Kubernetes storage configuration
+- `.cursorignore` - Cursor-specific ignore rules
+- `.github/` - CI/CD and GitHub workflows
