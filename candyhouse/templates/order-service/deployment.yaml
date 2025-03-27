@@ -21,7 +21,6 @@ spec:
         imagePullPolicy: {{ .Values.orderService.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.orderService.service.targetPort }}
-          hostPort: {{ .Values.orderService.service.targetPort }}
         env:
         - name: NODE_ENV
           value: {{ .Values.global.environment }}

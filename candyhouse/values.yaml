@@ -246,41 +246,83 @@ elasticsearch:
   master:
     resources:
       requests:
-        cpu: "100m"
-        memory: "256Mi"
+        cpu: "500m"
+        memory: "1Gi"
       limits:
-        cpu: "1000m"
-        memory: "256Mi"
+        cpu: "2000m"
+        memory: "2Gi"
     persistence:
       enabled: true
-      existingClaim: "elasticsearch-pvc"
+      size: 10Gi
+      storageClass: "standard-rwo"
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    extraEnvs:
+      - name: bootstrap.memory_lock
+        value: "false"
+      - name: ES_JAVA_OPTS
+        value: "-Xms512m -Xmx512m"
+      - name: discovery.type
+        value: "single-node"
+      - name: cluster.initial_master_nodes
+        value: ""
   data:
     resources:
       requests:
-        cpu: "100m"
-        memory: "256Mi"
+        cpu: "500m"
+        memory: "1Gi"
       limits:
-        cpu: "1000m"
-        memory: "256Mi"
+        cpu: "2000m"
+        memory: "2Gi"
     persistence:
       enabled: true
-      existingClaim: "elasticsearch-pvc"
+      size: 10Gi
+      storageClass: "standard-rwo"
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    extraEnvs:
+      - name: bootstrap.memory_lock
+        value: "false"
+      - name: ES_JAVA_OPTS
+        value: "-Xms512m -Xmx512m"
+      - name: discovery.type
+        value: "single-node"
+      - name: cluster.initial_master_nodes
+        value: ""
   coordinator:
     resources:
       requests:
-        cpu: "100m"
-        memory: "256Mi"
+        cpu: "500m"
+        memory: "1Gi"
       limits:
-        cpu: "1000m"
-        memory: "256Mi"
+        cpu: "2000m"
+        memory: "2Gi"
     persistence:
       enabled: true
-      existingClaim: "elasticsearch-pvc"
+      size: 10Gi
+      storageClass: "standard-rwo"
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    extraEnvs:
+      - name: bootstrap.memory_lock
+        value: "false"
+      - name: ES_JAVA_OPTS
+        value: "-Xms512m -Xmx512m"
+      - name: discovery.type
+        value: "single-node"
+      - name: cluster.initial_master_nodes
+        value: ""
 
 kibana:
   enabled: true
   service:
-    type: ClusterIP
+    type: LoadBalancer
 
 logstash:
   enabled: true
