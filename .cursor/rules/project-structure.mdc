@@ -44,6 +44,7 @@ CandyHouse is a microservices-based e-commerce application for candy shopping, b
 
 - **Kubernetes** (@candyhouse)
   - Container orchestration using Helm charts
+  - Being run locally in a minikube cluster
   - Repository Structure:
     - `charts/` - Contains packaged Helm charts
       - `logging/` - Logging infrastructure (ELK Stack, Fluentd)

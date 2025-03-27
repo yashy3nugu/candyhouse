@@ -1,6 +1,12 @@
 dependencies:
-- name: logging
-  repository: file://charts/logging
-  version: 0.1.0
-digest: sha256:57eecdfd15b905ba530da191ec6537baa53427ea5c0a6de47dad3c30df6537fa
-generated: "2025-03-09T23:48:00.6889-07:00"
+- name: elasticsearch
+  repository: https://helm.elastic.co
+  version: 7.17.3
+- name: kibana
+  repository: https://helm.elastic.co
+  version: 7.17.3
+- name: logstash
+  repository: https://helm.elastic.co
+  version: 7.17.3
+digest: sha256:d27b2278bce154d123054b80e1b06fad6d0b9df6e8919b20bff502be14a3dffa
+generated: "2025-03-25T21:28:40.2158106-07:00"

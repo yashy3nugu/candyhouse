@@ -239,28 +239,54 @@ ingressController:
     port: 80 
   
 # Logging Configuration
-# This configuration disables both logging-related Elasticsearch features
-# by setting enabled: false under the elasticsearch section
-logging:
+elasticsearch:
   enabled: true
-  elasticsearch:
-    enabled: false
-  # elasticsearch:
-  #   host: elasticsearch-service
-  #   port: 9200
-  # kibana:
-  #   host: kibana-service
-  #   port: 5601
-  # filebeat:
-  #   enabled: true
-  #   image:
-  #     repository: elastic/filebeat
-  #     tag: 8.11.0
-  #     pullPolicy: IfNotPresent
-  #   resources:
-  #     requests:
-  #       cpu: 100m
-  #       memory: 128Mi
+  replicas: 1
+  minimumMasterNodes: 1
+  master:
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "1000m"
+        memory: "256Mi"
+    persistence:
+      enabled: true
+      existingClaim: "elasticsearch-pvc"
+  data:
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "1000m"
+        memory: "256Mi"
+    persistence:
+      enabled: true
+      existingClaim: "elasticsearch-pvc"
+  coordinator:
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "1000m"
+        memory: "256Mi"
+    persistence:
+      enabled: true
+      existingClaim: "elasticsearch-pvc"
+
+kibana:
+  enabled: true
+  service:
+    type: ClusterIP
+
+logstash:
+  enabled: true
+  logstashConfig:
+    logstash.yml: |
+      http.host: "0.0.0.0"
 
 # Added logging configuration for subchart
 debug:
