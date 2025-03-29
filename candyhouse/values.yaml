@@ -239,177 +239,177 @@ ingressController:
     port: 80 
   
 # Logging Configuration
-elasticsearch:
-  enabled: true
-  replicas: 1
-  minimumMasterNodes: 1
-  master:
-    resources:
-      requests:
-        cpu: "500m"
-        memory: "1Gi"
-      limits:
-        cpu: "2000m"
-        memory: "2Gi"
-    persistence:
-      enabled: true
-      size: 10Gi
-      storageClass: "standard-rwo"
-    securityContext:
-      runAsUser: 1000
-      runAsGroup: 1000
-      fsGroup: 1000
-    extraEnvs:
-      - name: bootstrap.memory_lock
-        value: "false"
-      - name: ES_JAVA_OPTS
-        value: "-Xms512m -Xmx512m"
-      - name: discovery.type
-        value: "single-node"
-      - name: cluster.initial_master_nodes
-        value: ""
-  data:
-    resources:
-      requests:
-        cpu: "500m"
-        memory: "1Gi"
-      limits:
-        cpu: "2000m"
-        memory: "2Gi"
-    persistence:
-      enabled: true
-      size: 10Gi
-      storageClass: "standard-rwo"
-    securityContext:
-      runAsUser: 1000
-      runAsGroup: 1000
-      fsGroup: 1000
-    extraEnvs:
-      - name: bootstrap.memory_lock
-        value: "false"
-      - name: ES_JAVA_OPTS
-        value: "-Xms512m -Xmx512m"
-      - name: discovery.type
-        value: "single-node"
-      - name: cluster.initial_master_nodes
-        value: ""
-  coordinator:
-    resources:
-      requests:
-        cpu: "500m"
-        memory: "1Gi"
-      limits:
-        cpu: "2000m"
-        memory: "2Gi"
-    persistence:
-      enabled: true
-      size: 10Gi
-      storageClass: "standard-rwo"
-    securityContext:
-      runAsUser: 1000
-      runAsGroup: 1000
-      fsGroup: 1000
-    extraEnvs:
-      - name: bootstrap.memory_lock
-        value: "false"
-      - name: ES_JAVA_OPTS
-        value: "-Xms512m -Xmx512m"
-      - name: discovery.type
-        value: "single-node"
-      - name: cluster.initial_master_nodes
-        value: ""
+# elasticsearch:
+#   enabled: true
+#   replicas: 1
+#   minimumMasterNodes: 1
+#   master:
+#     resources:
+#       requests:
+#         cpu: "500m"
+#         memory: "1Gi"
+#       limits:
+#         cpu: "2000m"
+#         memory: "2Gi"
+#     persistence:
+#       enabled: true
+#       size: 10Gi
+#       storageClass: "standard-rwo"
+#     securityContext:
+#       runAsUser: 1000
+#       runAsGroup: 1000
+#       fsGroup: 1000
+#     extraEnvs:
+#       - name: bootstrap.memory_lock
+#         value: "false"
+#       - name: ES_JAVA_OPTS
+#         value: "-Xms512m -Xmx512m"
+#       - name: discovery.type
+#         value: "single-node"
+#       - name: cluster.initial_master_nodes
+#         value: ""
+#   data:
+#     resources:
+#       requests:
+#         cpu: "500m"
+#         memory: "1Gi"
+#       limits:
+#         cpu: "2000m"
+#         memory: "2Gi"
+#     persistence:
+#       enabled: true
+#       size: 10Gi
+#       storageClass: "standard-rwo"
+#     securityContext:
+#       runAsUser: 1000
+#       runAsGroup: 1000
+#       fsGroup: 1000
+#     extraEnvs:
+#       - name: bootstrap.memory_lock
+#         value: "false"
+#       - name: ES_JAVA_OPTS
+#         value: "-Xms512m -Xmx512m"
+#       - name: discovery.type
+#         value: "single-node"
+#       - name: cluster.initial_master_nodes
+#         value: ""
+#   coordinator:
+#     resources:
+#       requests:
+#         cpu: "500m"
+#         memory: "1Gi"
+#       limits:
+#         cpu: "2000m"
+#         memory: "2Gi"
+#     persistence:
+#       enabled: true
+#       size: 10Gi
+#       storageClass: "standard-rwo"
+#     securityContext:
+#       runAsUser: 1000
+#       runAsGroup: 1000
+#       fsGroup: 1000
+#     extraEnvs:
+#       - name: bootstrap.memory_lock
+#         value: "false"
+#       - name: ES_JAVA_OPTS
+#         value: "-Xms512m -Xmx512m"
+#       - name: discovery.type
+#         value: "single-node"
+#       - name: cluster.initial_master_nodes
+#         value: ""
 
-kibana:
-  enabled: true
-  service:
-    type: LoadBalancer
+# kibana:
+#   enabled: true
+#   service:
+#     type: LoadBalancer
 
-logstash:
-  enabled: true
-  logstashConfig:
-    logstash.yml: |
-      http.host: "0.0.0.0"
-  service:
-    annotations: {}
-    type: ClusterIP
-    loadBalancerIP: ""
-    ports:
-      - name: beats
-        port: 5044
-        protocol: TCP
-        targetPort: 5044
-      - name: http
-        port: 8080
-        protocol: TCP
-        targetPort: 8080
-  pipelines:
-    redirect-nodes:
-      config: |
-        input {
-          beats { port => 5044 }
-        }
-        # filter {
-        #   if [fields][service] in ["order-service", "product-service", "user-service", "store-ui"] {
-        #     mutate { add_field => { "index" => "%{[fields][service]}-logs" } }
-        #   }
-        # }
-        output {
-          elasticsearch {
-            hosts => ["http://elasticsearch-master:9200"]
-            user => ${ELASTICSEARCH_USERNAME}
-            password => ${ELASTICSEARCH_PASSWORD}
-            cacert => '/usr/share/logstash/config/certs/ca.crt'
-            index => "test"
-          }
-          stdout { codec => rubydebug }
-        }
+# logstash:
+#   enabled: true
+#   logstashConfig:
+#     logstash.yml: |
+#       http.host: "0.0.0.0"
+#   service:
+#     annotations: {}
+#     type: ClusterIP
+#     loadBalancerIP: ""
+#     ports:
+#       - name: beats
+#         port: 5044
+#         protocol: TCP
+#         targetPort: 5044
+#       - name: http
+#         port: 8080
+#         protocol: TCP
+#         targetPort: 8080
+#   pipelines:
+#     redirect-nodes:
+#       config: |
+#         input {
+#           beats { port => 5044 }
+#         }
+#         # filter {
+#         #   if [fields][service] in ["order-service", "product-service", "user-service", "store-ui"] {
+#         #     mutate { add_field => { "index" => "%{[fields][service]}-logs" } }
+#         #   }
+#         # }
+#         output {
+#           elasticsearch {
+#             hosts => ["http://elasticsearch-master:9200"]
+#             user => ${ELASTICSEARCH_USERNAME}
+#             password => ${ELASTICSEARCH_PASSWORD}
+#             # cacert => '/usr/share/logstash/config/certs/ca.crt'
+#             # index => "test"
+#           }
+#           stdout { codec => rubydebug }
+#         }
       
-      extraEnvs:
-      - name: "ELASTICSEARCH_USERNAME"
-        valueFrom:
-          secretKeyRef:
-            name: elasticsearch-master-credentials
-            key: username
-      - name: "ELASTICSEARCH_PASSWORD"
-        valueFrom:
-          secretKeyRef:
-            name: elasticsearch-master-credentials
-            key: password
-  secretMounts:
-    - name: elasticsearch-master-certs
-      secretName: elasticsearch-master-certs
-      path: /usr/share/logstash/config/certs
+#       extraEnvs:
+#       - name: "ELASTICSEARCH_USERNAME"
+#         valueFrom:
+#           secretKeyRef:
+#             name: elasticsearch-master-credentials
+#             key: username
+#       - name: "ELASTICSEARCH_PASSWORD"
+#         valueFrom:
+#           secretKeyRef:
+#             name: elasticsearch-master-credentials
+#             key: password
+#   secretMounts:
+#     - name: elasticsearch-master-certs
+#       secretName: elasticsearch-master-certs
+#       path: /usr/share/logstash/config/certs
 
-# Added logging configuration for subchart
-debug:
-  enabled: false
+# # Added logging configuration for subchart
+# debug:
+#   enabled: false
 
-# Filebeat configuration to collect container logs and forward them to Logstash
-filebeat:
-  enabled: true
-  extraVolumes:
-    - name: varlogpods
-      hostPath:
-        path: /var/log/pods
-        type: DirectoryOrCreate
-  extraVolumeMounts:
-    - name: varlogpods
-      mountPath: /var/log/pods
-      readOnly: true
-  filebeatConfig:
-    filebeat.yml: |
-      filebeat.inputs:
-      - type: container
-        paths:
-          - /var/log/pods/*/*/*.log
-        processors:
-        # - add_kubernetes_metadata:
-        #     host: ${NODE_NAME}
-        #     in_cluster: true
-        #     matchers:
-        #       - logs_path:
-        #           logs_path:
-        #             - "/var/log/pods/"
-      output.logstash:
-        hosts: ["candyhouse-logstash-headless:5044"]
+# # Filebeat configuration to collect container logs and forward them to Logstash
+# filebeat:
+#   enabled: true
+#   extraVolumes:
+#     - name: varlogpods
+#       hostPath:
+#         path: /var/log/pods
+#         type: DirectoryOrCreate
+#   extraVolumeMounts:
+#     - name: varlogpods
+#       mountPath: /var/log/pods
+#       readOnly: true
+#   filebeatConfig:
+#     filebeat.yml: |
+#       filebeat.inputs:
+#       - type: container
+#         paths:
+#           - /var/log/pods/*/*/*.log
+#         processors:
+#         # - add_kubernetes_metadata:
+#         #     host: ${NODE_NAME}
+#         #     in_cluster: true
+#         #     matchers:
+#         #       - logs_path:
+#         #           logs_path:
+#         #             - "/var/log/pods/"
+#       output.logstash:
+#         hosts: ["candyhouse-logstash-headless:5044"]
 
