@@ -375,11 +375,10 @@ logstash:
           secretKeyRef:
             name: elasticsearch-master-credentials
             key: password
-
-secretMounts:
-  - name: elasticsearch-master-certs
-    secretName: elasticsearch-master-certs
-    path: /usr/share/logstash/config/certs
+  secretMounts:
+    - name: elasticsearch-master-certs
+      secretName: elasticsearch-master-certs
+      path: /usr/share/logstash/config/certs
 
 # Added logging configuration for subchart
 debug:
