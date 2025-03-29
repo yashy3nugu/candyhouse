@@ -413,3 +413,36 @@ ingressController:
 #       output.logstash:
 #         hosts: ["candyhouse-logstash-headless:5044"]
 
+# Redis configuration for Bitnami Redis with Sentinel and Replication
+redis:
+  # in memory only
+  configMap: |
+    save ""
+    appendonly no
+  architecture: replication  # Set to 'replication' for master-slave replication
+  master:
+    persistence:
+      enabled: false        # Disable PVC creation for master
+  replica:
+    replicaCount: 2         # Number of replicas to create for Redis
+    persistence:
+      enabled: false        # Disable PVC creation for replica
+  sentinel:
+    enabled: true           # Enable Redis Sentinel for high availability and automatic failover
+    masterSet: mymaster     # The name of the Redis master set
+    replicas: 2             # Number of replica nodes
+    quorum: 2               # Minimum number of Sentinels that need to agree for failover
+    sentinels:
+      - "10.0.0.1"        # Example Sentinel 1
+      - "10.0.0.2"        # Example Sentinel 2
+  auth:
+    enabled: true           # Enable Redis authentication
+    password: "your-redis-password"  # Set the password for Redis instance
+  resources:
+    limits:
+      cpu: "1"
+      memory: "64Mi"      # Set memory limit to 64MB for each Redis instance
+    requests:
+      cpu: "500m"
+      memory: "64Mi"      # Set memory request to 64MB for each Redis instance
+
