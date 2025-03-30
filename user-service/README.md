@@ -11,6 +11,28 @@ Microservice responsible for user management in the Candyhouse E-commerce App.
   - [/login](#login)
   - [/verify](#verify)
 
+## Development Setup Using Docker
+
+### Prerequisites:
+- Ensure Docker is installed and running.
+- Create a `.env` file in this directory with the following environment variables:
+  - MONGO_URI: MongoDB connection string for user-service.
+  - JWT_SECRET: JWT secret for authentication (if applicable).
+  - (Optional: NODE_ENV, PORT, and any additional variables as needed.)
+
+### Steps:
+1. Build the Docker image:
+   ```bash
+   docker build -t user-service .
+   ```
+2. Run the container:
+   ```bash
+   docker run --env-file .env -p 7000:7000 user-service
+   ```
+3. Access the service at [http://localhost:7000](http://localhost:7000).
+
+---
+
 ## Introduction
 
 This API handles user-related functionalities within the E-commerce application. It supports operations such as user registration, login, and user verification.

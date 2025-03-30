@@ -13,6 +13,27 @@ Microservice used for processing of orders in the candy house API
   - [/order/{id}/cancel](#orderidcancel)
   - [/bank](#bank)
 
+## Development Setup Using Docker
+
+**Prerequisites:**
+- Docker must be installed and running.
+- Create a `.env` file in this directory with the following environment variables:
+  - MONGO_URI: MongoDB connection string for order-service.
+  - PAYMENT_GATEWAY_KEY: Payment gateway secret.
+  - REDIS_PASSWORD: Redis password.
+  - (Add additional secrets if necessary.)
+
+**Steps:**
+1. Build the Docker image:
+   ```bash
+   docker build -t order-service .
+   ```
+2. Run the container:
+   ```bash
+   docker run --env-file .env -p 7000:7000 order-service
+   ```
+3. Verify the service is running by accessing [http://localhost:7000](http://localhost:7000).
+
 ## Introduction
 
 This API provides functionalities related to managing orders within the E-commerce application. It supports operations such as retrieving paginated orders, creating new orders, updating order details, and more.

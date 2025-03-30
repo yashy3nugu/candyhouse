@@ -15,6 +15,32 @@ This repository contains the source code for the Order Service API, a microservi
 - [Swagger Documentation](#swagger-documentation)
 - [Caching Strategy for Candies](#caching-strategy-for-candies)
 
+## Development Setup Using Docker
+
+### Prerequisites:
+- Ensure Docker is installed and running.
+- Create a `.env` file in this directory with the following environment variables:
+  - MONGO_URI: MongoDB connection string for product-service.
+  - KAFKA_URL: Kafka broker URL (e.g., candyhouse-kafka:9092 or your local Kafka URL).
+  - CLOUDINARY_CLOUD_NAME: Your Cloudinary cloud name.
+  - CLOUDINARY_API_KEY: Your Cloudinary API key.
+  - CLOUDINARY_API_SECRET: Your Cloudinary API secret.
+  - CLOUDINARY_FOLDER_NAME: Cloudinary folder name (default: candyhouse).
+  - (Optional: NODE_ENV, PORT, LOG_FORMAT, LOG_DIR, ORIGIN)
+
+### Steps:
+1. Build the Docker image:
+   ```bash
+   docker build -t product-service .
+   ```
+2. Run the container:
+   ```bash
+   docker run --env-file .env -p 4000:4000 product-service
+   ```
+3. Access the service at [http://localhost:4000](http://localhost:4000).
+
+---
+
 ## Introduction
 
 This API provides functionalities related to managing orders within the E-commerce application. It supports operations such as retrieving paginated orders, creating new orders, updating order details, and more.
