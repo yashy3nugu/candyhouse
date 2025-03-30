@@ -76,7 +76,3 @@ spec:
             port: {{ .Values.productService.service.targetPort }}
           initialDelaySeconds: 5
           periodSeconds: 10
-      volumes:
-      - name: logs-volume
-        persistentVolumeClaim:
-          claimName: {{ .Values.productService.name }}-logs-pvc 
