@@ -7,6 +7,7 @@ import { HttpException } from '@/exceptions/HttpException';
 import { v4 as uuidv4 } from 'uuid';
 import { producer } from '@/lib/kafka';
 import { UserModel } from '@/models/user.model';
+import { getCache, setCache } from '@/utils/redis';
 
 export class CandyController {
   public all = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -44,9 +45,17 @@ export class CandyController {
   public oneById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id }: z.infer<typeof candyByIdSchema> = req.params;
-
+      const cacheKey = `candy:${id}`;
+      const cachedCandy = await getCache(cacheKey);
+      if (cachedCandy) {
+        res.send(cachedCandy);
+        return;
+      }
       const candy = await CandyModel.findOne({ _id: id });
-
+      if (candy) {
+        // Cache the candy for 1 hour (3600 seconds)
+        await setCache(cacheKey, candy, 3600);
+      }
       res.send(candy);
     } catch (error) {
       next(error);
@@ -81,6 +90,9 @@ export class CandyController {
         photo,
       });
 
+      if (candy) {
+        await setCache(`candy:${id}`, candy, 3600);
+      }
       res.send(candy);
     } catch (error) {
       next(error);
@@ -148,3 +160,4 @@ export class CandyController {
     }
   };
 }
+
