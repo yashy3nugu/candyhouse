@@ -7,7 +7,7 @@ import { HttpException } from '@/exceptions/HttpException';
 import { v4 as uuidv4 } from 'uuid';
 import { producer } from '@/lib/kafka';
 import { UserModel } from '@/models/user.model';
-import { getCache, setCache } from '@/utils/redis';
+import { getCache, setCache, incrementCacheCounter } from '@/utils/redis';
 
 export class CandyController {
   public all = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -46,13 +46,21 @@ export class CandyController {
     try {
       const { id }: z.infer<typeof candyByIdSchema> = req.params;
       const cacheKey = `candy:${id}`;
+      const counterKey = `candy:counter:${id}`;
       const cachedCandy = await getCache(cacheKey);
       if (cachedCandy) {
         res.send(cachedCandy);
         return;
       }
       const candy = await CandyModel.findOne({ _id: id });
-      if (candy) {
+      if (!candy) {
+        res.status(404).send({ message: 'Candy not found' });
+        return;
+      }
+      // Increment the access counter with a TTL of 1 day (86400 seconds)
+      const accessCount = await incrementCacheCounter(counterKey, 86400);
+      const frequentAccessThreshold = 5; // Configurable threshold
+      if (accessCount >= frequentAccessThreshold) {
         // Cache the candy for 1 hour (3600 seconds)
         await setCache(cacheKey, candy, 3600);
       }

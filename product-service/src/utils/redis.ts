@@ -27,6 +27,8 @@ export const connectRedis = async () => {
   try {
     await redisClient.connect();
     console.log('Connected to Redis');
+    await redisClient.configSet('maxmemory-policy', 'allkeys-lru');
+    console.log('Configured Redis eviction policy to allkeys-lru');
   } catch (error) {
     console.error('Error connecting to Redis:', error);
     throw error;
@@ -65,5 +67,18 @@ export const deleteCache = async (key: string) => {
   } catch (error) {
     console.error('Error deleting cache:', error);
     return false;
+  }
+};
+
+export const incrementCacheCounter = async (key: string, ttl?: number): Promise<number> => {
+  try {
+    const newCount = await redisClient.incr(key);
+    if (ttl) {
+      await redisClient.expire(key, ttl);
+    }
+    return newCount;
+  } catch (error) {
+    console.error('Error incrementing cache counter:', error);
+    return 0;
   }
 }; 

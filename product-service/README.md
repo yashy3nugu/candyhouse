@@ -13,6 +13,7 @@ This repository contains the source code for the Order Service API, a microservi
   - [/order/{id}/cancel](#orderidcancel)
   - [/bank](#bank)
 - [Swagger Documentation](#swagger-documentation)
+- [Caching Strategy for Candies](#caching-strategy-for-candies)
 
 ## Introduction
 
@@ -295,3 +296,15 @@ The API uses Bearer Token Authentication. Include a valid access token in the Au
 ## Swagger Documentation
 
 For detailed API documentation, refer to the [Swagger Documentation](swagger.yaml) provided in this repository. The Swagger documentation includes examples and details for each endpoint, making it easy to understand and integrate with the Order Service API.
+
+## Caching Strategy for Candies
+
+To improve performance for frequently accessed candy details, we use a cache-aside (lazy loading) pattern combined with an access frequency check. 
+
+- When a candy is requested, the service first attempts to retrieve it from Redis using the key `candy:<id>`.
+- If the candy is found in cache, it is returned immediately.
+- If not, the service fetches the candy from MongoDB and increments an access counter stored in Redis (with a TTL of 1 day).
+- Once the access counter exceeds a predefined threshold (e.g., 5), the candy is cached in Redis with a TTL of 3600 seconds.
+- Redis is configured with the eviction policy `allkeys-lru` so that less frequently accessed or expired candies are automatically removed when memory is low.
+
+This strategy ensures that only frequently accessed candies are cached, balancing performance and memory usage.
