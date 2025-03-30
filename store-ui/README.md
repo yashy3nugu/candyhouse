@@ -30,7 +30,7 @@ Create a `.env` file in the root of the project and add the following content:
 ```env
 USER_SERVICE_BASE_URL="http://localhost:7000"
 PRODUCT_SERVICE_BASE_URL="http://localhost:4000"
-PRODUCT_SERVICE_BASE_URL="http://localhost:5000"
+ORDER_SERVICE_BASE_URL="http://localhost:5000"
 ```
 
 #### 4. Run the Docker Container (Development)
