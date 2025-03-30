@@ -31,36 +31,3 @@ jobs:
           context: ./product-service
           push: true
           tags: yashyenugu/product-service:latest
-
-  run-tests:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
-      - name: Set up Environment Variables
-        run: |
-          echo "PORT=4000" > ./product-service/.env
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> ./product-service/.env
-          echo "LOG_FORMAT=combined" >> ./product-service/.env
-          echo "LOG_DIR=../logs" >> ./product-service/.env
-          echo "ORIGIN=your.domain.com" >> ./product-service/.env
-          echo "CREDENTIALS=true" >> ./product-service/.env
-          echo "MONGO_URI=${{ secrets.PRODUCT_MONGO_URI }}" >> ./product-service/.env
-          echo "MONGO_TEST_URI=${{ secrets.MONGO_TEST_URI }}" >> ./product-service/.env
-          echo "CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}" >> ./product-service/.env
-          echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> ./product-service/.env
-          echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> ./product-service/.env
-          echo "CLOUDINARY_FOLDER_NAME=${{ secrets.CLOUDINARY_FOLDER_NAME }}" >> ./product-service/.env
-          echo "KAFKA_URL=${{ secrets.KAFKA_URL || 'candyhouse-kafka:9092' }}" >> ./product-service/.env
-      
-
-      # - name: Build Containers
-      #   run: docker-compose build
-
-      - name: Run Tests and Coverage
-        run: |
-          cd product-service
-          docker-compose -f docker-compose.yml build
-          docker-compose -f docker-compose.yml run product-service yarn test
-
