@@ -2,53 +2,6 @@
 
 This repository contains the frontend code for the CandyHouse E-Commerce application. The frontend is built with Next.js and is designed to work seamlessly with the accompanying backend services.
 
-## Local Setup
-
-### Prerequisites
-
-1. Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
-
-### Steps
-
-#### 1. Clone the Repository
-
-```bash
-git clone <repository-url>
-cd <repository-directory>
-```
-
-#### 2. Install Dependencies
-
-```bash
-# Using npm
-npm install
-
-# Using yarn
-yarn
-```
-
-#### 3. Set Environment Variables
-
-Create a `.env` file in the root of the project and add the following content:
-
-```env
-USER_SERVICE_BASE_URL="http://localhost:7000"
-PRODUCT_SERVICE_BASE_URL="http://localhost:4000"
-PRODUCT_SERVICE_BASE_URL="http://localhost:5000"
-```
-
-#### 4. Run the Application Locally
-
-```bash
-# Using npm
-npm run dev
-
-# Using yarn
-yarn dev
-```
-
-The application will be accessible at [http://localhost:3000](http://localhost:3000).
-
 ## Docker Setup
 
 ### Prerequisites
