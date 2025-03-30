@@ -42,6 +42,21 @@ spec:
             secretKeyRef:
               name: {{ .Values.secrets.kafka.name }}
               key: url
+        - name: REDIS_HOST
+          value: "candyhouse-redis-master"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.orderService.name }}
+              key: redis-password
+        - name: REDIS_SENTINEL_1
+          value: "candyhouse-redis-sentinel-0.candyhouse-redis-headless"
+        - name: REDIS_SENTINEL_2
+          value: "candyhouse-redis-sentinel-1.candyhouse-redis-headless"
+        - name: REDIS_SENTINEL_PORT
+          value: "26379"
         resources:
           {{- toYaml .Values.orderService.resources | nindent 10 }}
         # livenessProbe:
