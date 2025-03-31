@@ -13,6 +13,7 @@ CandyHouse is a scalable and feature-rich e-commerce application designed for a 
 7. [User Roles](#user-roles)
 8. [Getting Started](#getting-started)
 9. [License](#license)
+10. [UI Gallery](#ui-gallery)
 
 ## Overview
 
@@ -95,3 +96,25 @@ CandyHouse employs a variety of modern tools and technologies that underpin its 
 ## License
 
 This project is licensed under the [MIT License](LICENSE). Feel free to use, modify, and distribute the code for your own projects.
+
+## UI Gallery
+
+Below is a gallery of screenshots demonstrating the UI of CandyHouse:
+
+### Vendor Dashboard
+![Vendor Dashboard](./screenshots/Vendor%20dashboard.png)
+
+### Admin Order Table
+![Admin Order Table](./screenshots/Admin%20Order%20table.png)
+
+### Store
+![Store](./screenshots/Store.png)
+
+### Candy Creation
+![Candy Creation](./screenshots/Candy%20creation.png)
+
+### Cart
+![Cart](./screenshots/Cart.png)
+
+### Home Page
+![Home Page](./screenshots/Home%20Page.png)
