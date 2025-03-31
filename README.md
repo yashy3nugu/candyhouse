@@ -25,7 +25,7 @@ The system employs a microservices architecture in which the store UI, built wit
 
 The microservices communicate via Kafka, ensuring efficient and real-time updates across the application. The MongoDB databases are separated for each microservice, maintaining data integrity.
 
-![Architecture Diagram](architecture_diagram.png)
+![Architecture Diagram](./screenshots/Architecture.png)
 
 *Diagram Description:*
 - **Frontend:** Developed with Next.js, Chakra UI, and React Query, dockerized.
