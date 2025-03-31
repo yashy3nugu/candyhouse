@@ -101,20 +101,20 @@ This project is licensed under the [MIT License](LICENSE). Feel free to use, mod
 
 Below is a gallery of screenshots demonstrating the UI of CandyHouse:
 
+### Home Page
+![Home Page](./screenshots/Home%20Page.png)
+
+### Store
+![Store](./screenshots/Store.png)
+
+### Cart
+![Cart](./screenshots/Cart.png)
+
+### Candy Creation
+![Candy Creation](./screenshots/Candy%20creation.png)
+
 ### Vendor Dashboard
 ![Vendor Dashboard](./screenshots/Vendor%20dashboard.png)
 
 ### Admin Order Table
 ![Admin Order Table](./screenshots/Admin%20Order%20table.png)
-
-### Store
-![Store](./screenshots/Store.png)
-
-### Candy Creation
-![Candy Creation](./screenshots/Candy%20creation.png)
-
-### Cart
-![Cart](./screenshots/Cart.png)
-
-### Home Page
-![Home Page](./screenshots/Home%20Page.png)
