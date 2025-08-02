@@ -114,23 +114,17 @@ const Cart: NextPageWithLayout = () => {
 
                 {!isUserLoading && loginData && (
                   <Formik
-                    validate={({ address, bank }) => {
-                      const errors: { address?: string; bank?: string } = {};
-                      if (bank === "") {
-                        errors.bank = "Payment Bank required";
-                      }
+                    validate={({ address }) => {
+                      const errors: { address?: string } = {};
                       if (address === "") {
                         errors.address = "Address Required";
                       }
                       return errors;
                     }}
                     initialValues={{
-                      code: "",
-                      bank: "",
                       address: "",
-                      coins: 0,
                     }}
-                    onSubmit={({ address, bank, coins }) => {
+                    onSubmit={({ address }) => {
                       const items = [] as OrderDataItem[];
 
                       cartItems.forEach(
@@ -158,101 +152,13 @@ const Cart: NextPageWithLayout = () => {
                       createOrder({
                         items,
                         address,
-                        bank,
-                        code: undefined,
-                        coinsToRedeem: Number(coins),
                       });
                     }}
                   >
                     {({  isSubmitting, isValid, dirty }) => (
                       <Form>
                         <VStack alignItems="start" mt={4}>
-                          {true && (
-                            <SelectControl
-                              label="Select Bank"
-                              name="bank"
-                              selectProps={{ placeholder: "Select Bank" }}
-                            >
-                              {!isBanksLoading &&
-                                data?.banks.map((bank, i) => (
-                                  <option key={i} value={bank._id}>
-                                    {bank.name}
-                                  </option>
-                                ))}
-                            </SelectControl>
-                          )}
-
                           <InputControl name="address" label="Address" />
-
-                          <Flex
-                            mt={4}
-                            w="full"
-                            alignItems="center"
-                            justifyContent="center"
-                          >
-                            {/* <Field
-                              mr={4}
-                              as={Input}
-                              name="code"
-                              placeholder="Coupon"
-                            /> */}
-                            {/* <Button
-                              isDisabled={isCouponValidationLoading || appliedCoupon !== null}
-                              isLoading={isCouponValidationLoading}
-                              onClick={async () => {
-                                try {
-                                  const { coupon } = await validateCoupon(
-                                    values
-                                  );
-                                  // setAppliedCoupon(coupon);
-                                  toast({
-                                    title: "Applied Coupon",
-
-                                    status: "success",
-                                    duration: 9000,
-                                    isClosable: true,
-                                  });
-                                } catch (err) {
-                                  const error = err as any;
-
-                                  toast({
-                                    title: "Cannot Apply Coupon",
-                                    description: error.shape.message,
-                                    status: "error",
-                                    duration: 9000,
-                                    isClosable: true,
-                                  });
-                                }
-                              }}
-                              type="button"
-                            >
-                              Apply
-                            </Button> */}
-                          </Flex>
-                          {/* <Flex mt={4} w="full" justifyContent="space-between">
-                            <Text>Available coins</Text>
-                            <Text>{loginData?.user.balance}🪙</Text>
-                          </Flex>
-                          {loginData.user.balance < 100 && (
-                            <Alert mt={2} status="info">
-                              <AlertIcon />
-                              Minimum 100 reward coins required to be claimed
-                            </Alert>
-                          )}
-
-                          {loginData.user.balance > 100 && (
-                            <SelectControl
-                              label="Redeem coins"
-                              name="coins"
-                              selectProps={{ placeholder: "Select Coins" }}
-                            >
-                              {options.map((value, i) => (
-                                <option key={i} value={value}>
-                                  {value}
-                                </option>
-                              ))}
-                            </SelectControl>
-                          )} */}
                         </VStack>
 
                         {!isUserLoading && !loginData && (

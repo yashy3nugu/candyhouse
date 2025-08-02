@@ -33,9 +33,6 @@ export type OrderDataItem = {
 export type OrderCreateBody = {
   items: OrderDataItem[];
   address: string;
-  bank: string;
-  code: string | undefined;
-  coinsToRedeem: number;
 };
 
 export type PaginatedOrderResponse = {

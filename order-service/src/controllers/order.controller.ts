@@ -45,7 +45,7 @@ export class OrderController {
   public create = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
     const session = await mongoose.startSession();
     try {
-      const { items, address, bank, code, coinsToRedeem }: z.infer<typeof orderInputSchema> = req.body;
+      const { items, address }: z.infer<typeof orderInputSchema> = req.body;
       // res.send(req.body);
       // return;
 
@@ -150,7 +150,6 @@ export class OrderController {
         items,
         price: total,
         address,
-        bank,
         coinsRedeemed: 0,
       });
 
