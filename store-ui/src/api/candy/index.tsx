@@ -9,7 +9,7 @@ import {
 } from "./types";
 
 const productServiceBaseUrl =
-  process.env.PRODUCT_SERVICE_BASE_URL || "http://localhost:4000";
+  process.env.PRODUCT_SERVICE_BASE_URL || "http://localhost:4001";
 
 const axios = Axios.create({
   baseURL: productServiceBaseUrl,

@@ -5,11 +5,12 @@ import CandyModel from '@/models/candy.model';
 import CouponModel from '@/models/coupon.model';
 import OrderModel from '@/models/order.model';
 import { UserModel } from '@/models/user.model';
-import { orderByIdSchema, orderInputSchema, orderUpdateSchema, paginatedOrderFetchSchema } from '@/utils/schemas/order';
+import { orderByIdSchema, orderInputSchema, orderUpdateSchema, orderConfirmSchema, paginatedOrderFetchSchema } from '@/utils/schemas/order';
 import { Status } from '@/utils/types/order';
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { z } from 'zod';
+import Stripe from 'stripe';
 
 export class OrderController {
   public allForAdmin = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
@@ -46,136 +47,23 @@ export class OrderController {
     const session = await mongoose.startSession();
     try {
       const { items, address }: z.infer<typeof orderInputSchema> = req.body;
-      // res.send(req.body);
-      // return;
-
-      session.startTransaction();
-      const candyIds = [...new Set(items.map(item => item.candy))];
-      console.log('got candy ids');
-      // calculate total server side
+      // Calculate total
       let total = 0;
-
       for (const x of items) {
         total += x.price * x.itemsInCart;
       }
-
-      const candyDocuments = await CandyModel.find({
-        appId: {
-          $in: candyIds,
+      // Create Stripe PaymentIntent
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-07-30.basil' });
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(total * 100), // Stripe expects amount in cents
+        currency: 'usd',
+        metadata: {
+          address,
+          userId: req.user._id.toString(),
         },
       });
-
-      for (const candyDocument of candyDocuments) {
-        const numItems = items.find(item => item.candy == candyDocument.appId)!.itemsInCart;
-        // total += candyDocument.price * numItems;
-
-        if (candyDocument.quantity - numItems < 0) {
-          // throw new TRPCError({
-          //   code: 'BAD_REQUEST',
-          //   message: 'Insufficient stock for candy ' + candyDocument._id,
-          // });
-          throw new HttpException(400, 'Insufficient stock for candy ' + candyDocument.name);
-        }
-        // const updated = await CandyModel.findByIdAndUpdate(candyDocument._id, {
-        //   quantity: candyDocument.quantity - numItems,
-        // });
-      }
-
-      // bulk write (the case where insuficcient stock is present is taken care during total calculation)
-      const candyQuantityUpdates = items.map(orderItem => ({
-        key: orderItem.candy,
-        value: JSON.stringify({ quantity: -orderItem.itemsInCart }),
-      }));
-
-      // await CandyModel.bulkWrite(candyQuantityUpdates);
-
-      // let coupon = null;
-      // if (code) {
-      //   coupon = await CouponModel.findOne({ code });
-      //   // apply discount
-      //   if (coupon) {
-      //     if (coupon.redeemed.includes(new mongoose.Types.ObjectId(req.user._id))) {
-      //       throw new HttpException(400, 'Invalid Coupon Code');
-      //     }
-
-      //     total -= Math.round((coupon.discount / 100) * total);
-      //   } else {
-      //     // throw new TRPCError({
-      //     //   code: 'BAD_REQUEST',
-      //     //   message: 'Invalid coupon code',
-      //     // });
-      //     throw new HttpException(400, 'Invalid Coupon Code');
-      //   }
-
-      //   await CouponModel.findByIdAndUpdate(coupon._id, {
-      //     $addToSet: {
-      //       redeemed: req.user._id,
-      //     },
-      //   });
-      // }
-
-      // let coinDiscount = 0;
-      // if (coinsToRedeem > 0) {
-      //   if (coinsToRedeem <= req.user.balance) {
-      //     const coinsDiscountAmount = Math.floor(coinsToRedeem / 10) * 10; // 1 coin for every 10 rupees
-      //     coinDiscount = coinsDiscountAmount / 10; // 10 rupees for every 100 coins
-
-      //     await UserModel.findByIdAndUpdate(req.user._id, {
-      //       $inc: {
-      //         balance: -coinsToRedeem,
-      //         totalRedeemedCoins: coinsToRedeem,
-      //       },
-      //     });
-      //   } else {
-      //     // throw new TRPCError({
-      //     //   code: 'BAD_REQUEST',
-      //     //   message: 'Insufficient coin balance',
-      //     // });
-      //     throw new HttpException(400, 'Insufficient coin balance');
-      //   }
-      // }
-
-      // if (total - coinDiscount < 0) {
-      //   // throw new TRPCError({
-      //   //   code: 'BAD_REQUEST',
-      //   //   message: 'Redeemed coins are more than order total',
-      //   // });
-      //   throw new HttpException(400, 'Redeemed coins are more than order total');
-      // }
-      // // Apply the coin discount to the total
-      // total -= coinDiscount;
-
-      const order = await OrderModel.create({
-        user: req.user._id,
-        items,
-        price: total,
-        address,
-        coinsRedeemed: 0,
-      });
-
-      // const coinsEarned = Math.floor(total / 10);
-
-      // const user = await UserModel.findByIdAndUpdate(req.user._id, {
-      //   $inc: {
-      //     balance: coinsEarned,
-      //     totalEarnedCoins: coinsEarned,
-      //   },
-      // });
-
-      await session.commitTransaction();
-      session.endSession();
-      await producer.connect();
-      await producer.send({
-        topic: 'quantity',
-        messages: candyQuantityUpdates,
-      });
-
-      res.send(order);
+      res.send({ clientSecret: paymentIntent.client_secret });
     } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
-
-      console.log(error);
       next(error);
     }
   };
@@ -280,6 +168,68 @@ export class OrderController {
       const order = await OrderModel.findByIdAndUpdate(id, { address, bank, items, status });
       res.send(order);
     } catch (error) {
+      next(error);
+    }
+  };
+
+  public confirmAndCreate = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+    const session = await mongoose.startSession();
+    try {
+      const { paymentIntentId, items, address }: z.infer<typeof orderConfirmSchema> = req.body;
+      console.log('called confirmAndCreate');
+
+      // Transform items: ensure appId is mapped to candy
+      const transformedItems = items.map(item => ({
+        ...item,
+        candy: item.candy || item.appId, // Use candy if present, otherwise use appId
+      }));
+      // Verify payment status with Stripe
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-07-30.basil' });
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      if (paymentIntent.status !== 'succeeded') {
+        res.status(400).json({ error: 'Payment not confirmed' });
+        return;
+      }
+      // Inventory and order creation logic (copied from previous create logic)
+      session.startTransaction();
+      const candyIds = [...new Set(transformedItems.map(item => item.candy))];
+      const candyDocuments = await CandyModel.find({
+        appId: {
+          $in: candyIds,
+        },
+      });
+      for (const candyDocument of candyDocuments) {
+        const numItems = transformedItems.find(item => item.candy == candyDocument.appId)!.itemsInCart;
+        if (candyDocument.quantity - numItems < 0) {
+          throw new HttpException(400, 'Insufficient stock for candy ' + candyDocument.name);
+        }
+      }
+      const candyQuantityUpdates = transformedItems.map(orderItem => ({
+        key: orderItem.candy,
+        value: JSON.stringify({ quantity: -orderItem.itemsInCart }),
+      }));
+      // let total = 0;
+      // for (const x of items) {
+      //   total += x.price * x.itemsInCart;
+      // }
+      const order = await OrderModel.create({
+        user: req.user._id,
+        items: transformedItems,
+        price: paymentIntent.amount / 100, // Stripe amount is in cents (dollars now)
+        address,
+        coinsRedeemed: 0,
+      });
+      await session.commitTransaction();
+      session.endSession();
+      await producer.connect();
+      await producer.send({
+        topic: 'quantity',
+        messages: candyQuantityUpdates,
+      });
+      res.send(order);
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
       next(error);
     }
   };

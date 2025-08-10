@@ -26,10 +26,15 @@ import CartItem from "@/components/cart-item";
 import InputControl from "@/components/ui/input-control";
 
 import { useLoggedInUserQuery } from "@/api/user";
-import { useCreateOrderMutation, useGetBanksQuery } from "@/api/order";
+import { useCreateOrderMutation, useConfirmOrderMutation } from "@/api/order";
 import { OrderDataItem } from "@/api/order/types";
 import Seo from "@/components/shared/seo";
 // import PaymentModal from "@/components/payment-modal";
+import { useState } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const Cart: NextPageWithLayout = () => {
   
@@ -37,11 +42,13 @@ const Cart: NextPageWithLayout = () => {
   const cartValue = useAppSelector((state) => state.cart.value);
   const cartPrice = useAppSelector((state) => state.cart.price);
 
-  
-  const { mutate: createOrder } =
-    useCreateOrderMutation();
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [formAddress, setFormAddress] = useState('');
 
-  const { data, isLoading: isBanksLoading } = useGetBanksQuery();
+  const { mutate: createOrder } = useCreateOrderMutation();
+  const { mutate: confirmOrder } = useConfirmOrderMutation();
+
 
   const { isLoading: isUserLoading, data: loginData } = useLoggedInUserQuery();
 
@@ -60,6 +67,68 @@ const Cart: NextPageWithLayout = () => {
   //   );
   // }
 
+  // Stripe payment form component
+  function StripeCheckoutForm() {
+    const stripe = useStripe();
+    const elements = useElements();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [orderConfirmed, setOrderConfirmed] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!stripe || !elements) return;
+      setLoading(true);
+      setError(null);
+      const result = await stripe.confirmCardPayment(clientSecret!, {
+        payment_method: {
+          card: elements.getElement(CardElement)!,
+        },
+      });
+      if (result.error) {
+        setLoading(false);
+        setError(typeof result.error.message === 'string' ? result.error.message : 'Payment failed');
+      } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+        // Call backend to confirm and create order using the mutation
+        confirmOrder(
+          {
+            paymentIntentId: result.paymentIntent.id,
+            items: cartItems,
+            address: formAddress,
+          },
+          {
+            onSuccess: () => {
+              setOrderConfirmed(true);
+              setPaymentSuccess(true);
+              setLoading(false);
+            },
+            onError: (error: any) => {
+              setError(error?.response?.data?.message || 'Order confirmation failed');
+              setLoading(false);
+            },
+          }
+        );
+      } else {
+        setLoading(false);
+        setError('Payment not successful');
+      }
+    };
+
+    return (
+      orderConfirmed ? (
+        <Alert status="success"><AlertIcon />Order placed successfully!</Alert>
+      ) : (
+        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+          <CardElement options={{ hidePostalCode: true }} />
+          <Button mt={4} colorScheme="pink" type="submit" isLoading={loading} w="full">
+            Pay
+          </Button>
+          {error && <Alert status="error" mt={2}><AlertIcon />{error}</Alert>}
+        </form>
+      )
+    );
+  }
+
   return (
     <>
       <Seo title="Cart" />
@@ -68,7 +137,13 @@ const Cart: NextPageWithLayout = () => {
         py={{ base: "12", md: "24" }}
         px={{ base: "0", sm: "8" }}
       >
-        {cartValue > 0 ? (
+        {paymentSuccess ? (
+          <Alert status="success"><AlertIcon />Payment successful! Your order has been placed.</Alert>
+        ) : clientSecret ? (
+          <Elements stripe={stripePromise} options={{ clientSecret }}>
+            <StripeCheckoutForm />
+          </Elements>
+        ) : cartValue > 0 ? (
           <>
             <Card w="full" mb={5}>
               <CardBody>
@@ -77,7 +152,7 @@ const Cart: NextPageWithLayout = () => {
                     Subtotal
                   </Text>
                   <Text fontSize="md" fontWeight="base">
-                    ₹{cartPrice}
+                    ${cartPrice}
                   </Text>
                 </Flex>
 
@@ -125,6 +200,7 @@ const Cart: NextPageWithLayout = () => {
                       address: "",
                     }}
                     onSubmit={({ address }) => {
+                      setFormAddress(address);
                       const items = [] as OrderDataItem[];
 
                       cartItems.forEach(
@@ -149,10 +225,16 @@ const Cart: NextPageWithLayout = () => {
                         }
                       );
 
-                      createOrder({
-                        items,
-                        address,
-                      });
+                      createOrder(
+                        { items, address },
+                        {
+                          onSuccess: (data) => {
+                            if (typeof data?.clientSecret === 'string') {
+                              setClientSecret(data.clientSecret);
+                            }
+                          },
+                        }
+                      );
                     }}
                   >
                     {({  isSubmitting, isValid, dirty }) => (

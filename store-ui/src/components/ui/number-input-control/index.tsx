@@ -40,9 +40,8 @@ export const NumberInputControl: FC<NumberInputControlProps> = React.forwardRef(
     return (
       <FormControl name={name} label={label} {...rest}>
         <NumberInput
-        
-          {...field}
           id={name}
+          value={field.value}
           onChange={$setFieldValue(name)}
           isInvalid={!!error && touched}
           isDisabled={isSubmitting}

@@ -21,7 +21,7 @@ import { Status } from "@/utils/types/orders";
 // } from "./types";
 
 const orderServiceBaseUrl =
-  process.env.ORDER_SERVICE_BASE_URL || "http://localhost:5000";
+  process.env.ORDER_SERVICE_BASE_URL || "http://localhost:4002";
 
 const axios = Axios.create({
   baseURL: orderServiceBaseUrl,
@@ -62,10 +62,6 @@ export const useCreateOrderMutation = () => {
         isClosable: true,
       });
 
-      setTimeout(() => {
-        dispatch(clearCart());
-        router.replace("/orders");
-      }, 4000);
     },
     onError() {
       toast({
@@ -194,6 +190,60 @@ export const usePaginatedOrderQueryAdmin = (page?: number) => {
   });
 
   return { data, isLoading };
+};
+
+export const useConfirmOrderMutation = () => {
+  const toast = useToast();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  const { data, mutate, isPending } = useMutation<
+    any,
+    any,
+    { paymentIntentId: string; items: any[]; address: string },
+    any
+  >({
+    mutationFn: async (data) => {
+      const authToken = localStorage.getItem("auth.token");
+      const response = await axios.post(`/order/confirm`, data, {
+        headers: {
+          Authorization: `Bearer ${authToken || ""}`,
+        },
+      });
+
+      return response.data;
+    },
+
+    onSuccess() {
+      toast({
+        title: "Order Confirmed",
+        description: "Your payment was successful and order has been confirmed",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+
+      setTimeout(() => {
+        dispatch(clearCart());
+        router.push("/user/profile/orders");
+      }, 2000);
+    },
+    onError() {
+      toast({
+        title: "Order Confirmation Failed",
+        description: "Payment was processed but order confirmation failed",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    },
+  });
+
+  return {
+    data,
+    mutate,
+    isPending,
+  };
 };
 
 export const useOrderMarkDeliveredMutation = ({

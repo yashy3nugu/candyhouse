@@ -12,7 +12,7 @@ import {
 } from "./types";
 
 const userServiceBaseUrl =
-  process.env.USER_SERVICE_BASE_URL || "http://localhost:7000";
+  process.env.USER_SERVICE_BASE_URL || "http://localhost:4000";
 
 const axios = Axios.create({
   baseURL: userServiceBaseUrl,

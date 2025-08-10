@@ -26,10 +26,7 @@ export const orderInputSchema = z.object({
       name: z.string(),
     })
     .array(),
-  code: z.string().max(6).min(6).optional(),
-  coinsToRedeem: z.number().min(0).multipleOf(10).finite(),
   address: z.string({ required_error: 'Address Required' }),
-  bank: z.string({ required_error: 'payment bank required' }),
 });
 
 export const paginatedOrderFetchSchema = z.object({
@@ -45,6 +42,29 @@ export const paginatedOrderFetchSchema = z.object({
 
 export const orderByIdSchema = z.object({
   id: z.string({ required_error: 'Order Id required' }),
+});
+
+export const orderConfirmSchema = z.object({
+  paymentIntentId: z.string({ required_error: 'Payment Intent ID required' }),
+  items: z
+    .object({
+      itemsInCart: z.number().min(1),
+      // Accept either appId (from frontend cart) or candy (backend format)
+      appId: z.string().optional(),
+      candy: z.string().optional(),
+      photo: z.object({
+        url: z.string(),
+      }),
+      description: z.string(),
+      quantity: z.number(),
+      price: z.number(),
+      name: z.string(),
+    })
+    .refine(data => data.appId || data.candy, {
+      message: 'Either appId or candy field is required',
+    })
+    .array(),
+  address: z.string({ required_error: 'Address Required' }),
 });
 
 export const orderUpdateSchema = z.object({

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Routes } from '@interfaces/routes.interface';
 import { OrderController } from '@/controllers/order.controller';
 import { ValidateBody, ValidateParams, ValidateQuery } from '@/middlewares/validation.middleware';
-import { orderByIdSchema, orderInputSchema, orderUpdateSchema, paginatedOrderFetchSchema } from '@/utils/schemas/order';
+import { orderByIdSchema, orderInputSchema, orderUpdateSchema, orderConfirmSchema, paginatedOrderFetchSchema } from '@/utils/schemas/order';
 import { AuthMiddleware } from '@/middlewares/auth.middleware';
 import { Role } from '@/utils/types/user';
 
@@ -18,11 +18,16 @@ export class OrderRoute implements Routes {
   private initializeRoutes() {
     this.router.get(`${this.path}`, ValidateQuery(paginatedOrderFetchSchema), AuthMiddleware([Role.Admin]), this.order.allForAdmin);
     this.router.post(`${this.path}`, ValidateBody(orderInputSchema), AuthMiddleware([Role.User]), this.order.create);
+    this.router.post(`${this.path}/confirm`, ValidateBody(orderConfirmSchema), AuthMiddleware([Role.User]), this.order.confirmAndCreate);
     this.router.get(`${this.path}/user`, ValidateQuery(paginatedOrderFetchSchema), AuthMiddleware([Role.User]), this.order.getOrdersOfUser);
     this.router.get(`${this.path}/:id`, ValidateParams(orderByIdSchema), AuthMiddleware([Role.User, Role.Admin]), this.order.oneById);
     this.router.patch(`${this.path}/:id/cancel`, ValidateParams(orderByIdSchema), AuthMiddleware([Role.User]), this.order.cancel);
-    this.router.patch(`${this.path}/:id`, ValidateParams(orderByIdSchema), ValidateBody(orderUpdateSchema), this.order.update);
-
-    // this.router.get(`${this.path}`, ValidationMiddleware(CreateUserDto), this.order.test);
+    this.router.patch(
+      `${this.path}/:id`,
+      ValidateParams(orderByIdSchema),
+      ValidateBody(orderUpdateSchema),
+      AuthMiddleware([Role.Admin]),
+      this.order.update,
+    );
   }
 }
