@@ -52,10 +52,31 @@
 
 ### 📊 Event-Driven Communication Flow
 
-**Kafka Topics & Data Flow:**
-- **👤 `user` topic**: User lifecycle events (registration, profile updates) → synced to Product & Order services
-- **🍬 `candy` topic**: Product catalog events (create/update products) → synced to Order service for validation  
-- **📦 `quantity` topic**: Inventory management (stock updates, reservations) → real-time inventory consistency
+**Event-Driven Data Flow (via Apache Kafka):**
+- **👤 User Lifecycle Events**: Registration, profile updates → synced to Product & Order services
+- **🍬 Product Catalog Events**: Create/update products → synced to Order service for validation  
+- **📦 Inventory Management Events**: Stock updates, reservations → real-time inventory consistency
+
+## 🎨 Application Screenshots
+
+**Modern, responsive UI built with Next.js and Chakra UI**
+
+### 👥 Customer Journey
+| **🏠 Landing Page** | **🛍️ Product Catalog** |
+|:---:|:---:|
+| ![Home Page](./screenshots/Home%20Page.png) | ![Store](./screenshots/Store.png) |
+| *Modern landing with featured products* | *Paginated browsing with search & filters* |
+
+| **🛒 Shopping Cart** | **📊 Order Management** |
+|:---:|:---:|
+| ![Cart](./screenshots/Cart.png) | ![Admin Dashboard](./screenshots/Admin%20Order%20table.png) |
+| *Real-time inventory validation* | *Admin order management interface* |
+
+### 🏪 Vendor & Admin Features
+| **📈 Vendor Dashboard** | **🍭 Product Creation** |
+|:---:|:---:|
+| ![Vendor Dashboard](./screenshots/Vendor%20dashboard.png) | ![Product Creation](./screenshots/Candy%20creation.png) |
+| *Sales analytics & inventory management* | *Rich product management with image upload* |
 
 ## 🚀 Deployment with Minikube
 
@@ -122,34 +143,12 @@ kubectl get hpa
 kubectl get pods -l app=redis
 ```
 
-## 🎨 Application Screenshots
-
-**Modern, responsive UI built with Next.js and Chakra UI**
-
-### 👥 Customer Journey
-| **🏠 Landing Page** | **🛍️ Product Catalog** |
-|:---:|:---:|
-| ![Home Page](./screenshots/Home%20Page.png) | ![Store](./screenshots/Store.png) |
-| *Modern landing with featured products* | *Paginated browsing with search & filters* |
-
-| **🛒 Shopping Cart** | **📊 Order Management** |
-|:---:|:---:|
-| ![Cart](./screenshots/Cart.png) | ![Admin Dashboard](./screenshots/Admin%20Order%20table.png) |
-| *Real-time inventory validation* | *Admin order management interface* |
-
-### 🏪 Vendor & Admin Features
-| **📈 Vendor Dashboard** | **🍭 Product Creation** |
-|:---:|:---:|
-| ![Vendor Dashboard](./screenshots/Vendor%20dashboard.png) | ![Product Creation](./screenshots/Candy%20creation.png) |
-| *Sales analytics & inventory management* | *Rich product management with image upload* |
-
 ## 🏆 Key Engineering Achievements
 
 ### 🎯 Enterprise-Level Patterns Demonstrated
 
 **🔄 Event-Driven Architecture:**
 - **Asynchronous Processing**: Kafka ensures services remain decoupled and can scale independently
-- **Event Sourcing**: Complete audit trail of all business events (user actions, inventory changes, orders)
 - **Guaranteed Delivery**: Kafka's durability guarantees ensure no events are lost
 - **Real-time Synchronization**: Inventory updates propagate instantly across all services
 
@@ -158,27 +157,9 @@ kubectl get pods -l app=redis
 - **Cache Strategies**: Write-through for inventory, TTL-based for product catalogs
 - **Performance**: ~95% cache hit ratio for product queries, sub-50ms response times
 
-**🔐 Production-Ready Security:**
-- **JWT Authentication**: RS256 signed tokens with 24h expiration and refresh token rotation  
-- **Input Validation**: Zod schemas provide runtime type safety and prevent injection attacks
-- **Rate Limiting**: Redis-backed request throttling prevents abuse
-- **CORS & Headers**: Environment-specific security policies
-
 **📊 Scalable Data Architecture:**
 - **Database Per Service**: Complete data isolation ensures service independence
-- **Connection Pooling**: Optimized MongoDB connections for high concurrency
 - **Horizontal Scaling**: Services designed to scale from 1-5+ replicas seamlessly
-
-### 🚀 Performance & Scalability Metrics
-
-| Metric | Achievement | Implementation |
-|--------|-------------|----------------|
-| **API Response Time** | < 200ms average | Optimized queries, Redis caching, connection pooling |
-| **Concurrent Users** | 1000+ supported | Horizontal pod autoscaling, load balancing |
-| **Cache Hit Ratio** | 95%+ for products | Strategic TTL policies, cache warming |
-| **Event Processing** | < 100ms latency | Kafka partitioning, consumer groups |
-| **Database Queries** | < 50ms average | Indexed collections, query optimization |
-| **Container Startup** | < 30 seconds | Multi-stage Docker builds, health checks |
 
 ### 🛠️ DevOps & Production Readiness
 
@@ -189,39 +170,9 @@ kubectl get pods -l app=redis
 - **Resource Management**: Proper CPU/memory requests and limits
 - **Secret Management**: Kubernetes secrets for sensitive configuration
 
-**📊 Observability & Monitoring:**
-- **Structured Logging**: JSON logs with correlation IDs and service metadata
-- **Health Endpoints**: `/health` and `/ready` endpoints for monitoring
-- **Metrics Ready**: Prometheus-compatible metrics endpoints
-- **Distributed Tracing Ready**: OpenTelemetry instrumentation points
-
-**🔧 Development Excellence:**
-- **Type Safety**: 100% TypeScript across all services
-- **Code Quality**: ESLint, Prettier, Husky pre-commit hooks
-- **Testing Strategy**: Unit, integration, and e2e test foundations
-- **API Documentation**: OpenAPI/Swagger specs for all services
-
-### 💼 Business Value Delivered
-
-**🎯 Multi-Tenant Operations:**
-- **Customer Experience**: Seamless browsing, cart management, order tracking
-- **Vendor Tools**: Product management, inventory tracking, sales analytics  
-- **Admin Control**: Order oversight, user management, system monitoring
-
-**💳 Payment Processing:**
-- **Stripe Integration**: Secure payment handling with webhook validation
-- **Idempotent Transactions**: Duplicate payment prevention
-- **Inventory Reservations**: Temporary stock holds during checkout
-- **Refund Support**: Built-in refund processing capabilities
-
-**🖼️ Media Management:**
-- **Cloudinary Integration**: Optimized image delivery and transformation
-- **CDN Distribution**: Global image delivery for performance
-- **Responsive Images**: Automatic sizing for different devices
-
 ## 🔧 Local Development
 
-**For developers who want to run individual services or contribute to the project**
+**For people who want to run individual services contribute to the project**
 
 ### 🐳 Docker Compose Development
 ```bash
@@ -253,26 +204,6 @@ npm run type-check         # TypeScript
 - **Product Service**: `http://localhost:4000/docs` - Product catalog & inventory
 - **Order Service**: `http://localhost:5000/docs` - Order processing & payments
 
-## 🌟 Why This Project Stands Out
-
-### 🎯 **Resume Impact**
-This project demonstrates **senior-level engineering capabilities** through:
-- **System Design**: Complete microservices architecture from scratch
-- **Scalability**: Horizontal scaling, caching, and event-driven patterns
-- **Production Readiness**: Security, monitoring, testing, and deployment automation
-- **Technology Breadth**: Full-stack development across modern tech stack
-
-### 🏗️ **Architecture Sophistication**
-- **Event-Driven Design**: Real-time data consistency across distributed services
-- **High Availability**: Redis Sentinel, Kubernetes auto-scaling, health checks
-- **Security Best Practices**: JWT, input validation, rate limiting, CORS policies
-- **Cloud-Native**: Kubernetes deployment with Helm charts and infrastructure as code
-
-### 💼 **Business Understanding**
-- **Multi-Tenant Design**: Separate workflows for customers, vendors, and admins
-- **Payment Processing**: Real-world Stripe integration with webhook handling
-- **Inventory Management**: Real-time stock tracking with reservation system
-- **User Experience**: Modern, responsive UI with optimistic updates
 
 ---
 
