@@ -88,7 +88,7 @@ cp secrets.example.yaml secrets.yaml
 # Edit secrets.yaml with your configuration
 
 # Deploy entire platform with Helm
-helm install candyhouse ./candyhouse -f secrets.yaml
+helm install candyhouse ./helm-chart -f secrets.yaml
 
 # Monitor deployment
 kubectl get pods -w
