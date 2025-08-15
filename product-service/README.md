@@ -1,336 +1,252 @@
-# Candy House E-commerce API
-
-This repository contains the source code for the Order Service API, a microservice used for processing orders in the Candy House E-commerce API.
+# 🍭 CandyHouse Product Service API
 
 ## Table of Contents
 
-- [Introduction](#introduction)
 - [Authentication](#authentication)
 - [Endpoints](#endpoints)
-  - [/order](#order)
-  - [/order/user](#orderuser)
-  - [/order/{id}](#orderid)
-  - [/order/{id}/cancel](#orderidcancel)
-  - [/bank](#bank)
+  - [/candy](#candy)
+  - [/candy/vendor](#candyvendor)
+  - [/candy/{id}](#candyid)
+  - [/image](#image)
 - [Swagger Documentation](#swagger-documentation)
 - [Caching Strategy for Candies](#caching-strategy-for-candies)
 
-## Development Setup Using Docker
 
-### Prerequisites:
-- Ensure Docker is installed and running.
-- Create a `.env` file in this directory with the following environment variables:
-  - MONGO_URI: MongoDB connection string for product-service.
-  - KAFKA_URL: Kafka broker URL (e.g., candyhouse-kafka:9092 or your local Kafka URL).
-  - CLOUDINARY_CLOUD_NAME: Your Cloudinary cloud name.
-  - CLOUDINARY_API_KEY: Your Cloudinary API key.
-  - CLOUDINARY_API_SECRET: Your Cloudinary API secret.
-  - CLOUDINARY_FOLDER_NAME: Cloudinary folder name (default: candyhouse).
-  - (Optional: NODE_ENV, PORT, LOG_FORMAT, LOG_DIR, ORIGIN)
-
-### Steps:
-1. Build the Docker image:
-   ```bash
-   docker build -t product-service .
-   ```
-2. Run the container:
-   ```bash
-   docker run --env-file .env -p 4000:4000 product-service
-   ```
-3. Access the service at [http://localhost:4000](http://localhost:4000).
-
----
-
-## Introduction
-
-This API provides functionalities related to managing orders within the E-commerce application. It supports operations such as retrieving paginated orders, creating new orders, updating order details, and more.
 
 ## Authentication
 
-The API uses Bearer Token Authentication. Include a valid access token in the Authorization header of your requests.
+The API uses **JWT Bearer Token Authentication** obtained from the User Service. Include the token in the Authorization header:
+
+```
+Authorization: Bearer <jwt_token>
+```
+
+**Authentication Requirements:**
+- **Public Endpoints**: `/candy` (GET), `/candy/{id}` (GET), `/image` (GET)
+- **Vendor-Only Endpoints**: `/candy` (POST), `/candy/{id}` (PATCH), `/candy/vendor` (GET)
 
 ## Endpoints
 
-### /order
+### /candy
 
-#### `GET /order`
+#### `GET /candy`
 
-- **Summary:** Get paginated orders (Admin)
-- **Description:** Get paginated orders for admin users
+- **Summary:** Get paginated list of all candies
+- **Description:** Retrieves all candies with vendor information populated. Supports pagination for efficient data loading.
 - **Parameters:**
-  - `page` (optional): Page number
-  - `limit` (optional): Number of items per page
+  - `page` (optional): Page number (default: 1)
+  - `limit` (optional): Number of items per page (default: 6)
 - **Responses:**
   - `200`: Successful response
     - Example:
       ```json
       {
-        "hasMore": false,
-        "orders": [
+        "hasMore": true,
+        "candies": [
           {
-            "_id": "order_id",
-            "user": "user_id",
-            "items": [
-              {
-                "candy": "candy_id",
-                "itemsInCart": 2,
-                "price": 10.0
-              }
-            ],
-            "price": 20.0,
-            "address": "Shipping Address",
-            "bank": "Bank Name",
-            "coinsRedeemed": 0,
-            "status": "Processing"
+            "_id": "64f1a2b3c4d5e6f7g8h9i0j1",
+            "name": "chocolate bar",
+            "description": "Delicious dark chocolate bar with 70% cocoa",
+            "price": 2.99,
+            "quantity": 50,
+            "appId": "candy-123-uuid",
+            "vendor": {
+              "_id": "64f1a2b3c4d5e6f7g8h9i0j2",
+              "name": "Sweet Treats Co",
+              "email": "vendor@sweetreats.com",
+              "appId": "vendor-456-uuid"
+            },
+            "photo": {
+              "url": "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/chocolate.jpg",
+              "publicId": "candies/chocolate"
+            },
+            "createdAt": "2023-10-01T10:00:00.000Z",
+            "updatedAt": "2023-10-01T10:00:00.000Z"
           }
-          // Additional orders...
         ]
       }
       ```
 
-#### `POST /order`
+#### `POST /candy`
 
-- **Summary:** Create a new order (User)
-- **Description:** Create a new order for a user
+- **Summary:** Create a new candy product
+- **Description:** Creates a new candy and publishes creation event to Kafka. Requires vendor authentication.
+- **Authentication:** Vendor JWT required
 - **Request Body:**
-  - `OrderInput` schema
-- **Responses:**
-  - `200`: Successful response
-    - Example:
-      ```json
-      {
-        "_id": "6fc02cb7f068b18fad8a65a7",
-        "user": "5fc02cb7f068b18fad8a65a7",
-        "items": [
-          {
-            "candy": "candy_id",
-            "itemsInCart": 2,
-            "price": 10.0
-          }
-        ],
-        "price": 20.0,
-        "address": "Shipping Address",
-        "bank": "Bank Name",
-        "coinsRedeemed": 0,
-        "status": "Processing"
-      }
-      ```
-  - `400`: Bad Request
-  - `401`: Unauthorized
-  - `500`: Internal Server Error
-
-### /order/user
-
-#### `GET /order/user`
-
-- **Summary:** Get paginated orders for a user
-- **Description:** Get paginated orders for a specific user
-- **Parameters:**
-  - `page` (optional): Page number
-  - `limit` (optional): Number of items per page
-- **Responses:**
-  - `200`: Successful response
-    - Example:
-      ```json
-      {
-        "hasMore": false,
-        "orders": [
-          {
-            "_id": "6fc02cb7f068b18fad8a65a7",
-            "user": "5fc02cb7f068b18fad8a65a7",
-            "items": [
-              {
-                "candy": "candy_id",
-                "itemsInCart": 2,
-                "price": 10.0
-              }
-            ],
-            "price": 20.0,
-            "address": "Shipping Address",
-            "bank": "Bank Name",
-            "coinsRedeemed": 0,
-            "status": "Processing"
-          }
-          // Additional orders...
-        ]
-      }
-      ```
-  - `401`: Unauthorized
-
-### /order/{id}
-
-#### `GET /order/{id}`
-
-- **Summary:** Get order by ID (User/Admin)
-- **Description:** Get details of a specific order by ID
-- **Parameters:**
-  - `id` (path): Order ID
-- **Responses:**
-  - `200`: Successful response
-    - Example:
-      ```json
-      {
-        "_id": "5fc02cb7f068b18fad8a65a7",
-        "user": "6fc02cb7f068b18fad8a65a7",
-        "items": [
-          {
-            "candy": "7fc02cb7f068b18fad8a65a7",
-            "itemsInCart": 2,
-            "price": 10.0
-          }
-        ],
-        "price": 20.0,
-        "address": "Shipping Address",
-        "bank": "Bank Name",
-        "coinsRedeemed": 0,
-        "status": "Processing"
-      }
-      ```
-  - `404`: Order not found
-  - `401`: Unauthorized
-
-#### `POST /order/{id}/cancel`
-
-- **Summary:** Cancel order by ID (User)
-- **Description:** Cancel a specific order by ID
-- **Parameters:**
-  - `id` (path): Order ID
-- **Responses:**
-  - `200`: Successful response
-    - Example:
-      ```json
-      {
-        "_id": "5fc02cb7f068b18fad8a65a7",
-        "user": "6fc02cb7f068b18fad8a65a7",
-        "items": [
-          {
-            "candy": "7fc02cb7f068b18fad8a65a7",
-            "itemsInCart": 2,
-            "price": 10.0
-          }
-        ],
-        "price": 20.0,
-        "address": "Shipping Address",
-        "bank": "Bank Name",
-        "coinsRedeemed": 0,
-        "status": "Cancelled"
-      }
-      ```
-  - `400`: Bad Request
-  - `401`: Unauthorized
-  - `404`: Order not found
-  - `500`: Internal Server Error
-
-#### `PATCH /order/{id}`
-
-- **Summary:** Update order by ID (Any)
-- **Description:** Update details of a specific order by ID
-- **Parameters:**
-  - `id` (path): Order ID
-- **Request Body:**
-  - `OrderUpdate` schema
-- **Responses:**
-  - `200`: Successful response
-    - Example:
-      ```json
-      {
-        "_id": "5fc02cb7f068b18fad8a65a7",
-        "user": "6fc02cb7f068b18fad8a65a7",
-        "items": [
-          {
-            "candy": "8fc02cb7f068b18fad8a65a7",
-            "itemsInCart": 2,
-            "price": 10.0
-          }
-        ],
-        "price": 20.0,
-        "address": "Updated Shipping Address
-
-",
-        "bank": "Updated Bank Name",
-        "coinsRedeemed": 0,
-        "status": "Processing"
-      }
-      ```
-  - `400`: Bad Request
-  - `401`: Unauthorized
-  - `404`: Order not found
-
-### /order/{id}/cancel
-
-#### `PATCH /order/{id}/cancel`
-
-- **Summary:** Cancel an order
-- **Description:** Marks the status of the order document as "cancelled". Only the status field can be modified in this operation.
-- **Parameters:**
-  - `id` (path): Order ID
-- **Request Body:**
-  - Example:
-    ```json
-    {
-      "status": "cancelled"
+  ```json
+  {
+    "name": "gummy bears",
+    "description": "Colorful fruit-flavored gummy bears",
+    "price": 1.99,
+    "quantity": 100,
+    "photo": {
+      "url": "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/gummy.jpg",
+      "publicId": "candies/gummy"
     }
-    ```
+  }
+  ```
+- **Responses:**
+  - `200`: Candy created successfully
+  - `401`: Unauthorized - Invalid or missing JWT token
+  - `403`: Forbidden - User is not a vendor
+  - `400`: Bad request - Invalid candy data
+
+### /candy/vendor
+
+#### `GET /candy/vendor`
+
+- **Summary:** Get paginated candies for authenticated vendor
+- **Description:** Retrieves all candies belonging to the authenticated vendor. Used for vendor dashboard and inventory management.
+- **Authentication:** Vendor JWT required
+- **Parameters:**
+  - `page` (optional): Page number (default: 1)
+  - `limit` (optional): Number of items per page (default: 6)
 - **Responses:**
   - `200`: Successful response
     - Example:
       ```json
       {
-        "_id": "order_id",
-        "user": "user_id",
-        "items": [
+        "hasMore": false,
+        "candies": [
           {
-            "candy": "candy_id",
-            "itemsInCart": 2,
-            "price": 10.0
+            "_id": "64f1a2b3c4d5e6f7g8h9i0j3",
+            "name": "chocolate truffle",
+            "description": "Premium Belgian chocolate truffle",
+            "price": 4.99,
+            "quantity": 25,
+            "appId": "candy-abc-uuid",
+            "vendor": "64f1a2b3c4d5e6f7g8h9i0j2",
+            "photo": {
+              "url": "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/truffle.jpg",
+              "publicId": "candies/truffle"
+            },
+            "createdAt": "2023-10-01T09:00:00.000Z",
+            "updatedAt": "2023-10-01T09:00:00.000Z"
           }
-        ],
-        "price": 20.0,
-        "address": "Shipping Address",
-        "bank": "Bank Name",
-        "coinsRedeemed": 0,
-        "status": "cancelled"
-      }
-      ```
-  - `400`: Bad Request
-  - `401`: Unauthorized
-  - `404`: Order not found
-  - `500`: Internal Server Error
-
-### /bank
-
-#### `GET /bank`
-
-- **Summary:** Get all banks
-- **Description:** Get a list of all banks
-- **Responses:**
-  - `200`: Successful response
-    - Example:
-      ```json
-      {
-        "banks": [
-          {
-            "_id": "5fc02cb7f068b18fad8a65a7",
-            "name": "SBI"
-          }
-          // Additional banks...
         ]
       }
       ```
-  - `401`: Unauthorized
+  - `401`: Unauthorized - Invalid or missing JWT token
+  - `403`: Forbidden - User is not a vendor
+
+### /candy/{id}
+
+#### `GET /candy/{id}`
+
+- **Summary:** Get candy details by ID
+- **Description:** Retrieves detailed information about a specific candy. Implements intelligent caching - frequently accessed candies (5+ views) are cached for 1 hour.
+- **Parameters:**
+  - `id` (path): MongoDB ObjectId of the candy
+- **Responses:**
+  - `200`: Successful response
+    - Example:
+      ```json
+      {
+        "_id": "64f1a2b3c4d5e6f7g8h9i0j1",
+        "name": "milk chocolate bar",
+        "description": "Creamy milk chocolate bar with almonds",
+        "price": 3.49,
+        "quantity": 75,
+        "appId": "candy-def-uuid",
+        "vendor": "64f1a2b3c4d5e6f7g8h9i0j2",
+        "photo": {
+          "url": "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/milk-choc.jpg",
+          "publicId": "candies/milk-choc"
+        },
+        "createdAt": "2023-10-01T08:00:00.000Z",
+        "updatedAt": "2023-10-01T10:30:00.000Z"
+      }
+      ```
+  - `404`: Candy not found
+
+#### `PATCH /candy/{id}`
+
+- **Summary:** Update candy details by ID
+- **Description:** Updates candy information. Only the candy owner (vendor) can update their candies. Updates cache if candy is cached.
+- **Authentication:** Vendor JWT required
+- **Parameters:**
+  - `id` (path): MongoDB ObjectId of the candy to update
+- **Request Body:**
+  ```json
+  {
+    "name": "premium dark chocolate",
+    "description": "85% dark chocolate bar with sea salt",
+    "price": 5.99,
+    "quantity": 30,
+    "photo": {
+      "url": "https://res.cloudinary.com/candyhouse/image/upload/v124/candies/dark-choc.jpg",
+      "publicId": "candies/dark-choc"
+    }
+  }
+  ```
+- **Responses:**
+  - `200`: Candy updated successfully
+  - `401`: Unauthorized - Invalid or missing JWT token
+  - `403`: Forbidden - User is not the candy owner or not a vendor
+  - `404`: Candy not found
+
+### /image
+
+#### `GET /image`
+
+- **Summary:** Get signed URL for image upload
+- **Description:** Generates a signed URL and signature for uploading images directly to Cloudinary. Used by frontend for secure image uploads.
+- **Responses:**
+  - `200`: Signed URL data generated successfully
+    - Example:
+      ```json
+      {
+        "folder": "candies",
+        "api_key": "123456789012345",
+        "url": "https://api.cloudinary.com/v1_1/candyhouse/image/upload",
+        "signature": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0",
+        "timestamp": 1696161600
+      }
+      ```
 
 ## Swagger Documentation
 
-For detailed API documentation, refer to the [Swagger Documentation](swagger.yaml) provided in this repository. The Swagger documentation includes examples and details for each endpoint, making it easy to understand and integrate with the Order Service API.
+For comprehensive API documentation, refer to the [Swagger Documentation](swagger.yaml) provided in this repository. The Swagger documentation includes:
+
+- **Complete endpoint specifications** with request/response schemas
+- **Authentication requirements** for each endpoint
+- **Detailed examples** with realistic data
+- **Error response codes** and descriptions
+- **Interactive API testing** capabilities
+
+Access the interactive documentation at: `http://localhost:4000/docs` (when running locally)
 
 ## Caching Strategy for Candies
 
-To improve performance for frequently accessed candy details, we use a cache-aside (lazy loading) pattern combined with an access frequency check. 
+The Product Service implements a **Cache-Aside (Lazy Loading) pattern** to optimize performance for frequently accessed candy details:
 
-- When a candy is requested, the service first attempts to retrieve it from Redis using the key `candy:<id>`.
-- If the candy is found in cache, it is returned immediately.
-- If not, the service fetches the candy from MongoDB and increments an access counter stored in Redis (with a TTL of 1 day).
-- Once the access counter exceeds a predefined threshold (e.g., 5), the candy is cached in Redis with a TTL of 3600 seconds.
-- Redis is configured with the eviction policy `allkeys-lru` so that less frequently accessed or expired candies are automatically removed when memory is low.
+### 🎯 Caching Algorithm
 
-This strategy ensures that only frequently accessed candies are cached, balancing performance and memory usage.
+1. **Initial Request**: When a candy is requested, check Redis cache using key `candy:<id>`
+2. **Cache Hit**: If found, return cached data immediately (sub-millisecond response)
+3. **Cache Miss**: Fetch from MongoDB and increment access counter (`candy:counter:<id>`)
+4. **Frequency Threshold**: After 5+ accesses within 24 hours, cache the candy for 1 hour
+5. **Cache Management**: Redis uses `allkeys-lru` eviction policy for optimal memory usage
+
+### 🚀 Performance Benefits
+
+- **⚡ Fast Response Times**: Popular candies served from cache in <50ms
+- **📊 Memory Efficiency**: Only frequently accessed items are cached
+- **🔄 Auto-Expiration**: 1-hour TTL prevents stale data
+- **📈 Scalability**: Reduces database load for popular products
+
+### 🏗️ Cache Architecture
+
+```
+Request Flow:
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Client    │───▶│    Redis    │───▶│  MongoDB    │
+│             │    │   Cache     │    │  Database   │
+└─────────────┘    └─────────────┘    └─────────────┘
+                          │                    │
+                          ▼                    ▼
+                   Cache Counter         Candy Data
+                   (24h TTL)            (Source of Truth)
+```
+
+This strategy ensures optimal performance while maintaining data consistency and efficient resource utilization.

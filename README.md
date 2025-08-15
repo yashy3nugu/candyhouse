@@ -26,7 +26,7 @@
 **Enterprise Patterns Implemented:**
 - **🔄 Event-Driven Architecture**: Asynchronous communication via Apache Kafka
 - **🏛️ Database Per Service**: Complete data isolation with MongoDB per microservice  
-- **⚡ Redis Sentinel Caching**: High-availability distributed caching with automatic failover
+- **⚡ Redis Sentinel Caching**: High-availability distributed caching with cache-aside pattern for popular products
 - **🔐 Stateless Authentication**: JWT-based security across all services
 - **📈 Horizontal Auto-Scaling**: Kubernetes HPA for dynamic scaling (1-5 replicas per service)
 - **🎭 Multi-Tenant Design**: Separate vendor, customer, and admin workflows
@@ -50,7 +50,7 @@
 | **🌐 API Gateway** | NGINX Ingress Controller | Load balancing, SSL termination, service routing, rate limiting |
 | **⚙️ Microservices** | Node.js + TypeScript + Express | Type-safe business logic, RESTful APIs, health checks |
 | **📡 Message Broker** | Apache Kafka + Zookeeper | Event streaming, service decoupling, guaranteed delivery |
-| **💾 Caching** | Redis Sentinel (Master + 2 Replicas) | High-availability caching, automatic failover, session storage |
+| **💾 Caching** | Redis Sentinel (Master + 2 Replicas) | Cache-aside pattern for products, automatic failover, session storage |
 | **🗄️ Databases** | MongoDB (per service) | Document storage, service data isolation, horizontal scaling ready |
 | **🚢 Orchestration** | Kubernetes + Helm Charts | Container orchestration, auto-scaling, declarative deployments |
 | **💳 Payments** | Stripe API + Webhooks | Secure payment processing, idempotent transactions, refund handling |

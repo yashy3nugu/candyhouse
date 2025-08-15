@@ -1,202 +1,461 @@
 openapi: 3.0.0
 info:
-  title: Ecommerce Candy Microservice
+  title: CandyHouse Product Service API
   version: 1.0.0
-  description: APIs for managing candies in an ecommerce application.
+  description: Microservice for managing candy products in the CandyHouse e-commerce platform. Handles product catalog, inventory, and vendor operations with Redis caching and Kafka event publishing.
 
 servers:
-  - url: http://localhost:3000
+  - url: http://localhost:4000
     description: Development server
+  - url: http://candyhouse.com/product-service
+    description: Production server
 
 paths:
   /candy:
     get:
-      summary: Get paginated list of candies
+      summary: Get paginated list of all candies
+      description: Retrieves a paginated list of all candies with vendor information populated
+      tags:
+        - Candy
       parameters:
         - in: query
           name: page
           schema:
-            type: integer
+            type: string
           description: Page number (default: 1)
         - in: query
           name: limit
           schema:
-            type: integer
+            type: string
           description: Number of items per page (default: 6)
       responses:
         '200':
-          description: Successful response
+          description: Successful response with paginated candy list
           content:
             application/json:
+              schema:
+                type: object
+                properties:
+                  hasMore:
+                    type: boolean
+                    description: Whether there are more pages available
+                  candies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CandyWithVendor'
               example:
                 hasMore: true
                 candies:
-                  - _id: "123"
-                    name: "Candy 1"
-                    description: "Description 1"
-                    price: 2.5
-                    quantity: 10
-                    vendor: "456"
+                  - _id: "64f1a2b3c4d5e6f7g8h9i0j1"
+                    name: "chocolate bar"
+                    description: "Delicious dark chocolate bar with 70% cocoa"
+                    price: 2.99
+                    quantity: 50
+                    appId: "candy-123-uuid"
+                    vendor:
+                      _id: "64f1a2b3c4d5e6f7g8h9i0j2"
+                      name: "Sweet Treats Co"
+                      email: "vendor@sweetreats.com"
+                      appId: "vendor-456-uuid"
                     photo:
-                      url: "https://example.com/photo1.jpg"
-                      publicId: "abc123"
+                      url: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/chocolate.jpg"
+                      publicId: "candies/chocolate"
+                    createdAt: "2023-10-01T10:00:00.000Z"
+                    updatedAt: "2023-10-01T10:00:00.000Z"
 
     post:
       summary: Create a new candy
+      description: Creates a new candy product. Requires vendor authentication. Publishes candy creation event to Kafka.
+      tags:
+        - Candy
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Candy'
-      security:
-        - BearerAuth: []
+              $ref: '#/components/schemas/CandyCreate'
+            example:
+              name: "gummy bears"
+              description: "Colorful fruit-flavored gummy bears"
+              price: 1.99
+              quantity: 100
+              photo:
+                url: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/gummy.jpg"
+                publicId: "candies/gummy"
       responses:
         '200':
-          description: Successful response
+          description: Candy created successfully
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/Candy'
               example:
-                _id: "456"
-                name: "New Candy"
-                description: "New candy description"
-                price: 3.0
-                quantity: 20
-                vendor: "789"
+                _id: "64f1a2b3c4d5e6f7g8h9i0j3"
+                name: "gummy bears"
+                description: "Colorful fruit-flavored gummy bears"
+                price: 1.99
+                quantity: 100
+                appId: "candy-789-uuid"
+                vendor: "64f1a2b3c4d5e6f7g8h9i0j2"
                 photo:
-                  url: "https://example.com/newphoto.jpg"
-                  publicId: "xyz456"
+                  url: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/gummy.jpg"
+                  publicId: "candies/gummy"
+                createdAt: "2023-10-01T11:00:00.000Z"
+                updatedAt: "2023-10-01T11:00:00.000Z"
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+        '403':
+          description: Forbidden - User is not a vendor
+        '400':
+          description: Bad request - Invalid candy data
 
   /candy/vendor:
     get:
-      summary: Get paginated list of candies for a vendor
+      summary: Get paginated list of candies for authenticated vendor
+      description: Retrieves all candies belonging to the authenticated vendor. Requires vendor authentication.
+      tags:
+        - Candy
+        - Vendor
+      security:
+        - BearerAuth: []
       parameters:
         - in: query
           name: page
           schema:
-            type: integer
+            type: string
           description: Page number (default: 1)
         - in: query
           name: limit
           schema:
-            type: integer
+            type: string
           description: Number of items per page (default: 6)
-      security:
-        - BearerAuth: []
       responses:
         '200':
-          description: Successful response
+          description: Successful response with vendor's candies
           content:
             application/json:
+              schema:
+                type: object
+                properties:
+                  hasMore:
+                    type: boolean
+                  candies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Candy'
               example:
-                hasMore: true
+                hasMore: false
                 candies:
-                  - _id: "123"
-                    name: "Vendor Candy 1"
-                    description: "Vendor description 1"
-                    price: 2.5
-                    quantity: 10
-                    vendor: "789"
+                  - _id: "64f1a2b3c4d5e6f7g8h9i0j3"
+                    name: "chocolate truffle"
+                    description: "Premium Belgian chocolate truffle"
+                    price: 4.99
+                    quantity: 25
+                    appId: "candy-abc-uuid"
+                    vendor: "64f1a2b3c4d5e6f7g8h9i0j2"
                     photo:
-                      url: "https://example.com/vendorphoto1.jpg"
-                      publicId: "abc123"
+                      url: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/truffle.jpg"
+                      publicId: "candies/truffle"
+                    createdAt: "2023-10-01T09:00:00.000Z"
+                    updatedAt: "2023-10-01T09:00:00.000Z"
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+        '403':
+          description: Forbidden - User is not a vendor
 
   /candy/{id}:
     get:
-      summary: Get details of a candy by ID
+      summary: Get candy details by ID
+      description: Retrieves detailed information about a specific candy. Implements intelligent caching - frequently accessed candies (5+ views) are cached for 1 hour.
+      tags:
+        - Candy
       parameters:
         - in: path
           name: id
           schema:
             type: string
           required: true
+          description: MongoDB ObjectId of the candy
+          example: "64f1a2b3c4d5e6f7g8h9i0j1"
       responses:
         '200':
-          description: Successful response
+          description: Candy details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Candy'
+              example:
+                _id: "64f1a2b3c4d5e6f7g8h9i0j1"
+                name: "milk chocolate bar"
+                description: "Creamy milk chocolate bar with almonds"
+                price: 3.49
+                quantity: 75
+                appId: "candy-def-uuid"
+                vendor: "64f1a2b3c4d5e6f7g8h9i0j2"
+                photo:
+                  url: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/milk-choc.jpg"
+                  publicId: "candies/milk-choc"
+                createdAt: "2023-10-01T08:00:00.000Z"
+                updatedAt: "2023-10-01T10:30:00.000Z"
+        '404':
+          description: Candy not found
           content:
             application/json:
               example:
-                _id: "123"
-                name: "Candy 1"
-                description: "Description 1"
-                price: 2.5
-                quantity: 10
-                vendor: "456"
-                photo:
-                  url: "https://example.com/photo1.jpg"
-                  publicId: "abc123"
+                message: "Candy not found"
 
     patch:
       summary: Update candy details by ID
+      description: Updates candy information. Only the candy owner (vendor) can update their candies. Updates cache if candy is cached.
+      tags:
+        - Candy
+        - Vendor
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: id
           schema:
             type: string
           required: true
+          description: MongoDB ObjectId of the candy to update
+          example: "64f1a2b3c4d5e6f7g8h9i0j1"
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/CandyUpdate'
-      security:
-        - BearerAuth: []
+            example:
+              name: "premium dark chocolate"
+              description: "85% dark chocolate bar with sea salt"
+              price: 5.99
+              quantity: 30
+              photo:
+                url: "https://res.cloudinary.com/candyhouse/image/upload/v124/candies/dark-choc.jpg"
+                publicId: "candies/dark-choc"
       responses:
         '200':
-          description: Successful response
+          description: Candy updated successfully
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/Candy'
               example:
-                _id: "123"
-                name: "Updated Candy"
-                description: "Updated candy description"
-                price: 3.0
-                quantity: 15
-                vendor: "456"
+                _id: "64f1a2b3c4d5e6f7g8h9i0j1"
+                name: "premium dark chocolate"
+                description: "85% dark chocolate bar with sea salt"
+                price: 5.99
+                quantity: 30
+                appId: "candy-def-uuid"
+                vendor: "64f1a2b3c4d5e6f7g8h9i0j2"
                 photo:
-                  url: "https://example.com/updatedphoto.jpg"
-                  publicId: "def789"
+                  url: "https://res.cloudinary.com/candyhouse/image/upload/v124/candies/dark-choc.jpg"
+                  publicId: "candies/dark-choc"
+                createdAt: "2023-10-01T08:00:00.000Z"
+                updatedAt: "2023-10-01T12:00:00.000Z"
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+        '403':
+          description: Forbidden - User is not the candy owner or not a vendor
+        '404':
+          description: Candy not found
+
+  /image:
+    get:
+      summary: Get signed URL for image upload
+      description: Generates a signed URL and signature for uploading images directly to Cloudinary. Used by frontend for secure image uploads.
+      tags:
+        - Image
+      responses:
+        '200':
+          description: Signed URL data generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  folder:
+                    type: string
+                    description: Cloudinary folder name
+                  api_key:
+                    type: string
+                    description: Cloudinary API key
+                  url:
+                    type: string
+                    description: Cloudinary upload URL
+                  signature:
+                    type: string
+                    description: Signed request signature
+                  timestamp:
+                    type: integer
+                    description: Unix timestamp for the signature
+              example:
+                folder: "candies"
+                api_key: "123456789012345"
+                url: "https://api.cloudinary.com/v1_1/candyhouse/image/upload"
+                signature: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0"
+                timestamp: 1696161600
 
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from user service authentication
+
   schemas:
+    Photo:
+      type: object
+      properties:
+        url:
+          type: string
+          description: Cloudinary image URL
+          example: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/chocolate.jpg"
+        publicId:
+          type: string
+          description: Cloudinary public ID for image management
+          example: "candies/chocolate"
+      required:
+        - url
+        - publicId
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: MongoDB ObjectId
+        name:
+          type: string
+          description: Vendor name
+        email:
+          type: string
+          format: email
+          description: Vendor email
+        appId:
+          type: string
+          description: Application-specific unique identifier
+      required:
+        - _id
+        - name
+        - email
+        - appId
+
     Candy:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: MongoDB ObjectId
+          example: "64f1a2b3c4d5e6f7g8h9i0j1"
+        name:
+          type: string
+          description: Candy name (unique, lowercase)
+          example: "chocolate bar"
+        description:
+          type: string
+          description: Candy description
+          example: "Delicious milk chocolate bar"
+        price:
+          type: number
+          minimum: 0
+          description: Candy price in USD
+          example: 2.99
+        quantity:
+          type: integer
+          minimum: 0
+          description: Available quantity in stock
+          example: 50
+        appId:
+          type: string
+          description: Application-specific unique identifier
+          example: "candy-123-uuid"
+        vendor:
+          type: string
+          description: MongoDB ObjectId reference to vendor
+          example: "64f1a2b3c4d5e6f7g8h9i0j2"
+        photo:
+          $ref: '#/components/schemas/Photo'
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - _id
+        - name
+        - description
+        - price
+        - quantity
+        - appId
+        - vendor
+        - photo
+
+    CandyWithVendor:
+      allOf:
+        - $ref: '#/components/schemas/Candy'
+        - type: object
+          properties:
+            vendor:
+              $ref: '#/components/schemas/User'
+
+    CandyCreate:
       type: object
       properties:
         name:
           type: string
+          description: Candy name (will be converted to lowercase)
+          example: "Gummy Bears"
         description:
           type: string
+          description: Candy description
+          example: "Colorful fruit-flavored gummy bears"
         price:
           type: number
+          minimum: 0
+          description: Candy price in USD
+          example: 1.99
         quantity:
           type: integer
+          minimum: 0
+          description: Initial stock quantity
+          example: 100
+        photo:
+          $ref: '#/components/schemas/Photo'
       required:
         - name
         - description
         - price
         - quantity
+        - photo
 
     CandyUpdate:
       type: object
       properties:
+        _id:
+          type: string
+          description: MongoDB ObjectId (optional, for reference)
         name:
           type: string
+          description: Updated candy name
         description:
           type: string
+          description: Updated candy description
         price:
           type: number
+          minimum: 0
+          description: Updated price in USD
         quantity:
           type: integer
+          minimum: 0
+          description: Updated stock quantity
         photo:
-          type: object
-          properties:
-            url:
-              type: string
-            publicId:
-              type: string
-      required:
-        - name
-        - description
-        - price
-        - quantity
+          $ref: '#/components/schemas/Photo'
+      description: All fields are optional for partial updates
