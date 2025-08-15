@@ -1,0 +1,67 @@
+{{- if .Values.filebeat.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebeat-config
+  labels:
+    app: filebeat
+data:
+  filebeat.yml: |
+    filebeat.inputs:
+    - type: container
+      paths:
+        - /var/log/containers/*-user-service-*.log
+        - /var/log/containers/*-product-service-*.log
+        - /var/log/containers/*-order-service-*.log
+        - /var/log/containers/*-store-ui-*.log
+      processors:
+        - add_kubernetes_metadata:
+            host: ${NODE_NAME}
+            matchers:
+            - logs_path:
+                logs_path: "/var/log/containers/"
+        - decode_json_fields:
+            fields: ["message"]
+            target: ""
+            overwrite_keys: true
+        - add_fields:
+            target: fields
+            fields:
+              service: ""
+        - script:
+            lang: javascript
+            id: extract_service_name
+            source: >
+              function process(event) {
+                var containerName = event.Get("kubernetes.container.name");
+                if (containerName) {
+                  event.Put("fields.service", containerName);
+                }
+              }
+    
+    # Add global fields
+    fields:
+      environment: {{ .Values.global.environment }}
+      cluster: candyhouse
+    fields_under_root: false
+    
+    # Output to Logstash
+    output.logstash:
+      hosts: ["logstash:5044"]
+      
+    # Logging configuration
+    logging.level: {{ .Values.filebeat.logLevel }}
+    logging.to_files: true
+    logging.files:
+      path: /var/log/filebeat
+      name: filebeat
+      keepfiles: 7
+      permissions: 0644
+      
+    # Monitoring
+    monitoring.enabled: {{ .Values.filebeat.monitoring.enabled }}
+    {{- if .Values.filebeat.monitoring.enabled }}
+    monitoring.elasticsearch:
+      hosts: ["http://elasticsearch-master:9200"]
+    {{- end }}
+{{- end }}

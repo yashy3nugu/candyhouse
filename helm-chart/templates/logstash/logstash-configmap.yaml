@@ -1,0 +1,109 @@
+{{- if .Values.logstash.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-config
+  labels:
+    app: logstash
+data:
+  logstash.yml: |
+    http.host: "0.0.0.0"
+    path.config: /usr/share/logstash/pipeline
+    pipeline.workers: {{ .Values.logstash.pipeline.workers }}
+    pipeline.batch.size: {{ .Values.logstash.pipeline.batchSize }}
+    
+  pipeline.yml: |
+    - pipeline.id: main
+      path.config: "/usr/share/logstash/pipeline/logstash.conf"
+      
+  logstash.conf: |
+    input {
+      beats {
+        port => 5044
+      }
+    }
+    
+    filter {
+      # Parse JSON logs from microservices
+      if [fields][service] in ["user-service", "product-service", "order-service", "store-ui"] {
+        json {
+          source => "message"
+          target => "parsed"
+        }
+        
+        # Extract parsed fields to root level
+        if [parsed] {
+          mutate {
+            add_field => { "service" => "%{[fields][service]}" }
+            add_field => { "environment" => "{{ .Values.global.environment }}" }
+            add_field => { "log_level" => "%{[parsed][level]}" }
+            add_field => { "log_message" => "%{[parsed][message]}" }
+            add_field => { "correlation_id" => "%{[parsed][correlationId]}" }
+          }
+          
+          # Parse timestamp
+          if [parsed][timestamp] {
+            date {
+              match => [ "[parsed][timestamp]", "ISO8601" ]
+            }
+          }
+        }
+        
+        # Clean up fields
+        mutate {
+          remove_field => [ "parsed", "message", "host" ]
+        }
+      }
+      
+      # Add Kubernetes metadata
+      if [kubernetes] {
+        mutate {
+          add_field => { "k8s_namespace" => "%{[kubernetes][namespace]}" }
+          add_field => { "k8s_pod" => "%{[kubernetes][pod][name]}" }
+          add_field => { "k8s_container" => "%{[kubernetes][container][name]}" }
+        }
+      }
+    }
+    
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch-master:9200"]
+        index => "%{service}-logs-%{+YYYY.MM.dd}"
+        template_name => "candyhouse-logs"
+        template => "/usr/share/logstash/templates/candyhouse-template.json"
+        template_overwrite => true
+      }
+      
+      # Debug output (can be disabled in production)
+      {{- if .Values.logstash.debug.enabled }}
+      stdout {
+        codec => rubydebug
+      }
+      {{- end }}
+    }
+    
+  candyhouse-template.json: |
+    {
+      "index_patterns": ["*-logs-*"],
+      "template": {
+        "settings": {
+          "number_of_shards": 1,
+          "number_of_replicas": 1,
+          "index.refresh_interval": "30s"
+        },
+        "mappings": {
+          "properties": {
+            "@timestamp": { "type": "date" },
+            "service": { "type": "keyword" },
+            "environment": { "type": "keyword" },
+            "log_level": { "type": "keyword" },
+            "log_message": { "type": "text" },
+            "correlation_id": { "type": "keyword" },
+            "k8s_namespace": { "type": "keyword" },
+            "k8s_pod": { "type": "keyword" },
+            "k8s_container": { "type": "keyword" }
+          }
+        }
+      }
+    }
+{{- end }}

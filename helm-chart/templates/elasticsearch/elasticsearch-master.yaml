@@ -1,0 +1,105 @@
+{{- if .Values.elasticsearch.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearch-master
+  labels:
+    app: elasticsearch
+    component: master
+spec:
+  replicas: {{ .Values.elasticsearch.master.replicas }}
+  selector:
+    matchLabels:
+      app: elasticsearch
+      component: master
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+        component: master
+    spec:
+      containers:
+      - name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch:{{ .Values.elasticsearch.version }}
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+        env:
+        - name: cluster.name
+          value: {{ .Values.elasticsearch.cluster.name }}
+        - name: node.name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: node.roles
+          value: "master"
+        - name: discovery.seed_hosts
+          value: "elasticsearch-master,elasticsearch-data"
+        - name: cluster.initial_master_nodes
+          value: "elasticsearch-master-0"
+        - name: bootstrap.memory_lock
+          value: "false"
+        - name: ES_JAVA_OPTS
+          value: "-Xms{{ .Values.elasticsearch.master.javaOpts.xms }} -Xmx{{ .Values.elasticsearch.master.javaOpts.xmx }}"
+        - name: xpack.security.enabled
+          value: "false"
+        resources:
+          requests:
+            cpu: {{ .Values.elasticsearch.master.resources.requests.cpu }}
+            memory: {{ .Values.elasticsearch.master.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.elasticsearch.master.resources.limits.cpu }}
+            memory: {{ .Values.elasticsearch.master.resources.limits.memory }}
+        volumeMounts:
+        {{- if .Values.elasticsearch.persistence.enabled }}
+        - name: elasticsearch-master-data
+          mountPath: /usr/share/elasticsearch/data
+        {{- end }}
+      volumes:
+      {{- if .Values.elasticsearch.persistence.enabled }}
+      - name: elasticsearch-master-data
+        persistentVolumeClaim:
+          claimName: elasticsearch-master-pvc
+      {{- else }}
+      - name: elasticsearch-master-data
+        emptyDir: {}
+      {{- end }}
+---
+{{- if .Values.elasticsearch.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elasticsearch-master-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.elasticsearch.persistence.size }}
+  {{- if .Values.elasticsearch.persistence.storageClass }}
+  storageClassName: {{ .Values.elasticsearch.persistence.storageClass }}
+  {{- end }}
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-master
+  labels:
+    app: elasticsearch
+    component: master
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9200
+    targetPort: 9200
+    name: http
+  - port: 9300
+    targetPort: 9300
+    name: transport
+  selector:
+    app: elasticsearch
+    component: master
+{{- end }}

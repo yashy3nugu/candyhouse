@@ -1,0 +1,114 @@
+{{- if .Values.elasticsearch.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-data
+  labels:
+    app: elasticsearch
+    component: data
+spec:
+  serviceName: elasticsearch-data-headless
+  replicas: {{ .Values.elasticsearch.data.replicas }}
+  selector:
+    matchLabels:
+      app: elasticsearch
+      component: data
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+        component: data
+    spec:
+      containers:
+      - name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch:{{ .Values.elasticsearch.version }}
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+        env:
+        - name: cluster.name
+          value: {{ .Values.elasticsearch.cluster.name }}
+        - name: node.name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: node.roles
+          value: "data,ingest"
+        - name: discovery.seed_hosts
+          value: "elasticsearch-master,elasticsearch-data-headless"
+        - name: cluster.initial_master_nodes
+          value: "elasticsearch-master-0"
+        - name: bootstrap.memory_lock
+          value: "false"
+        - name: ES_JAVA_OPTS
+          value: "-Xms{{ .Values.elasticsearch.data.javaOpts.xms }} -Xmx{{ .Values.elasticsearch.data.javaOpts.xmx }}"
+        - name: xpack.security.enabled
+          value: "false"
+        resources:
+          requests:
+            cpu: {{ .Values.elasticsearch.data.resources.requests.cpu }}
+            memory: {{ .Values.elasticsearch.data.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.elasticsearch.data.resources.limits.cpu }}
+            memory: {{ .Values.elasticsearch.data.resources.limits.memory }}
+        volumeMounts:
+        - name: elasticsearch-data
+          mountPath: /usr/share/elasticsearch/data
+  {{- if .Values.elasticsearch.persistence.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: elasticsearch-data
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.elasticsearch.persistence.size }}
+      {{- if .Values.elasticsearch.persistence.storageClass }}
+      storageClassName: {{ .Values.elasticsearch.persistence.storageClass }}
+      {{- end }}
+  {{- else }}
+      volumes:
+      - name: elasticsearch-data
+        emptyDir: {}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-data-headless
+  labels:
+    app: elasticsearch
+    component: data
+spec:
+  clusterIP: None
+  ports:
+  - port: 9200
+    targetPort: 9200
+    name: http
+  - port: 9300
+    targetPort: 9300
+    name: transport
+  selector:
+    app: elasticsearch
+    component: data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-data
+  labels:
+    app: elasticsearch
+    component: data
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9200
+    targetPort: 9200
+    name: http
+  selector:
+    app: elasticsearch
+    component: data
+{{- end }}
