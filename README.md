@@ -172,19 +172,83 @@ kubectl get pods -l app=redis
 
 ## 🔧 Local Development
 
-**For people who want to run individual services contribute to the project**
+**Two options for local development: Lightweight Docker setup or Full Kubernetes simulation**
 
-### 🐳 Docker Compose Development
+### 🚀 Option 1: Lightweight Development (Recommended)
+
+**Perfect for fast development with minimal resource usage (1-2GB RAM)**
+
+#### 📦 Start Infrastructure Services
 ```bash
-# Run infrastructure services
-docker-compose up -d mongodb redis kafka
+# Start MongoDB, Redis, Kafka, and admin UIs
+docker-compose -f development/docker-compose.dev.yml up -d
 
-# Run individual services in development mode
-cd user-service && npm run dev      # Port 7000
-cd product-service && npm run dev   # Port 4000  
-cd order-service && npm run dev     # Port 5000
-cd store-ui && npm run dev          # Port 3000
+# Verify services are running
+docker-compose -f development/docker-compose.dev.yml ps
 ```
+
+#### 🛠️ Run Microservices Natively
+```bash
+# Terminal 1: User Service
+cd user-service && npm install && npm run dev      # Port 7000
+
+# Terminal 2: Product Service  
+cd product-service && npm install && npm run dev   # Port 4000
+
+# Terminal 3: Order Service
+cd order-service && npm install && npm run dev     # Port 5000
+
+# Terminal 4: Frontend
+cd store-ui && npm install && npm run dev          # Port 3000
+```
+
+#### 🌐 Access Application
+- **🍭 CandyHouse App**: http://localhost:3000
+
+#### ⚙️ Environment Configuration
+Create `.env.development.local` files in each service directory:
+
+**user-service/.env.development.local**
+```bash
+MONGO_URI=mongodb://localhost:27017/candyhouse-users
+JWT_SECRET=dev-jwt-secret-not-for-production
+KAFKA_URL=localhost:9092
+```
+
+**product-service/.env.development.local**
+```bash
+MONGO_URI=mongodb://localhost:27017/candyhouse-products
+KAFKA_URL=localhost:9092
+REDIS_HOST=localhost
+REDIS_PASSWORD=dev-redis-password
+CLOUDINARY_CLOUD_NAME=demo-cloud
+CLOUDINARY_API_KEY=demo-key
+CLOUDINARY_API_SECRET=demo-secret
+```
+
+**order-service/.env.development.local**
+```bash
+MONGO_URI=mongodb://localhost:27017/candyhouse-orders
+KAFKA_URL=localhost:9092
+REDIS_HOST=localhost
+REDIS_PASSWORD=dev-redis-password
+STRIPE_SECRET_KEY=sk_test_your_test_key_here
+```
+
+#### 🛑 Stop Development Environment
+```bash
+# Stop all infrastructure services
+docker-compose -f development/docker-compose.dev.yml down
+
+# Remove volumes (optional - clears all data)
+docker-compose -f development/docker-compose.dev.yml down -v
+```
+
+### 🚢 Option 2: Full Kubernetes Simulation
+
+**Complete production simulation with auto-scaling (6-8GB RAM)**
+
+Follow the [Deployment with Minikube](#-deployment-with-minikube) section above for the full Kubernetes experience with Helm charts.
 
 ### 🧪 Testing & Quality
 ```bash
