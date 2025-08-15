@@ -15,6 +15,12 @@
 
 *Complete microservices architecture showing horizontally scalable services, event-driven communication via Kafka, Redis Sentinel caching, and Kubernetes orchestration*
 
+### 🚢 Kubernetes Cluster Overview
+
+![Kubernetes Orchestration](./screenshots/Kubernetes-Orchestration.png)
+
+*Production-ready Kubernetes deployment showing pod orchestration, ingress routing, auto-scaling capabilities, and observability stack integration*
+
 ### 🎯 What This Architecture Demonstrates
 
 **Enterprise Patterns Implemented:**
