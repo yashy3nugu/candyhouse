@@ -212,34 +212,74 @@ cd store-ui && npm install && npm run dev          # Port 3000
 - **🍭 CandyHouse App**: http://localhost:3000
 
 #### ⚙️ Environment Configuration
-Create `.env.development.local` files in each service directory:
+Create env files in each service directory:
+
+**store-ui/.env**
+```bash
+# Global Environment Settings
+NODE_ENV=development
+PORT=3000
+
+# Backend Microservices Base URLs (for local development)
+USER_SERVICE_BASE_URL=http://localhost:7000
+PRODUCT_SERVICE_BASE_URL=http://localhost:4000
+ORDER_SERVICE_BASE_URL=http://localhost:5000
+
+# Cloudinary Configuration (for image uploads)
+CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+CLOUDINARY_FOLDER_NAME=candyhouse
+
+# Stripe Configuration (for payments)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
+```
 
 **user-service/.env.development.local**
 ```bash
+NODE_ENV=development
+PORT=7000
 MONGO_URI=mongodb://localhost:27017/candyhouse-users
-JWT_SECRET=dev-jwt-secret-not-for-production
+JWT_SECRET=dev-jwt-secret-not-for-production-min-32-chars
+JWT_EXPIRES_IN=24
 KAFKA_URL=localhost:9092
 ```
 
 **product-service/.env.development.local**
 ```bash
+NODE_ENV=development
 MONGO_URI=mongodb://localhost:27017/candyhouse-products
 KAFKA_URL=localhost:9092
 REDIS_HOST=localhost
+REDIS_PORT=6379
 REDIS_PASSWORD=dev-redis-password
-CLOUDINARY_CLOUD_NAME=demo-cloud
-CLOUDINARY_API_KEY=demo-key
-CLOUDINARY_API_SECRET=demo-secret
+REDIS_USE_SENTINEL=false
+CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+CLOUDINARY_API_KEY=your-cloudinary-api-key
+CLOUDINARY_API_SECRET=your-cloudinary-api-secret
 ```
 
 **order-service/.env.development.local**
 ```bash
+NODE_ENV=development
 MONGO_URI=mongodb://localhost:27017/candyhouse-orders
 KAFKA_URL=localhost:9092
-REDIS_HOST=localhost
-REDIS_PASSWORD=dev-redis-password
-STRIPE_SECRET_KEY=sk_test_your_test_key_here
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
 ```
+
+#### 🔧 External Services Setup
+Before running the application, you'll need to set up these external services:
+
+**🎨 Cloudinary (Image Management)**:
+1. Create account at [https://cloudinary.com](https://cloudinary.com)
+2. Get credentials from [https://cloudinary.com/console](https://cloudinary.com/console)
+3. Update `CLOUDINARY_*` variables in your `.env.development.local` files
+
+**💳 Stripe (Payment Processing)**:
+1. Create account at [https://stripe.com](https://stripe.com)
+2. Get API keys from [https://dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys)
+3. Use **Publishable Key** (`pk_test_...`) for `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+4. Use **Secret Key** (`sk_test_...`) for `STRIPE_SECRET_KEY`
 
 #### 🛑 Stop Development Environment
 ```bash
