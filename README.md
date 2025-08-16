@@ -1,60 +1,60 @@
-# 🍭 CandyHouse - Enterprise Microservices E-Commerce Platform
+# 🍭 CandyHouse - Microservices E-Commerce Platform
 
-> **A production-ready, scalable e-commerce application showcasing enterprise-level microservices architecture, event-driven design, and cloud-native deployment patterns.**
+> **An e-commerce application built with microservices architecture, event-driven design, and cloud-native deployment patterns.**
 
 [![Architecture](https://img.shields.io/badge/Architecture-Microservices-blue)](#-system-architecture)
 [![Deployment](https://img.shields.io/badge/Deployment-Kubernetes-green)](#-deployment-with-minikube)
 [![TypeScript](https://img.shields.io/badge/TypeScript-100%25-blue)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**CandyHouse** demonstrates how to build a **scalable, production-ready e-commerce platform** using modern microservices patterns. This project serves as a comprehensive example of enterprise-level system design, featuring event-driven architecture, distributed caching, real-time inventory management, and cloud-native deployment strategies.
+**CandyHouse** is an e-commerce platform built using microservices patterns. The project demonstrates system design concepts including event-driven architecture, distributed caching, inventory management, and containerized deployment.
 
 ## 🏗️ System Architecture
 
 ![CandyHouse Architecture](./screenshots/Architecture.png)
 
-*Complete microservices architecture showing horizontally scalable services, event-driven communication via Kafka, Redis caching, and Kubernetes orchestration*
+*Microservices architecture with event-driven communication via Kafka, Redis caching, and Kubernetes orchestration*
 
 ### 🚢 Kubernetes Cluster Overview
 
 ![Kubernetes Orchestration](./screenshots/Kubernetes-Orchestration.png)
 
-*Kubernetes deployment showing pod orchestration, ingress routing, auto-scaling capabilities, and observability stack integration*
+*Kubernetes deployment with pod orchestration, ingress routing, and auto-scaling configuration*
 
-### 🎯 What This Architecture Demonstrates
+### 🎯 Architecture Components
 
-**Enterprise Patterns Implemented:**
+**Core Patterns:**
 - **🔄 Event-Driven Architecture**: Asynchronous communication via Apache Kafka
-- **🏛️ Database Per Service**: Complete data isolation with MongoDB per microservice  
-- **⚡ Redis Sentinel Caching**: High-availability distributed caching with cache-aside pattern for popular products
-- **🔐 Stateless Authentication**: JWT-based security across all services
-- **📈 Horizontal Auto-Scaling**: Kubernetes HPA for dynamic scaling (1-5 replicas per service)
-- **🎭 Multi-Tenant Design**: Separate vendor, customer, and admin workflows
+- **🏛️ Database Per Service**: Data isolation with MongoDB per microservice  
+- **⚡ Redis Sentinel Caching**: Distributed caching with cache-aside pattern
+- **🔐 Stateless Authentication**: JWT-based security across services
+- **📈 Horizontal Auto-Scaling**: Kubernetes HPA configuration (1-5 replicas per service)
+- **🎭 Multi-Tenant Design**: Separate workflows for vendors, customers, and admins
 
-**Business Capabilities:**
-- **👥 Customer Journey**: Product browsing → Cart management → Secure checkout → Order tracking
-- **🏪 Vendor Operations**: Product catalog management → Inventory tracking → Sales analytics  
-- **👨‍💼 Admin Control**: Order management → User administration → System monitoring
+**Application Features:**
+- **👥 Customer Flow**: Product browsing → Cart management → Checkout → Order tracking
+- **🏪 Vendor Tools**: Product catalog management → Inventory tracking → Sales analytics  
+- **👨‍💼 Admin Interface**: Order management → User administration → System monitoring
 
-**Technical Sophistication:**
-- **Real-time Inventory**: Kafka events ensure inventory consistency across services
-- **Payment Processing**: Stripe webhook integration with idempotent transaction handling
-- **Image Management**: Cloudinary integration for optimized product images
-- **Monitoring Ready**: Health checks, structured logging, and metrics endpoints
+**Technical Integration:**
+- **Inventory Management**: Kafka events maintain inventory consistency across services
+- **Payment Processing**: Stripe webhook integration with transaction handling
+- **Image Management**: Cloudinary integration for product images
+- **Health Monitoring**: Health checks, structured logging, and metrics endpoints
 
 ### 🛠️ Technology Stack & Architecture Components
 
 | Layer | Technology | Purpose & Implementation |
 |-------|------------|--------------------------|
-| **🎨 Frontend** | Next.js + Chakra UI + React Query | Server-side rendering, responsive design, optimistic UI updates with caching |
-| **🌐 API Gateway** | NGINX Ingress Controller | Load balancing, SSL termination, service routing, rate limiting |
-| **⚙️ Microservices** | Node.js + TypeScript + Express | Type-safe business logic, RESTful APIs, health checks |
-| **📡 Message Broker** | Apache Kafka + Zookeeper | Event streaming, service decoupling, guaranteed delivery |
-| **💾 Caching** | Redis Sentinel (Master + 2 Replicas) | Cache-aside pattern for products, automatic failover, session storage |
-| **🗄️ Databases** | MongoDB (per service) | Document storage, service data isolation, horizontal scaling ready |
-| **🚢 Orchestration** | Kubernetes + Helm Charts | Container orchestration, auto-scaling, declarative deployments |
-| **💳 Payments** | Stripe API + Webhooks | Secure payment processing, idempotent transactions, refund handling |
-| **🖼️ Media** | Cloudinary | Image optimization, CDN delivery, responsive images |
+| **🎨 Frontend** | Next.js + Chakra UI + React Query | Server-side rendering, responsive design, UI state management |
+| **🌐 API Gateway** | NGINX Ingress Controller | Load balancing, SSL termination, service routing |
+| **⚙️ Microservices** | Node.js + TypeScript + Express | Business logic, RESTful APIs, health checks |
+| **📡 Message Broker** | Apache Kafka + Zookeeper | Event streaming, service decoupling, message delivery |
+| **💾 Caching** | Redis Sentinel (Master + 2 Replicas) | Cache-aside pattern, automatic failover, session storage |
+| **🗄️ Databases** | MongoDB (per service) | Document storage, service data isolation |
+| **🚢 Orchestration** | Kubernetes + Helm Charts | Container orchestration, auto-scaling, deployments |
+| **💳 Payments** | Stripe API + Webhooks | Payment processing, transaction handling |
+| **🖼️ Media** | Cloudinary | Image optimization, CDN delivery |
 
 ### 📊 Event-Driven Communication Flow
 
@@ -65,28 +65,29 @@
 
 ## 🎨 Application Screenshots
 
-**Modern, responsive UI built with Next.js and Chakra UI**
+**User interface built with Next.js and Chakra UI**
 
 ### 👥 Customer Journey
 | **🏠 Landing Page** | **🛍️ Product Catalog** |
 |:---:|:---:|
 | ![Home Page](./screenshots/Home%20Page.png) | ![Store](./screenshots/Store.png) |
-| *Modern landing with featured products* | *Paginated browsing with search & filters* |
 
-| **🛒 Shopping Cart** | **📊 Order Management** |
+| **🛒 Shopping Cart & Checkout** | **💳 Secure Payment Processing** |
 |:---:|:---:|
-| ![Cart](./screenshots/Cart.png) | ![Admin Dashboard](./screenshots/Admin%20Order%20table.png) |
-| *Real-time inventory validation* | *Admin order management interface* |
+| ![Checkout Form](./screenshots/checkout-form.png) | ![Card Payment](./screenshots/card-payment.png) |
+
+| **📊 Order Management** |
+|:---:|
+| ![Admin Dashboard](./screenshots/user-profile-orders.png) |
 
 ### 🏪 Vendor & Admin Features
 | **📈 Vendor Dashboard** | **🍭 Product Creation** |
 |:---:|:---:|
 | ![Vendor Dashboard](./screenshots/Vendor%20dashboard.png) | ![Product Creation](./screenshots/Candy%20creation.png) |
-| *Sales analytics & inventory management* | *Rich product management with image upload* |
 
 ## 🚀 Deployment with Minikube
 
-**Experience the full microservices architecture locally with Kubernetes orchestration**
+**Run the microservices architecture locally with Kubernetes**
 
 ### 🔧 Prerequisites & Setup
 ```bash
@@ -131,13 +132,13 @@ echo "$(minikube ip) candyhouse.com" | sudo tee -a /etc/hosts
 open http://candyhouse.com
 ```
 
-### 🔍 Explore the Architecture
+### 🔍 Monitor the System
 ```bash
-# Monitor Kafka events in real-time
+# View Kafka events
 kubectl port-forward svc/candyhouse-kafka-ui 8080:8080
 open http://localhost:8080
 
-# View service logs and health
+# View service logs
 kubectl logs -f deployment/candyhouse-store-ui
 kubectl logs -f deployment/candyhouse-order-service
 kubectl logs -f deployment/candyhouse-product-service
@@ -145,44 +146,46 @@ kubectl logs -f deployment/candyhouse-product-service
 # Check auto-scaling status
 kubectl get hpa
 
-# Monitor Redis Sentinel cluster
+# Monitor Redis cluster
 kubectl get pods -l app=redis
 ```
 
-## 🏆 Key Engineering Achievements
+## 🔧 Technical Implementation Details
 
-### 🎯 Enterprise-Level Patterns Demonstrated
+### 🎯 Architecture Patterns
 
-**🔄 Event-Driven Architecture:**
-- **Asynchronous Processing**: Kafka ensures services remain decoupled and can scale independently
-- **Guaranteed Delivery**: Kafka's durability guarantees ensure no events are lost
-- **Real-time Synchronization**: Inventory updates propagate instantly across all services
+**🔄 Event-Driven Communication:**
+- Apache Kafka handles asynchronous message passing between microservices
+- Services publish events for user registration, product updates, and inventory changes
+- Event consumers maintain eventual consistency across service boundaries
 
-**⚡ High-Availability Caching:**
-- **Redis Sentinel**: Master-slave replication with automatic failover (2 sentinels, quorum=2)
-- **Cache Strategies**: Write-through for inventory, TTL-based for product catalogs
-- **Performance**: ~95% cache hit ratio for product queries, sub-50ms response times
+**⚡ Distributed Caching:**
+- Redis Sentinel configuration with master-slave replication
+- Two sentinel nodes provide automatic failover capabilities
+- Cache-aside pattern implemented for product catalog queries
+- TTL-based expiration for session data and temporary storage
 
-**📊 Scalable Data Architecture:**
-- **Database Per Service**: Complete data isolation ensures service independence
-- **Horizontal Scaling**: Services designed to scale from 1-5+ replicas seamlessly
+**📊 Data Management:**
+- Each microservice maintains its own MongoDB database
+- Service-specific data models prevent cross-service dependencies
+- Database connections pooled and configured per service requirements
 
-### 🛠️ DevOps & Production Readiness
+### 🛠️ Infrastructure Configuration
 
-**🚢 Kubernetes-Native Design:**
-- **Helm Charts**: Declarative infrastructure with configurable values
-- **Health Checks**: Readiness and liveness probes for zero-downtime deployments
-- **Auto-Scaling**: HPA based on CPU/memory metrics (1-5 replicas per service)
-- **Resource Management**: Proper CPU/memory requests and limits
-- **Secret Management**: Kubernetes secrets for sensitive configuration
+**🚢 Container Orchestration:**
+- Kubernetes deployment manifests define service specifications
+- Helm charts provide templated configuration management
+- Horizontal Pod Autoscaler configured for CPU and memory thresholds
+- Resource requests and limits defined for each service container
+- ConfigMaps and Secrets manage environment-specific configuration
 
 ## 🔧 Local Development
 
-**Two options for local development: Lightweight Docker setup or Full Kubernetes simulation**
+**Two development options: Lightweight Docker setup or Full Kubernetes simulation**
 
 ### 🚀 Option 1: Lightweight Development (Recommended)
 
-**Perfect for fast development with minimal resource usage (1-2GB RAM)**
+**Fast development setup with minimal resource usage (1-2GB RAM)**
 
 #### 📦 Start Infrastructure Services
 ```bash
@@ -292,9 +295,9 @@ docker-compose -f development/docker-compose.dev.yml down -v
 
 ### 🚢 Option 2: Full Kubernetes Simulation
 
-**Complete production simulation with auto-scaling (6-8GB RAM)**
+**Full Kubernetes deployment with auto-scaling (6-8GB RAM)**
 
-Follow the [Deployment with Minikube](#-deployment-with-minikube) section above for the full Kubernetes experience with Helm charts.
+Follow the [Deployment with Minikube](#-deployment-with-minikube) section above for the complete Kubernetes setup with Helm charts.
 
 ### 🧪 Testing & Quality
 ```bash
@@ -325,9 +328,9 @@ This project is licensed under the [MIT License](LICENSE) - feel free to use it 
 
 <div align="center">
   
-**🍭 Built to demonstrate enterprise-level microservices architecture**
+**🍭 A microservices e-commerce platform implementation**
 
-*Showcasing production-ready patterns for scalable, maintainable applications*
+*Demonstrating patterns for scalable, maintainable applications*
 
 [![GitHub](https://img.shields.io/badge/GitHub-yashyenugu-blue?logo=github)](https://github.com/yashyenugu)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin)](https://linkedin.com/in/yashyenugu)

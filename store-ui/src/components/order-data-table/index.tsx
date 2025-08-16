@@ -38,7 +38,7 @@ const OrderDataTable: React.FC<OrderDataTableProps> = ({
             <Tr>
               <Th>Order ID</Th>
               <Th>Order Date</Th>
-              <Th>Order Total (Rs)</Th>
+              <Th>Order Total</Th>
               <Th>Order Status</Th>
               <Th>View</Th>
             </Tr>
@@ -50,7 +50,7 @@ const OrderDataTable: React.FC<OrderDataTableProps> = ({
                 <Td>
                   {format(new Date(order.createdAt as Date), "MM/dd/yyyy")}
                 </Td>
-                <Td>{order.price}</Td>
+                <Td>${order.price}</Td>
                 <Td>{order.status}</Td>
                 <Td>
                   <Link href={`${linkUrl}/${order._id as string}`}>

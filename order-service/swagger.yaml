@@ -1,315 +1,596 @@
 openapi: 3.0.0
 info:
-  title: E-commerce API
+  title: CandyHouse Order Service API
   version: 1.0.0
-  description: API documentation for the E-commerce application
+  description: Microservice for order processing and payment management in the CandyHouse e-commerce platform. Handles order creation, Stripe payment processing, inventory validation, and order lifecycle management.
+
+servers:
+  - url: http://localhost:5000
+    description: Development server
+  - url: http://candyhouse.com/order-service
+    description: Production server
 
 components:
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from user service authentication
 
-security:
-  - BearerAuth: []
+  schemas:
+    Photo:
+      type: object
+      properties:
+        url:
+          type: string
+          description: Cloudinary image URL
+          example: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/chocolate.jpg"
+      required:
+        - url
+
+    OrderItem:
+      type: object
+      properties:
+        candy:
+          type: string
+          description: Candy ID reference
+          example: "64f1a2b3c4d5e6f7g8h9i0j1"
+        name:
+          type: string
+          description: Candy name
+          example: "chocolate bar"
+        price:
+          type: number
+          minimum: 0
+          description: Price per unit
+          example: 2.99
+        quantity:
+          type: number
+          minimum: 0
+          description: Available quantity
+          example: 50
+        description:
+          type: string
+          description: Candy description
+          example: "Delicious dark chocolate"
+        itemsInCart:
+          type: number
+          minimum: 1
+          description: Quantity ordered
+          example: 2
+        photo:
+          $ref: '#/components/schemas/Photo'
+      required:
+        - candy
+        - name
+        - price
+        - quantity
+        - description
+        - itemsInCart
+        - photo
+
+    Order:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: MongoDB ObjectId
+          example: "64f1a2b3c4d5e6f7g8h9i0j1"
+        user:
+          type: string
+          description: User ID reference
+          example: "64f1a2b3c4d5e6f7g8h9i0j2"
+        status:
+          type: string
+          enum: [pending, processing, delivered, cancelled]
+          description: Order status
+          example: "pending"
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        address:
+          type: string
+          description: Shipping address
+          example: "123 Main St, City, State 12345"
+        price:
+          type: number
+          description: Total order amount
+          example: 15.98
+        coinsRedeemed:
+          type: number
+          description: Loyalty coins used
+          example: 0
+        bank:
+          type: string
+          description: Bank ID reference (optional)
+          example: "64f1a2b3c4d5e6f7g8h9i0j3"
+        createdAt:
+          type: string
+          format: date-time
+          description: Order creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - _id
+        - user
+        - status
+        - items
+        - address
+        - price
+
+    OrderInput:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        address:
+          type: string
+          description: Shipping address
+          example: "123 Main St, City, State 12345"
+      required:
+        - items
+        - address
+
+    OrderConfirm:
+      type: object
+      properties:
+        paymentIntentId:
+          type: string
+          description: Stripe PaymentIntent ID
+          example: "pi_1234567890abcdef"
+        items:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/OrderItem'
+              - type: object
+                properties:
+                  appId:
+                    type: string
+                    description: Alternative candy identifier (frontend format)
+        address:
+          type: string
+          description: Shipping address
+      required:
+        - paymentIntentId
+        - items
+        - address
+
+    OrderUpdate:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        address:
+          type: string
+          description: Updated shipping address
+        bank:
+          type: string
+          description: Payment bank reference
+        status:
+          type: string
+          enum: [cancelled, delivered, pending]
+          description: Updated order status
+      description: All fields are optional for partial updates
+
+    Bank:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "64f1a2b3c4d5e6f7g8h9i0j1"
+        name:
+          type: string
+          example: "SBI"
+      required:
+        - _id
+        - name
 
 paths:
   /order:
     get:
-      summary: Get paginated orders (Admin)
-      description: Get paginated orders for admin users
+      summary: Get paginated orders (Admin only)
+      description: Retrieves all orders in the system with pagination. Requires admin authentication.
+      tags:
+        - Order
+        - Admin
+      security:
+        - BearerAuth: []
       parameters:
         - name: page
           in: query
-          description: Page number
+          description: Page number (default: 1)
           required: false
           schema:
-            type: integer
+            type: string
         - name: limit
           in: query
-          description: Number of items per page
+          description: Number of items per page (default: 6)
           required: false
           schema:
-            type: integer
+            type: string
       responses:
         '200':
-          description: Successful response
+          description: Paginated list of all orders
           content:
             application/json:
-              example:
-                hasMore: false
-                orders:
-                  - _id: "order_id"
-                    user: "user_id"
+              schema:
+                type: object
+                properties:
+                  hasMore:
+                    type: boolean
+                    description: Whether there are more pages available
+                  orders:
+                    type: array
                     items:
-                      - candy: "candy_id"
+                      $ref: '#/components/schemas/Order'
+              example:
+                hasMore: true
+                orders:
+                  - _id: "64f1a2b3c4d5e6f7g8h9i0j1"
+                    user: "64f1a2b3c4d5e6f7g8h9i0j2"
+                    status: "pending"
+                    items:
+                      - candy: "64f1a2b3c4d5e6f7g8h9i0j3"
+                        name: "chocolate bar"
+                        price: 2.99
+                        quantity: 50
+                        description: "Dark chocolate"
                         itemsInCart: 2
-                        price: 10.0
-                    price: 20.0
-                    address: "Shipping Address"
-                    bank: "Bank Name"
+                        photo:
+                          url: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/chocolate.jpg"
+                    address: "123 Main St, City, State 12345"
+                    price: 5.98
                     coinsRedeemed: 0
-                    status: "Processing"
-                  # Additional orders...
-      security:
-        - BearerAuth: []
+                    createdAt: "2023-10-01T10:00:00.000Z"
+                    updatedAt: "2023-10-01T10:00:00.000Z"
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+        '403':
+          description: Forbidden - User is not an admin
 
     post:
-      summary: Create a new order (User)
-      description: Create a new order for a user
+      summary: Create Stripe PaymentIntent for order
+      description: Creates a Stripe PaymentIntent for order payment. This creates a reservation and returns client secret for frontend payment processing.
+      tags:
+        - Order
+        - Payment
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/OrderInput'
+            example:
+              items:
+                - candy: "64f1a2b3c4d5e6f7g8h9i0j3"
+                  name: "chocolate bar"
+                  price: 2.99
+                  quantity: 50
+                  description: "Dark chocolate bar"
+                  itemsInCart: 2
+                  photo:
+                    url: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/chocolate.jpg"
+              address: "123 Main St, City, State 12345"
       responses:
         '200':
-          description: Successful response
+          description: PaymentIntent created successfully
           content:
             application/json:
+              schema:
+                type: object
+                properties:
+                  clientSecret:
+                    type: string
+                    description: Stripe client secret for frontend payment processing
               example:
-                _id: "6fc02cb7f068b18fad8a65a7"
-                user: "5fc02cb7f068b18fad8a65a7"
-                items:
-                  - candy: "candy_id"
-                    itemsInCart: 2
-                    price: 10.0
-                price: 20.0
-                address: "Shipping Address"
-                bank: "Bank Name"
-                coinsRedeemed: 0
-                status: "Processing"
+                clientSecret: "pi_1234567890abcdef_secret_xyz"
         '400':
-          description: Bad Request
+          description: Bad Request - Invalid order data
         '401':
-          description: Unauthorized
+          description: Unauthorized - Invalid or missing JWT token
         '500':
           description: Internal Server Error
-      security:
-        - BearerAuth: []
 
-  /order/user:
-    get:
-      summary: Get paginated orders for a user
-      description: Get paginated orders for a specific user
-      parameters:
-        - name: page
-          in: query
-          description: Page number
-          required: false
-          schema:
-            type: integer
-        - name: limit
-          in: query
-          description: Number of items per page
-          required: false
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              example:
-                hasMore: false
-                orders:
-                  - _id: "6fc02cb7f068b18fad8a65a7"
-                    user: "5fc02cb7f068b18fad8a65a7"
-                    items:
-                      - candy: "candy_id"
-                        itemsInCart: 2
-                        price: 10.0
-                    price: 20.0
-                    address: "Shipping Address"
-                    bank: "Bank Name"
-                    coinsRedeemed: 0
-                    status: "Processing"
-                  # Additional orders...
-      security:
-        - BearerAuth: []
-
-  /order/{id}:
-    get:
-      summary: Get order by ID (User/Admin)
-      description: Get details of a specific order by ID
-      parameters:
-        - name: id
-          in: path
-          description: Order ID
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              example:
-                _id: "5fc02cb7f068b18fad8a65a7"
-                user: "6fc02cb7f068b18fad8a65a7"
-                items:
-                  - candy: "7fc02cb7f068b18fad8a65a7"
-                    itemsInCart: 2
-                    price: 10.0
-                price: 20.0
-                address: "Shipping Address"
-                bank: "Bank Name"
-                coinsRedeemed: 0
-                status: "Processing"
-        '404':
-          description: Order not found
-      security:
-        - BearerAuth: []
-
+  /order/confirm:
     post:
-      summary: Cancel order by ID (User)
-      description: Cancel a specific order by ID
-      parameters:
-        - name: id
-          in: path
-          description: Order ID
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              example:
-                _id: "5fc02cb7f068b18fad8a65a7"
-                user: "6fc02cb7f068b18fad8a65a7"
-                items:
-                  - candy: "7fc02cb7f068b18fad8a65a7"
-                    itemsInCart: 2
-                    price: 10.0
-                price: 20.0
-                address: "Shipping Address"
-                bank: "Bank Name"
-                coinsRedeemed: 0
-                status: "Cancelled"
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthorized
-        '404':
-          description: Order not found
+      summary: Confirm order after successful payment
+      description: Confirms order creation after successful Stripe payment. Validates inventory, creates final order, and publishes Kafka events.
+      tags:
+        - Order
+        - Payment
       security:
         - BearerAuth: []
-
-    patch:
-      summary: Update order by ID (Any)
-      description: Update details of a specific order by ID
-      parameters:
-        - name: id
-          in: path
-          description: Order ID
-          required: true
-          schema:
-            type: string
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderUpdate'
+              $ref: '#/components/schemas/OrderConfirm'
+            example:
+              paymentIntentId: "pi_1234567890abcdef"
+              items:
+                - candy: "64f1a2b3c4d5e6f7g8h9i0j3"
+                  name: "chocolate bar"
+                  price: 2.99
+                  quantity: 50
+                  description: "Dark chocolate bar"
+                  itemsInCart: 2
+                  photo:
+                    url: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/chocolate.jpg"
+              address: "123 Main St, City, State 12345"
       responses:
         '200':
-          description: Successful response
+          description: Order confirmed and created successfully
           content:
             application/json:
-              example:
-                _id: "5fc02cb7f068b18fad8a65a7"
-                user: "6fc02cb7f068b18fad8a65a7"
-                items:
-                  - candy: "8fc02cb7f068b18fad8a65a7"
-                    itemsInCart: 2
-                    price: 10.0
-                price: 20.0
-                address: "Updated Shipping Address"
-                bank: "Updated Bank Name"
-                coinsRedeemed: 0
-                status: "Processing"
+              schema:
+                $ref: '#/components/schemas/Order'
         '400':
-          description: Bad Request
+          description: Bad Request - Payment not confirmed or insufficient inventory
         '401':
-          description: Unauthorized
-        '404':
-          description: Order not found
-      security:
-        - BearerAuth: []
+          description: Unauthorized - Invalid or missing JWT token
+        '500':
+          description: Internal Server Error
 
-  /order/{id}/cancel:
-    patch:
-      summary: Cancel an order
-      description: |
-        Marks the status of the order document as "cancelled".
-        Only the status field can be modified in this operation.
-
-      parameters:
-        - name: id
-          in: path
-          description: Order ID
-          required: true
-          schema:
-            type: string
-            example: "5fc02cb7f068b18fad8a65a7"
-
+  /webhooks/stripe:
+    post:
+      summary: Stripe webhook handler
+      description: Handles Stripe webhook events, particularly payment_intent.succeeded for automatic order processing with inventory validation and refund capability.
+      tags:
+        - Webhook
+        - Payment
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              properties:
-                status:
-                  type: string
-                  enum:
-                    - cancelled
-                  description: The new status of the order.
-
+              description: Stripe webhook event payload
       responses:
         '200':
-          description: Successful response
+          description: Webhook processed successfully
+        '400':
+          description: Invalid webhook signature or payload
+
+  /order/user:
+    get:
+      summary: Get paginated orders for authenticated user
+      description: Retrieves all orders belonging to the authenticated user with pagination. User can only see their own orders.
+      tags:
+        - Order
+        - User
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number (default: 1)
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Number of items per page (default: 6)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list of user's orders
           content:
             application/json:
+              schema:
+                type: object
+                properties:
+                  hasMore:
+                    type: boolean
+                  orders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
               example:
-                _id: "order_id"
-                user: "user_id"
-                items:
-                  - candy: "candy_id"
-                    itemsInCart: 2
-                    price: 10.0
-                price: 20.0
-                address: "Shipping Address"
-                bank: "Bank Name"
-                coinsRedeemed: 0
-                status: "cancelled"
-        '400':
-          description: Bad Request
+                hasMore: false
+                orders:
+                  - _id: "64f1a2b3c4d5e6f7g8h9i0j1"
+                    user: "64f1a2b3c4d5e6f7g8h9i0j2"
+                    status: "delivered"
+                    items:
+                      - candy: "64f1a2b3c4d5e6f7g8h9i0j3"
+                        name: "gummy bears"
+                        price: 1.99
+                        quantity: 100
+                        description: "Fruit-flavored gummies"
+                        itemsInCart: 3
+                        photo:
+                          url: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/gummy.jpg"
+                    address: "456 Oak Ave, Town, State 67890"
+                    price: 5.97
+                    coinsRedeemed: 0
+                    createdAt: "2023-09-28T14:30:00.000Z"
+                    updatedAt: "2023-09-30T16:45:00.000Z"
         '401':
-          description: Unauthorized
+          description: Unauthorized - Invalid or missing JWT token
+
+  /order/{id}:
+    get:
+      summary: Get order by ID
+      description: Retrieves detailed information about a specific order. Users can only access their own orders, admins can access any order.
+      tags:
+        - Order
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: MongoDB ObjectId of the order
+          required: true
+          schema:
+            type: string
+            example: "64f1a2b3c4d5e6f7g8h9i0j1"
+      responses:
+        '200':
+          description: Order details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              example:
+                _id: "64f1a2b3c4d5e6f7g8h9i0j1"
+                user: "64f1a2b3c4d5e6f7g8h9i0j2"
+                status: "pending"
+                items:
+                  - candy: "64f1a2b3c4d5e6f7g8h9i0j3"
+                    name: "chocolate bar"
+                    price: 2.99
+                    quantity: 50
+                    description: "Dark chocolate"
+                    itemsInCart: 2
+                    photo:
+                      url: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/chocolate.jpg"
+                address: "123 Main St, City, State 12345"
+                price: 5.98
+                coinsRedeemed: 0
+                createdAt: "2023-10-01T10:00:00.000Z"
+                updatedAt: "2023-10-01T10:00:00.000Z"
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+        '403':
+          description: Forbidden - User cannot access this order
         '404':
           description: Order not found
-        '500':
-          description: Internal Server Error
 
+
+
+    patch:
+      summary: Update order (Admin only)
+      description: Updates order details. Only admins can modify orders. Supports partial updates of items, address, bank, and status.
+      tags:
+        - Order
+        - Admin
       security:
         - BearerAuth: []
-  /bank:
-    get:
-      summary: Get all banks
-      description: Get a list of all banks
+      parameters:
+        - name: id
+          in: path
+          description: MongoDB ObjectId of the order
+          required: true
+          schema:
+            type: string
+            example: "64f1a2b3c4d5e6f7g8h9i0j1"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderUpdate'
+            example:
+              status: "delivered"
+              address: "Updated: 789 Pine St, Village, State 11111"
       responses:
         '200':
-          description: Successful response
+          description: Order updated successfully
           content:
             application/json:
-              example:
-                banks:
-                  - _id: "5fc02cb7f068b18fad8a65a7"
-                    name: "SBI"
-                  # Additional banks...
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Bad Request - Invalid update data
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+        '403':
+          description: Forbidden - User is not an admin
+        '404':
+          description: Order not found
+
+  /order/{id}/cancel:
+    patch:
+      summary: Cancel order (User only)
+      description: Allows users to cancel their own orders by setting status to 'cancelled'. Users can only cancel their own orders.
+      tags:
+        - Order
+        - User
       security:
         - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: MongoDB ObjectId of the order to cancel
+          required: true
+          schema:
+            type: string
+            example: "64f1a2b3c4d5e6f7g8h9i0j1"
+      responses:
+        '200':
+          description: Order cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              example:
+                _id: "64f1a2b3c4d5e6f7g8h9i0j1"
+                user: "64f1a2b3c4d5e6f7g8h9i0j2"
+                status: "cancelled"
+                items:
+                  - candy: "64f1a2b3c4d5e6f7g8h9i0j3"
+                    name: "chocolate bar"
+                    price: 2.99
+                    quantity: 50
+                    description: "Dark chocolate"
+                    itemsInCart: 2
+                    photo:
+                      url: "https://res.cloudinary.com/candyhouse/image/upload/v123/candies/chocolate.jpg"
+                address: "123 Main St, City, State 12345"
+                price: 5.98
+                coinsRedeemed: 0
+                createdAt: "2023-10-01T10:00:00.000Z"
+                updatedAt: "2023-10-01T12:30:00.000Z"
+        '400':
+          description: Bad Request - Order cannot be cancelled
+        '401':
+          description: Unauthorized - Invalid or missing JWT token
+        '403':
+          description: Forbidden - User cannot cancel this order
+        '404':
+          description: Order not found
+  /bank:
+    get:
+      summary: Get all available banks
+      description: Retrieves a list of all banks available for payment processing. Used for order payment method selection.
+      tags:
+        - Bank
+        - Reference
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of available banks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  banks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Bank'
+              example:
+                banks:
+                  - _id: "64f1a2b3c4d5e6f7g8h9i0j1"
+                    name: "SBI"
+                  - _id: "64f1a2b3c4d5e6f7g8h9i0j2"
+                    name: "HDFC Bank"
+                  - _id: "64f1a2b3c4d5e6f7g8h9i0j3"
+                    name: "ICICI Bank"
+        '401':
+          description: Unauthorized - Invalid or missing JWT token

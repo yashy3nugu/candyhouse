@@ -1,23 +1,35 @@
 import { createClient } from 'redis';
 
-const redisClient = createClient({
-  socket: {
-    host: process.env.REDIS_HOST || 'candyhouse-redis-master',
-    port: parseInt(process.env.REDIS_PORT || '6379'),
-  },
-  password: process.env.REDIS_PASSWORD,
-  sentinels: [
-    {
-      host: process.env.REDIS_SENTINEL_1 || 'candyhouse-redis-sentinel-0.candyhouse-redis-headless',
-      port: parseInt(process.env.REDIS_SENTINEL_PORT || '26379'),
-    },
-    {
-      host: process.env.REDIS_SENTINEL_2 || 'candyhouse-redis-sentinel-1.candyhouse-redis-headless',
-      port: parseInt(process.env.REDIS_SENTINEL_PORT || '26379'),
-    },
-  ],
-  name: 'mymaster',
-});
+// Environment-aware Redis configuration
+const isProduction = process.env.NODE_ENV === 'production';
+const useSentinel = process.env.REDIS_USE_SENTINEL === 'true' || isProduction;
+
+const redisClient = createClient(
+  useSentinel
+    ? {
+        // Production: Redis Sentinel configuration
+        sentinels: [
+          {
+            host: process.env.REDIS_SENTINEL_1 || 'candyhouse-redis-sentinel-0.candyhouse-redis-headless',
+            port: parseInt(process.env.REDIS_SENTINEL_PORT || '26379'),
+          },
+          {
+            host: process.env.REDIS_SENTINEL_2 || 'candyhouse-redis-sentinel-1.candyhouse-redis-headless',
+            port: parseInt(process.env.REDIS_SENTINEL_PORT || '26379'),
+          },
+        ],
+        name: 'mymaster',
+        password: process.env.REDIS_PASSWORD,
+      }
+    : {
+        // Development: Direct Redis connection
+        socket: {
+          host: process.env.REDIS_HOST || 'localhost',
+          port: parseInt(process.env.REDIS_PORT || '6379'),
+        },
+        password: process.env.REDIS_PASSWORD || 'dev-redis-password',
+      }
+);
 
 redisClient.on('error', (err) => console.error('Redis Client Error:', err));
 redisClient.on('connect', () => console.log('Redis Client Connected'));
@@ -26,11 +38,14 @@ redisClient.on('reconnecting', () => console.log('Redis Client Reconnecting'));
 export const connectRedis = async () => {
   try {
     await redisClient.connect();
-    console.log('Connected to Redis');
+    const connectionType = useSentinel ? 'Redis Sentinel' : 'Redis Direct';
+    console.log(`✅ Connected to ${connectionType}`);
+    
+    // Configure memory policy for better cache management
     await redisClient.configSet('maxmemory-policy', 'allkeys-lru');
-    console.log('Configured Redis eviction policy to allkeys-lru');
+    console.log('📊 Configured Redis eviction policy to allkeys-lru');
   } catch (error) {
-    console.error('Error connecting to Redis:', error);
+    console.error('❌ Error connecting to Redis:', error);
     throw error;
   }
 };

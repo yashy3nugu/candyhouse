@@ -1,121 +1,319 @@
 openapi: 3.0.0
 info:
-  version: "1.0.0"
-  title: "Candyhouse Ecommerce User Service API"
-  description: "API for user management in the Candyhouse Ecommerce App"
+  title: CandyHouse User Service API
+  version: 1.0.0
+  description: Authentication and user management microservice for the CandyHouse e-commerce platform. Handles user registration, authentication, JWT token management, and user profile operations.
 
 servers:
-  - url: "/api/v1"
-    description: "Development Server"
-    variables:
-      basePath:
-        default: ""
+  - url: http://localhost:7000
+    description: Development server
+  - url: http://candyhouse.com/user-service
+    description: Production server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authenticated requests
+
+  schemas:
+    Photo:
+      type: object
+      properties:
+        url:
+          type: string
+          description: Cloudinary image URL
+          example: "https://res.cloudinary.com/candyhouse/image/upload/v123/users/profile.jpg"
+      required:
+        - url
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: MongoDB ObjectId
+          example: "64f1a2b3c4d5e6f7g8h9i0j1"
+        name:
+          type: string
+          description: User's full name
+          example: "john doe"
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "john.doe@example.com"
+        appId:
+          type: string
+          description: Application-specific unique identifier
+          example: "user-123-uuid-456"
+        role:
+          type: string
+          enum: [user, admin, vendor]
+          description: User role in the system
+          example: "user"
+        balance:
+          type: number
+          description: User's current balance/coins
+          example: 150.50
+        totalRedeemedCoins:
+          type: number
+          description: Total coins redeemed by user
+          example: 25.00
+        totalEarnedCoins:
+          type: number
+          description: Total coins earned by user
+          example: 175.50
+        createdAt:
+          type: string
+          format: date-time
+          description: User creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - _id
+        - name
+        - email
+        - appId
+        - role
+
+    UserRegistration:
+      type: object
+      properties:
+        name:
+          type: string
+          description: User's full name
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "john.doe@example.com"
+        password:
+          type: string
+          minLength: 6
+          description: User's password (minimum 6 characters)
+          example: "securepassword123"
+        confirmPassword:
+          type: string
+          minLength: 6
+          description: Password confirmation (must match password)
+          example: "securepassword123"
+        role:
+          type: string
+          enum: [user, admin, vendor]
+          description: Desired user role
+          example: "user"
+      required:
+        - name
+        - email
+        - password
+        - confirmPassword
+        - role
+
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "john.doe@example.com"
+        password:
+          type: string
+          description: User's password
+          example: "securepassword123"
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT authentication token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - token
+        - user
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: "Invalid credentials"
 
 paths:
   /register:
     post:
+      summary: Register a new user
+      description: Creates a new user account and publishes user creation event to Kafka. Returns JWT token for immediate authentication.
       tags:
-        - "User"
-      summary: "Register a new user"
+        - Authentication
       requestBody:
-        description: "User details for registration"
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserRegistrationInput"
+              $ref: '#/components/schemas/UserRegistration'
+            example:
+              name: "Jane Smith"
+              email: "jane.smith@example.com"
+              password: "mypassword123"
+              confirmPassword: "mypassword123"
+              role: "vendor"
       responses:
-        "201":
-          description: "User registered successfully"
+        '201':
+          description: User registered successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserResponse"
-        "400":
-          description: "Bad Request - User with the same email already exists"
-        "500":
-          description: "Internal Server Error"
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY0ZjFhMmIzYzRkNWU2ZjdnOGg5aTBqMSIsIm5hbWUiOiJqYW5lIHNtaXRoIiwiZW1haWwiOiJqYW5lLnNtaXRoQGV4YW1wbGUuY29tIiwiYXBwSWQiOiJ1c2VyLTEyMy11dWlkLTQ1NiIsInJvbGUiOiJ2ZW5kb3IifX0.xyz123"
+                user:
+                  _id: "64f1a2b3c4d5e6f7g8h9i0j1"
+                  name: "jane smith"
+                  email: "jane.smith@example.com"
+                  appId: "user-123-uuid-456"
+                  role: "vendor"
+                  balance: 0
+                  totalRedeemedCoins: 0
+                  totalEarnedCoins: 0
+                  createdAt: "2023-10-01T10:00:00.000Z"
+                  updatedAt: "2023-10-01T10:00:00.000Z"
+        '400':
+          description: Bad Request - Validation error or user already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                userExists:
+                  summary: User already exists
+                  value:
+                    message: "User with email already exists"
+                validationError:
+                  summary: Validation error
+                  value:
+                    message: "Passwords do not match"
+        '500':
+          description: Internal Server Error
 
   /login:
     post:
+      summary: User login
+      description: Authenticates user credentials and returns JWT token for subsequent requests.
       tags:
-        - "User"
-      summary: "User login"
+        - Authentication
       requestBody:
-        description: "User credentials for login"
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserLoginInput"
+              $ref: '#/components/schemas/UserLogin'
+            example:
+              email: "jane.smith@example.com"
+              password: "mypassword123"
       responses:
-        "201":
-          description: "User logged in successfully"
+        '201':
+          description: Login successful
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserResponse"
-        "400":
-          description: "Bad Request - Invalid credentials"
-        "500":
-          description: "Internal Server Error"
+                $ref: '#/components/schemas/AuthResponse'
+              example:
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY0ZjFhMmIzYzRkNWU2ZjdnOGg5aTBqMSJ9fQ.xyz123"
+                user:
+                  _id: "64f1a2b3c4d5e6f7g8h9i0j1"
+                  name: "jane smith"
+                  email: "jane.smith@example.com"
+                  appId: "user-123-uuid-456"
+                  role: "vendor"
+                  balance: 150.50
+                  totalRedeemedCoins: 25.00
+                  totalEarnedCoins: 175.50
+                  createdAt: "2023-10-01T10:00:00.000Z"
+                  updatedAt: "2023-10-01T12:30:00.000Z"
+        '400':
+          description: Bad Request - Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Invalid Credentials"
+        '500':
+          description: Internal Server Error
 
   /verify:
     get:
+      summary: Verify JWT token and get user profile
+      description: Validates the provided JWT token and returns the authenticated user's profile information.
       tags:
-        - "User"
-      summary: "Verify user details"
-      parameters:
-        - in: "header"
-          name: "Authorization"
-          description: "JWT token for authentication"
-          required: true
-          schema:
-            type: "string"
+        - Authentication
+        - User Profile
+      security:
+        - BearerAuth: []
       responses:
-        "200":
-          description: "User details retrieved successfully"
+        '200':
+          description: Token valid, user profile returned
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserResponse"
-        "401":
-          description: "Unauthorized - Token not provided or invalid"
-        "404":
-          description: "User not found"
-        "500":
-          description: "Internal Server Error"
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+              example:
+                user:
+                  _id: "64f1a2b3c4d5e6f7g8h9i0j1"
+                  name: "jane smith"
+                  email: "jane.smith@example.com"
+                  appId: "user-123-uuid-456"
+                  role: "vendor"
+                  balance: 150.50
+                  totalRedeemedCoins: 25.00
+                  totalEarnedCoins: 175.50
+                  createdAt: "2023-10-01T10:00:00.000Z"
+                  updatedAt: "2023-10-01T12:30:00.000Z"
+        '401':
+          description: Unauthorized - Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                noToken:
+                  summary: No token provided
+                  value:
+                    message: "Token not provided"
+                invalidToken:
+                  summary: Invalid token
+                  value:
+                    message: "Invalid token"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "User not found"
+        '500':
+          description: Internal Server Error
 
-components:
-  schemas:
-    UserRegistrationInput:
-      type: "object"
-      properties:
-        name:
-          type: "string"
-        email:
-          type: "string"
-        password:
-          type: "string"
-        role:
-          type: "string"
-          enum:
-            - "user"
-            - "vendor"
-            - "admin"
-
-    UserLoginInput:
-      type: "object"
-      properties:
-        email:
-          type: "string"
-        password:
-          type: "string"
-
-    UserResponse:
-      type: "object"
-      properties:
-        token:
-          type: "string"
-        user:
-          $ref: "#/components/schemas/UserRegistrationInput"
+tags:
+  - name: Authentication
+    description: User authentication and JWT token management
+  - name: User Profile
+    description: User profile operations and information retrieval
