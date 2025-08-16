@@ -30,8 +30,13 @@ export type OrderDataItem = {
   price: number;
   quantity: number;
 };
+
+export type OrderCreateItem = {
+  candy: string;
+  itemsInCart: number;
+};
 export type OrderCreateBody = {
-  items: OrderDataItem[];
+  items: OrderCreateItem[];
   address: string;
 };
 

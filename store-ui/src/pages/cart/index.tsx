@@ -12,9 +12,10 @@ import {
   Divider,
   Alert,
   AlertIcon,
-  
+  Box,
+  HStack,
 } from "@chakra-ui/react";
-import {useAppSelector } from "@/store/hooks";
+import {useAppSelector, useAppDispatch } from "@/store/hooks";
 
 
 import { Role } from "@/utils/types/user";
@@ -26,15 +27,72 @@ import CartItem from "@/components/cart-item";
 import InputControl from "@/components/ui/input-control";
 
 import { useLoggedInUserQuery } from "@/api/user";
-import { useCreateOrderMutation, useConfirmOrderMutation } from "@/api/order";
-import { OrderDataItem } from "@/api/order/types";
+import { useCreateOrderMutation } from "@/api/order";
+import { OrderCreateItem } from "@/api/order/types";
 import Seo from "@/components/shared/seo";
 // import PaymentModal from "@/components/payment-modal";
 import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { clearCart } from "@/store/modules/cart";
+import { useRouter } from "next/router";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
+// US States array for dropdown
+const US_STATES = [
+  { value: 'AL', label: 'Alabama' },
+  { value: 'AK', label: 'Alaska' },
+  { value: 'AZ', label: 'Arizona' },
+  { value: 'AR', label: 'Arkansas' },
+  { value: 'CA', label: 'California' },
+  { value: 'CO', label: 'Colorado' },
+  { value: 'CT', label: 'Connecticut' },
+  { value: 'DE', label: 'Delaware' },
+  { value: 'FL', label: 'Florida' },
+  { value: 'GA', label: 'Georgia' },
+  { value: 'HI', label: 'Hawaii' },
+  { value: 'ID', label: 'Idaho' },
+  { value: 'IL', label: 'Illinois' },
+  { value: 'IN', label: 'Indiana' },
+  { value: 'IA', label: 'Iowa' },
+  { value: 'KS', label: 'Kansas' },
+  { value: 'KY', label: 'Kentucky' },
+  { value: 'LA', label: 'Louisiana' },
+  { value: 'ME', label: 'Maine' },
+  { value: 'MD', label: 'Maryland' },
+  { value: 'MA', label: 'Massachusetts' },
+  { value: 'MI', label: 'Michigan' },
+  { value: 'MN', label: 'Minnesota' },
+  { value: 'MS', label: 'Mississippi' },
+  { value: 'MO', label: 'Missouri' },
+  { value: 'MT', label: 'Montana' },
+  { value: 'NE', label: 'Nebraska' },
+  { value: 'NV', label: 'Nevada' },
+  { value: 'NH', label: 'New Hampshire' },
+  { value: 'NJ', label: 'New Jersey' },
+  { value: 'NM', label: 'New Mexico' },
+  { value: 'NY', label: 'New York' },
+  { value: 'NC', label: 'North Carolina' },
+  { value: 'ND', label: 'North Dakota' },
+  { value: 'OH', label: 'Ohio' },
+  { value: 'OK', label: 'Oklahoma' },
+  { value: 'OR', label: 'Oregon' },
+  { value: 'PA', label: 'Pennsylvania' },
+  { value: 'RI', label: 'Rhode Island' },
+  { value: 'SC', label: 'South Carolina' },
+  { value: 'SD', label: 'South Dakota' },
+  { value: 'TN', label: 'Tennessee' },
+  { value: 'TX', label: 'Texas' },
+  { value: 'UT', label: 'Utah' },
+  { value: 'VT', label: 'Vermont' },
+  { value: 'VA', label: 'Virginia' },
+  { value: 'WA', label: 'Washington' },
+  { value: 'WV', label: 'West Virginia' },
+  { value: 'WI', label: 'Wisconsin' },
+  { value: 'WY', label: 'Wyoming' },
+  { value: 'DC', label: 'District of Columbia' }
+];
 
 const Cart: NextPageWithLayout = () => {
   
@@ -44,10 +102,11 @@ const Cart: NextPageWithLayout = () => {
 
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [formAddress, setFormAddress] = useState('');
+  // const [formAddress, setFormAddress] = useState('');
 
   const { mutate: createOrder } = useCreateOrderMutation();
-  const { mutate: confirmOrder } = useConfirmOrderMutation();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
 
   const { isLoading: isUserLoading, data: loginData } = useLoggedInUserQuery();
@@ -80,51 +139,169 @@ const Cart: NextPageWithLayout = () => {
       if (!stripe || !elements) return;
       setLoading(true);
       setError(null);
+      
+      const cardNumberElement = elements.getElement(CardNumberElement);
+      if (!cardNumberElement) return;
+      
       const result = await stripe.confirmCardPayment(clientSecret!, {
         payment_method: {
-          card: elements.getElement(CardElement)!,
+          card: cardNumberElement,
         },
       });
+      
       if (result.error) {
         setLoading(false);
         setError(typeof result.error.message === 'string' ? result.error.message : 'Payment failed');
       } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-        // Call backend to confirm and create order using the mutation
-        confirmOrder(
-          {
-            paymentIntentId: result.paymentIntent.id,
-            items: cartItems,
-            address: formAddress,
-          },
-          {
-            onSuccess: () => {
-              setOrderConfirmed(true);
-              setPaymentSuccess(true);
-              setLoading(false);
-            },
-            onError: (error: any) => {
-              setError(error?.response?.data?.message || 'Order confirmation failed');
-              setLoading(false);
-            },
-          }
-        );
+        // Webhook-based finalization: show success and let backend finalize via webhook
+        setOrderConfirmed(true);
+        setPaymentSuccess(true);
+        setLoading(false);
+        dispatch(clearCart());
+        setTimeout(() => {
+          void router.push('/user/profile/orders');
+        }, 2000);
       } else {
         setLoading(false);
         setError('Payment not successful');
       }
     };
 
+    const cardElementOptions = {
+      style: {
+        base: {
+          fontSize: '16px',
+          color: '#424770',
+          '::placeholder': {
+            color: '#aab7c4',
+          },
+        },
+        invalid: {
+          color: '#9e2146',
+        },
+      },
+    };
+
     return (
       orderConfirmed ? (
         <Alert status="success"><AlertIcon />Order placed successfully!</Alert>
       ) : (
-        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-          <CardElement options={{ hidePostalCode: true }} />
-          <Button mt={4} colorScheme="pink" type="submit" isLoading={loading} w="full">
-            Pay
-          </Button>
-          {error && <Alert status="error" mt={2}><AlertIcon />{error}</Alert>}
-        </form>
+        <Card maxW="md" mx="auto" shadow="lg">
+          <CardBody>
+            <form onSubmit={handleSubmit}>
+              <VStack spacing={4} align="stretch">
+                {/* Card Number */}
+                <Box>
+                  <Text fontSize="sm" fontWeight="medium" mb={2} color="gray.700">
+                    Card number
+                  </Text>
+                  <Box
+                    p={3}
+                    border="1px solid"
+                    borderColor="gray.300"
+                    borderRadius="md"
+                    bg="white"
+                    _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px blue.500" }}
+                  >
+                    <CardNumberElement options={cardElementOptions} />
+                  </Box>
+                </Box>
+
+                {/* Expiry, CVC, and ZIP */}
+                <HStack spacing={4}>
+                  <Box flex={1}>
+                    <Text fontSize="sm" fontWeight="medium" mb={2} color="gray.700">
+                      Expiry
+                    </Text>
+                    <Box
+                      p={3}
+                      border="1px solid"
+                      borderColor="gray.300"
+                      borderRadius="md"
+                      bg="white"
+                      _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px blue.500" }}
+                    >
+                      <CardExpiryElement options={cardElementOptions} />
+                    </Box>
+                  </Box>
+                  <Box flex={1}>
+                    <Text fontSize="sm" fontWeight="medium" mb={2} color="gray.700">
+                      CVC
+                    </Text>
+                    <Box
+                      p={3}
+                      border="1px solid"
+                      borderColor="gray.300"
+                      borderRadius="md"
+                      bg="white"
+                      _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px blue.500" }}
+                    >
+                      <CardCvcElement options={cardElementOptions} />
+                    </Box>
+                  </Box>
+                  <Box flex={1}>
+                    <Text fontSize="sm" fontWeight="medium" mb={2} color="gray.700">
+                      ZIP
+                    </Text>
+                    <Box
+                      p={3}
+                      border="1px solid"
+                      borderColor="gray.300"
+                      borderRadius="md"
+                      bg="white"
+                      _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px blue.500" }}
+                    >
+                      <input
+                        type="text"
+                        placeholder="12345"
+                        maxLength={5}
+                        style={{
+                          border: 'none',
+                          outline: 'none',
+                          width: '100%',
+                          fontSize: '16px',
+                          color: '#424770',
+                          backgroundColor: 'transparent'
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                </HStack>
+
+                {/* Pay Button */}
+                <Button
+                  type="submit"
+                  isLoading={loading}
+                  loadingText="Processing..."
+                  colorScheme="pink"
+                  size="lg"
+                  w="full"
+                  mt={4}
+                  isDisabled={!stripe || loading}
+                >
+                  Pay ${cartPrice}
+                </Button>
+
+                {/* Powered by Stripe */}
+                <HStack justify="center" spacing={1} mt={3}>
+                  <Text fontSize="xs" color="gray.500">
+                    Powered by
+                  </Text>
+                  <Text fontSize="xs" color="gray.700" fontWeight="semibold" letterSpacing="wide">
+                    stripe
+                  </Text>
+                </HStack>
+
+                {error && (
+                  <Alert status="error" mt={2}>
+                    <AlertIcon />
+                    {error}
+                  </Alert>
+                )}
+              </VStack>
+            </form>
+          </CardBody>
+        </Card>
       )
     );
   }
@@ -133,163 +310,201 @@ const Cart: NextPageWithLayout = () => {
     <>
       <Seo title="Cart" />
       <Container
-        maxW="3xl"
-        py={{ base: "12", md: "24" }}
-        px={{ base: "0", sm: "8" }}
+        maxW="6xl"
+        py={{ base: "8", md: "12" }}
+        px={{ base: "4", sm: "8" }}
       >
         {paymentSuccess ? (
-          <Alert status="success"><AlertIcon />Payment successful! Your order has been placed.</Alert>
+          <Alert status="success" maxW="md" mx="auto">
+            <AlertIcon />
+            Payment successful! Your order has been placed.
+          </Alert>
         ) : clientSecret ? (
           <Elements stripe={stripePromise} options={{ clientSecret }}>
             <StripeCheckoutForm />
           </Elements>
         ) : cartValue > 0 ? (
-          <>
-            <Card w="full" mb={5}>
-              <CardBody>
-                <Flex mt={4} w="full" justifyContent="space-between">
-                  <Text fontSize="md" fontWeight="base">
-                    Subtotal
-                  </Text>
-                  <Text fontSize="md" fontWeight="base">
-                    ${cartPrice}
-                  </Text>
-                </Flex>
+          <VStack spacing={8} align="stretch">
+            {/* Cart Items Section */}
+            <Box>
+              <Heading size="lg" mb={6}>Your cart ({cartValue})</Heading>
+              <VStack divider={<StackDivider />} spacing={4}>
+                {cartItems.map((candy, i) => (
+                  <CartItem key={i} candy={candy} />
+                ))}
+              </VStack>
+            </Box>
 
-                {/* {appliedCoupon && (
-                  <Flex mt={4} w="full" justifyContent="space-between">
-                    <Text fontSize="md" fontWeight="base">
-                      Discount (
-                      {appliedCoupon ? `${appliedCoupon.discount}%` : "0%"})
+            {/* Order Summary and Checkout Section */}
+            <Card maxW="md" mx="auto" w="full">
+              <CardBody>
+                <VStack spacing={4} align="stretch">
+                  <Heading size="md">Order Summary</Heading>
+                  
+                  <Flex justify="space-between" align="center">
+                    <Text fontSize="lg" fontWeight="semibold">
+                      Total
                     </Text>
-                    <Text color="pink.300" fontSize="md" fontWeight="base">
-                      -₹
-                      {appliedCoupon
-                        ? Math.round(cartPrice * (appliedCoupon.discount / 100))
-                        : 0}
+                    <Text fontSize="xl" fontWeight="bold" color="pink.500">
+                      ${cartPrice}
                     </Text>
                   </Flex>
-                )} */}
 
-                <Divider />
+                  {!isUserLoading && !loginData && (
+                    <Alert status="info">
+                      <AlertIcon />
+                      Login to place an order.
+                    </Alert>
+                  )}
 
-                <Flex mt={4} w="full" justifyContent="space-between">
-                  <Text fontSize="lg" fontWeight="semibold">
-                    Order Total
-                  </Text>
-                  {/* <Text fontSize="lg" fontWeight="semibold">
-                    ₹
-                    {appliedCoupon
-                      ? Math.round(
-                          cartPrice * (1 - appliedCoupon.discount / 100)
-                        )
-                      : cartPrice}
-                  </Text> */}
-                </Flex>
+                  {!isUserLoading &&
+                    loginData &&
+                    (loginData.user?.role === Role.Vendor ||
+                      loginData.user?.role === Role.Admin) && (
+                      <Alert status="info">
+                        <AlertIcon />
+                        Login as a customer to place an order.
+                      </Alert>
+                    )}
 
-                {!isUserLoading && loginData && (
-                  <Formik
-                    validate={({ address }) => {
-                      const errors: { address?: string } = {};
-                      if (address === "") {
-                        errors.address = "Address Required";
-                      }
-                      return errors;
-                    }}
-                    initialValues={{
-                      address: "",
-                    }}
-                    onSubmit={({ address }) => {
-                      setFormAddress(address);
-                      const items = [] as OrderDataItem[];
+                  {!isUserLoading && loginData && (
+                    <Formik
+                      validate={(values) => {
+                        const errors: { 
+                          street?: string; 
+                          city?: string; 
+                          state?: string; 
+                          zipCode?: string; 
+                        } = {};
+                        
+                        if (!values.street || values.street.trim() === "") {
+                          errors.street = "Street address is required";
+                        }
+                        if (!values.city || values.city.trim() === "") {
+                          errors.city = "City is required";
+                        }
+                        if (!values.state || values.state.trim() === "") {
+                          errors.state = "State is required";
+                        }
+                        if (!values.zipCode || values.zipCode.trim() === "") {
+                          errors.zipCode = "ZIP code is required";
+                        } else if (!/^\d{5}(-\d{4})?$/.test(values.zipCode.trim())) {
+                          errors.zipCode = "Invalid ZIP code format";
+                        }
+                        
+                        return errors;
+                      }}
+                      initialValues={{
+                        street: "",
+                        apartment: "",
+                        city: "",
+                        state: "",
+                        zipCode: "",
+                      }}
+                      onSubmit={(values) => {
+                        // Concatenate address fields into a single string
+                        const addressParts = [
+                          values.street.trim(),
+                          values.apartment.trim() ? `Apt ${values.apartment.trim()}` : "",
+                          values.city.trim(),
+                          values.state.trim(),
+                          values.zipCode.trim()
+                        ].filter(part => part !== "");
+                        
+                        const fullAddress = addressParts.join(", ");
+                        
+                        const items = [] as OrderCreateItem[];
 
-                      cartItems.forEach(
-                        ({
-                          itemsInCart,
-                          appId,
-                          description,
-                          name,
-                          photo,
-                          price,
-                          quantity,
-                        }) => {
+                        cartItems.forEach(({ itemsInCart, appId }) => {
                           items.push({
                             candy: appId,
                             itemsInCart,
-                            description,
-                            name,
-                            photo,
-                            price,
-                            quantity,
                           });
-                        }
-                      );
+                        });
 
-                      createOrder(
-                        { items, address },
-                        {
-                          onSuccess: (data) => {
-                            if (typeof data?.clientSecret === 'string') {
-                              setClientSecret(data.clientSecret);
-                            }
-                          },
-                        }
-                      );
-                    }}
-                  >
-                    {({  isSubmitting, isValid, dirty }) => (
-                      <Form>
-                        <VStack alignItems="start" mt={4}>
-                          <InputControl name="address" label="Address" />
-                        </VStack>
-
-                        {!isUserLoading && !loginData && (
-                          <Alert mt={4} status="info">
-                            <AlertIcon />
-                            Login to place an order.
-                          </Alert>
-                        )}
-                        {!isUserLoading &&
-                          loginData &&
-                          (loginData.user?.role === Role.Vendor ||
-                            loginData.user?.role === Role.Admin) && (
-                            <Alert mt={4} status="info">
-                              <AlertIcon />
-                              Login as a customer to place an order.
-                            </Alert>
-                          )}
-
-                        {!isUserLoading && loginData && (
-                          <Button
-                            isLoading={isSubmitting}
-                            isDisabled={isSubmitting || !isValid || !dirty}
-                            mt={4}
-                            type="submit"
-                            py={6}
-                            w="full"
-                            colorScheme="pink"
-                            size={{base: "sm", sm: "md"}}
-                          >
-                            Place Order
-                          </Button>
-                        )}
-                      </Form>
-                    )}
-                  </Formik>
-                )}
+                        createOrder(
+                          { items, address: fullAddress },
+                          {
+                            onSuccess: (data: { clientSecret?: string } | any) => {
+                              const cs = data?.clientSecret;
+                              if (typeof cs === 'string') {
+                                setClientSecret(cs);
+                              }
+                            },
+                          }
+                        );
+                      }}
+                    >
+                      {({ isSubmitting, isValid, dirty }) => (
+                        <Form>
+                          <VStack spacing={4} align="stretch">
+                            <Heading size="sm" color="gray.700">Delivery Address</Heading>
+                            
+                            <InputControl 
+                              name="street" 
+                              label="Street Address" 
+                              placeholder="123 Main St"
+                            />
+                            
+                            <InputControl 
+                              name="apartment" 
+                              label="Apartment, Suite, etc. (Optional)" 
+                              placeholder="Apt 4B"
+                            />
+                            
+                            <HStack spacing={4}>
+                              <Box flex={2}>
+                                <InputControl 
+                                  name="city" 
+                                  label="City" 
+                                  placeholder="New York"
+                                />
+                              </Box>
+                              <Box flex={1}>
+                                <SelectControl 
+                                  name="state" 
+                                  label="State" 
+                                  selectProps={{ placeholder: "Select state" }}
+                                >
+                                  <option value="">Select state</option>
+                                  {US_STATES.map((state) => (
+                                    <option key={state.value} value={state.value}>
+                                      {state.label}
+                                    </option>
+                                  ))}
+                                </SelectControl>
+                              </Box>
+                              <Box flex={1}>
+                                <InputControl 
+                                  name="zipCode" 
+                                  label="ZIP Code" 
+                                  placeholder="10001"
+                                />
+                              </Box>
+                            </HStack>
+                            
+                            <Button
+                              isLoading={isSubmitting}
+                              isDisabled={isSubmitting || !isValid || !dirty}
+                              type="submit"
+                              colorScheme="pink"
+                              size="lg"
+                              w="full"
+                              mt={2}
+                            >
+                              Proceed to Payment
+                            </Button>
+                          </VStack>
+                        </Form>
+                      )}
+                    </Formik>
+                  )}
+                </VStack>
               </CardBody>
             </Card>
-
-            <Heading>Your cart ({cartValue})</Heading>
-            <VStack divider={<StackDivider />} px={6} mt={4}>
-              {cartValue > 0 &&
-                cartItems.map((candy, i) => {
-                  return <CartItem key={i} candy={candy} />;
-                })}
-            </VStack>
-          </>
+          </VStack>
         ) : (
-          <Alert status="warning">
+          <Alert status="warning" maxW="md" mx="auto">
             <AlertIcon />
             Empty Cart.
           </Alert>

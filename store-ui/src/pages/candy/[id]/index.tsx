@@ -203,7 +203,7 @@ const Candy: NextPageWithLayout = () => {
                         Add to Cart
                       </Button>
                     )}
-                    <Text fontWeight="bold">₹{candy.price}</Text>
+                    <Text fontWeight="bold">${candy.price}</Text>
                   </Flex>
                 </VStack>
               </GridItem>

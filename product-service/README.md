@@ -250,3 +250,17 @@ Request Flow:
 ```
 
 This strategy ensures optimal performance while maintaining data consistency and efficient resource utilization.
+
+## Event-Driven Architecture
+
+### 📡 Kafka Integration
+
+The Product Service publishes real-time events to Apache Kafka for seamless integration with other microservices:
+
+#### Published Events
+
+**Topic: `candy`**
+- **Event**: Product creation/updates
+- **Consumers**: Order Service
+- **Payload**: Complete candy object with vendor information
+- **Use Case**: Real-time product catalog synchronization

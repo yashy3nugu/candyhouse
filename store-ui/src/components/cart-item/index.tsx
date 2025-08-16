@@ -31,7 +31,7 @@ const CartItem: React.FC<CartItemProps> = ({ candy }) => {
             {candy.name}
           </Text>
           <Text fontWeight="semibold" fontSize="sm">
-            ₹{candy.price}
+            ${candy.price}
           </Text>
         </VStack>
       </GridItem>

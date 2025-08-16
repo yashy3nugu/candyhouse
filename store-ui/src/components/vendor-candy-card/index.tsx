@@ -57,7 +57,7 @@ const VendorCandyCard: React.FC<CandyCardProps> = ({ candy }) => {
             </Box>
             <Box>
               <Text mb={2} mt={4} fontWeight={"medium"}>
-                ₹ {candy.price}
+                # {candy.price}
               </Text>
             </Box>
           </Flex>

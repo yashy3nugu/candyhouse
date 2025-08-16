@@ -63,7 +63,7 @@ const CandyCard: React.FC<CandyCardProps> = ({ candy }) => {
             </Box>
             <Box>
               <Text mb={2} mt={4} fontWeight={"medium"}>
-                ₹ {candy.price}
+                $ {candy.price}
               </Text>
               <HStack w="full" spacing={4} justifyContent="center">
                 {cartCandy ? (
