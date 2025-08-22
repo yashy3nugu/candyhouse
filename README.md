@@ -17,7 +17,7 @@
 
 ### 🚢 Kubernetes Cluster Overview
 
-![Kubernetes Orchestration](./screenshots/Kubernetes-Orchestration.png)
+![Kubernetes Orchestration](./screenshots/kubernetes.png)
 
 *Kubernetes deployment with pod orchestration, ingress routing, and auto-scaling configuration*
 
