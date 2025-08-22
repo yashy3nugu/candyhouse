@@ -170,6 +170,16 @@ kubectl get pods -l app=redis
 - Service-specific data models prevent cross-service dependencies
 - Database connections pooled and configured per service requirements
 
+**📋 Centralized Logging:**
+- ELK Stack (Elasticsearch, Logstash, Kibana) integration for log aggregation
+- Structured JSON logging with Winston across all services
+- Filebeat agents collect and ship logs to Logstash for processing
+- Real-time log analysis and filtering through Kibana interface
+
+| **🔍 Centralized Logging with ELK Stack** |
+|:---:|
+| ![Kibana Logs](./screenshots/kibana.png) |
+
 ### 🛠️ Infrastructure Configuration
 
 **🚢 Container Orchestration:**
